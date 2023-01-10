@@ -8,4 +8,6 @@ public abstract class Entity
 	}
 
     public Guid Id { get; init; }
+
+	public abstract void Validate();
 }
