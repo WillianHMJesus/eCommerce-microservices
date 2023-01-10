@@ -19,6 +19,8 @@ public class Product : Entity, IAggregateRoot
         Quantity = quantity;
         Image = image;
         Active = true;
+
+        Validate();
     }
 
     public string Name { get; init; }
@@ -28,7 +30,7 @@ public class Product : Entity, IAggregateRoot
     public string Image { get; init; }
     public bool Active { get; private set; }
 
-    public void Validate()
+    public override void Validate()
     {
         AssertionConcern.ValidateNullOrEmpty(Name, ErrorMessageNameNullOrEmpty);
         AssertionConcern.ValidateNullOrEmpty(Description, ErrorMessageDescriptionNullOrEmpty);

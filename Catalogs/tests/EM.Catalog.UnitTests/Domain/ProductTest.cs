@@ -15,11 +15,20 @@ public class ProductTest
     }
 
     [Fact]
+    public void Validate_ValidProduct_MustNotReturnDomainException()
+    {
+        Exception domainException = Record.Exception(()
+            => _productFixture.GenerateProductWithInvalidName());
+
+        Assert.NotNull(domainException);
+        Assert.Equal(Product.ErrorMessageNameNullOrEmpty, domainException.Message);
+    }
+
+    [Fact]
     public void Validate_InvalidProductName_MustReturnDomainException()
     {
-        Product product = _productFixture.GenerateProductWithInvalidName();
-
-        DomainException domainException = Assert.Throws<DomainException>(() => product.Validate());
+        DomainException domainException = Assert.Throws<DomainException>(()
+            => _productFixture.GenerateProductWithInvalidName());
 
         Assert.NotNull(domainException);
         Assert.Equal(Product.ErrorMessageNameNullOrEmpty, domainException.Message);
@@ -28,9 +37,8 @@ public class ProductTest
     [Fact]
     public void Validate_InvalidProductDescription_MustReturnDomainException()
     {
-        Product product = _productFixture.GenerateProductWithInvalidDescription();
-
-        DomainException domainException = Assert.Throws<DomainException>(() => product.Validate());
+        DomainException domainException = Assert.Throws<DomainException>(()
+            => _productFixture.GenerateProductWithInvalidDescription());
 
         Assert.NotNull(domainException);
         Assert.Equal(Product.ErrorMessageDescriptionNullOrEmpty, domainException.Message);
@@ -39,9 +47,8 @@ public class ProductTest
     [Fact]
     public void Validate_InvalidProductValue_MustReturnDomainException()
     {
-        Product product = _productFixture.GenerateProductWithInvalidValue();
-
-        DomainException domainException = Assert.Throws<DomainException>(() => product.Validate());
+        DomainException domainException = Assert.Throws<DomainException>(()
+            => _productFixture.GenerateProductWithInvalidValue());
 
         Assert.NotNull(domainException);
         Assert.Equal(Product.ErrorMessageValueLessThanEqualToZero, domainException.Message);
@@ -50,9 +57,8 @@ public class ProductTest
     [Fact]
     public void Validate_InvalidProductQuantity_MustReturnDomainException()
     {
-        Product product = _productFixture.GenerateProductWithInvalidQuantity();
-
-        DomainException domainException = Assert.Throws<DomainException>(() => product.Validate());
+        DomainException domainException = Assert.Throws<DomainException>(()
+            => _productFixture.GenerateProductWithInvalidQuantity());
 
         Assert.NotNull(domainException);
         Assert.Equal(Product.ErrorMessageQuantityLessThanEqualToZero, domainException.Message);
@@ -61,9 +67,8 @@ public class ProductTest
     [Fact]
     public void Validate_InvalidProductImage_MustReturnDomainException()
     {
-        Product product = _productFixture.GenerateProductWithInvalidImage();
-
-        DomainException domainException = Assert.Throws<DomainException>(() => product.Validate());
+        DomainException domainException = Assert.Throws<DomainException>(()
+            => _productFixture.GenerateProductWithInvalidImage());
 
         Assert.NotNull(domainException);
         Assert.Equal(Product.ErrorMessageImageNullOrEmpty, domainException.Message);
