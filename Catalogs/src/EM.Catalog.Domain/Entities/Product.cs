@@ -11,7 +11,7 @@ public class Product : Entity, IAggregateRoot
     public const string ErrorMessageQuantityDebitedLargerThanAvailable = "The quantity debited cannot be larger than available.";
     public const string ErrorMessageQuantityAddedLessThanOrEqualToZero = "The quantity added cannot be less than or equal to zero.";
 
-    public Product(string name, string description, decimal value, int quantity, string image)
+    public Product(string name, string description, decimal value, short quantity, string image)
     {
         Name = name;
         Description = description;
@@ -26,7 +26,7 @@ public class Product : Entity, IAggregateRoot
     public string Name { get; init; }
     public string Description { get; init; }
     public decimal Value { get; init; }
-    public int Quantity { get; private set; }
+    public short Quantity { get; private set; }
     public string Image { get; init; }
     public bool Active { get; private set; }
 
@@ -43,14 +43,14 @@ public class Product : Entity, IAggregateRoot
 
     public void Disable() => Active = false;
 
-    public void DebitQuantity(int quantity)
+    public void DebitQuantity(short quantity)
     {
         AssertionConcern.ValidateLessThanEqualToMinimum(quantity, 0, ErrorMessageQuantityDebitedLessThanOrEqualToZero);
         AssertionConcern.ValidateLessThanMinimum(Quantity, quantity, ErrorMessageQuantityDebitedLargerThanAvailable);
         Quantity -= quantity;
     }
 
-    public void AddQuantity(int quantity)
+    public void AddQuantity(short quantity)
     {
         AssertionConcern.ValidateLessThanEqualToMinimum(quantity, 0, ErrorMessageQuantityAddedLessThanOrEqualToZero);
         Quantity += quantity;

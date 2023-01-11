@@ -1,8 +1,8 @@
 ﻿namespace EM.Catalog.Domain;
 
-internal class AssertionConcern
+public class AssertionConcern
 {
-    internal static void ValidateNullOrEmpty(string value, string message)
+    public static void ValidateNullOrEmpty(string value, string message)
     {
         if (string.IsNullOrEmpty(value))
         {
@@ -10,7 +10,7 @@ internal class AssertionConcern
         }
     }
 
-    internal static void ValidateLessThanEqualToMinimum(int valor, int minimum, string message)
+    public static void ValidateLessThanEqualToMinimum(long valor, long minimum, string message)
     {
         if (valor <= minimum)
         {
@@ -18,7 +18,7 @@ internal class AssertionConcern
         }
     }
 
-    internal static void ValidateLessThanMinimum(int valor, int minimum, string message)
+    public static void ValidateLessThanMinimum(long valor, long minimum, string message)
     {
         if (valor < minimum)
         {
@@ -26,7 +26,7 @@ internal class AssertionConcern
         }
     }
 
-    internal static void ValidateLessThanEqualToMinimum(decimal valor, decimal minimum, string message)
+    public static void ValidateLessThanEqualToMinimum(decimal valor, decimal minimum, string message)
     {
         if (valor <= minimum)
         {

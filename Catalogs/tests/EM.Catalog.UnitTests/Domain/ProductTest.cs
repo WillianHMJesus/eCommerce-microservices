@@ -120,7 +120,7 @@ public class ProductTest
     public void DebitQuantity_ProductQuantityZero_MustReturnDomainException()
     {
         Product product = _productFixture.GenerateProduct();
-        int debitQuantity = product.Quantity + 1;
+        short debitQuantity = (short)(product.Quantity + 1);
 
         DomainException domainException = Assert.Throws<DomainException>(() => product.DebitQuantity(debitQuantity));
 
