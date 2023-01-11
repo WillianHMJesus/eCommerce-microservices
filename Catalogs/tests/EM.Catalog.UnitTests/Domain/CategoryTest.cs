@@ -1,16 +1,24 @@
 ﻿using EM.Catalog.Domain;
 using EM.Catalog.Domain.Entities;
+using EM.Catalog.UnitTests.Fixtures;
 using Xunit;
 
 namespace EM.Catalog.UnitTests.Domain;
 
 public class CategoryTest
 {
+    private readonly CategoryFixture _categoryFixture;
+
+    public CategoryTest()
+    {
+        _categoryFixture = new CategoryFixture();
+    }
+
     [Fact]
     public void Validate_ValidCategory_MustNotReturnDomainException()
     {
         Exception domainException = Record.Exception(() 
-            => new Category(10, "Voucher Virtual", "Voucher virtual são cartões presente para consumir em loja"));
+            => _categoryFixture.GenerateCategory());
 
         Assert.Null(domainException);
     }
@@ -19,7 +27,7 @@ public class CategoryTest
     public void Validate_InvalidCategoryCode_MustReturnDomainException()
     {
         DomainException domainException = Assert.Throws<DomainException>(() 
-            => new Category(0, "Voucher Virtual", "Voucher virtual são cartões presente para consumir em loja"));
+            => _categoryFixture.GenerateCategoryWithInvalidCode());
 
         Assert.NotNull(domainException);
         Assert.Equal(Category.ErrorMessageCodeLessThanEqualToZero, domainException.Message);
@@ -29,7 +37,7 @@ public class CategoryTest
     public void Validate_InvalidCategoryName_MustReturnDomainException()
     {
         DomainException domainException = Assert.Throws<DomainException>(()
-            => new Category(10, "", "Voucher virtual são cartões presente para consumir em loja"));
+            => _categoryFixture.GenerateCategoryWithInvalidName());
 
         Assert.NotNull(domainException);
         Assert.Equal(Category.ErrorMessageNameNullOrEmpty, domainException.Message);
@@ -39,7 +47,7 @@ public class CategoryTest
     public void Validate_InvalidCategoryDescription_MustReturnDomainException()
     {
         DomainException domainException = Assert.Throws<DomainException>(()
-            => new Category(10, "Voucher Virtual", ""));
+            => _categoryFixture.GenerateCategoryWithInvalidDescription());
 
         Assert.NotNull(domainException);
         Assert.Equal(Category.ErrorMessageDescriptionNullOrEmpty, domainException.Message);
