@@ -8,8 +8,8 @@ public sealed class AddProductHandler : IRequestHandler<AddProductCommand, Guid>
 {
     private readonly IProductRepository _productRepository;
 
-    public AddProductHandler(IProductRepository productRepository)
-        => _productRepository = productRepository;
+    //public AddProductHandler(IProductRepository productRepository)
+    //    => _productRepository = productRepository;
 
     public async Task<Guid> Handle(AddProductCommand request, CancellationToken cancellationToken)
     {

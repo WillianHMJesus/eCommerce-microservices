@@ -1,7 +1,7 @@
 ﻿using FluentValidation;
 using MediatR;
 
-namespace EM.Catalog.Application.Products.Commands;
+namespace EM.Catalog.Application;
 
 public sealed class ValidationBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
     where TRequest : IRequest<TResponse>
@@ -18,10 +18,10 @@ public sealed class ValidationBehavior<TRequest, TResponse> : IPipelineBehavior<
             return await next();
         }
 
-        ValidationContext<TRequest> context = new(request);
+        //ValidationContext<TRequest> context = new(request);
 
         Dictionary<string, string[]> errorsDictionary = _validators
-            .Select(x => x.Validate(context))
+            .Select(x => x.Validate(request))
             .SelectMany(x => x.Errors)
             .Where(x => x != null)
             .GroupBy(
