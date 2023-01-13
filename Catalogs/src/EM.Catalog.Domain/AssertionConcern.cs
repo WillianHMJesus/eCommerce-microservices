@@ -33,4 +33,12 @@ public class AssertionConcern
             throw new DomainException(message);
         }
     }
+
+    public static void ValidateNull(object value, string message)
+    {
+        if (value == null)
+        {
+            throw new DomainException(message);
+        }
+    }
 }

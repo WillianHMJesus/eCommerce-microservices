@@ -8,10 +8,12 @@ namespace EM.Catalog.UnitTests.Domain;
 public class ProductTest
 {
     private readonly ProductFixture _productFixture;
+    private readonly CategoryFixture _categoryFixture;
 
     public ProductTest()
     {
         _productFixture = new ProductFixture();
+        _categoryFixture = new CategoryFixture();
     }
 
     [Fact]
@@ -96,33 +98,33 @@ public class ProductTest
     }
 
     [Fact]
-    public void DebitQuantity_ValidQuantity_MustDebitProductQuantity()
+    public void RemoveQuantity_ValidQuantity_MustRemoveProductQuantity()
     {
         Product product = _productFixture.GenerateProduct();
 
-        product.DebitQuantity(product.Quantity);
+        product.RemoveQuantity(product.Quantity);
 
         Assert.Equal(0, product.Quantity);
     }
 
     [Fact]
-    public void DebitQuantity_QuantityDebitedZero_MustReturnDomainException()
+    public void RemoveQuantity_QuantityDebitedZero_MustReturnDomainException()
     {
         Product product = _productFixture.GenerateProduct();
 
-        DomainException domainException = Assert.Throws<DomainException>(() => product.DebitQuantity(0));
+        DomainException domainException = Assert.Throws<DomainException>(() => product.RemoveQuantity(0));
 
         Assert.NotNull(domainException);
         Assert.Equal(Product.ErrorMessageQuantityDebitedLessThanOrEqualToZero, domainException.Message);
     }
 
     [Fact]
-    public void DebitQuantity_ProductQuantityZero_MustReturnDomainException()
+    public void RemoveQuantity_ProductQuantityZero_MustReturnDomainException()
     {
         Product product = _productFixture.GenerateProduct();
         short debitQuantity = (short)(product.Quantity + 1);
 
-        DomainException domainException = Assert.Throws<DomainException>(() => product.DebitQuantity(debitQuantity));
+        DomainException domainException = Assert.Throws<DomainException>(() => product.RemoveQuantity(debitQuantity));
 
         Assert.NotNull(domainException);
         Assert.Equal(Product.ErrorMessageQuantityDebitedLargerThanAvailable, domainException.Message);
@@ -148,5 +150,27 @@ public class ProductTest
 
         Assert.NotNull(domainException);
         Assert.Equal(Product.ErrorMessageQuantityAddedLessThanOrEqualToZero, domainException.Message);
+    }
+
+    [Fact]
+    public void AddCategory_ValidCategory_MustAddProductCategory()
+    {
+        Category category = _categoryFixture.GenerateCategory();
+        Product product = _productFixture.GenerateProduct();
+
+        product.AddCategory(category);
+
+        Assert.NotNull(product.Category);
+    }
+
+    [Fact]
+    public void AddCategory_NullValue_MustReturnDomainException()
+    {
+        Product product = _productFixture.GenerateProduct();
+
+        DomainException domainException = Assert.Throws<DomainException>(() => product.AddCategory(null));
+
+        Assert.NotNull(domainException);
+        Assert.Equal(Product.ErrorMessageCategoryNull, domainException.Message);
     }
 }

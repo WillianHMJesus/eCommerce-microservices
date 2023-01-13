@@ -10,6 +10,7 @@ public class Product : Entity, IAggregateRoot
     public const string ErrorMessageQuantityDebitedLessThanOrEqualToZero = "The quantity debited cannot be less than or equal to zero.";
     public const string ErrorMessageQuantityDebitedLargerThanAvailable = "The quantity debited cannot be larger than available.";
     public const string ErrorMessageQuantityAddedLessThanOrEqualToZero = "The quantity added cannot be less than or equal to zero.";
+    public const string ErrorMessageCategoryNull = "";
 
     public Product(string name, string description, decimal value, short quantity, string image)
     {
@@ -29,6 +30,7 @@ public class Product : Entity, IAggregateRoot
     public short Quantity { get; private set; }
     public string Image { get; init; }
     public bool Active { get; private set; }
+    public Category? Category { get; private set; }
 
     public override void Validate()
     {
@@ -43,7 +45,7 @@ public class Product : Entity, IAggregateRoot
 
     public void Disable() => Active = false;
 
-    public void DebitQuantity(short quantity)
+    public void RemoveQuantity(short quantity)
     {
         AssertionConcern.ValidateLessThanEqualToMinimum(quantity, 0, ErrorMessageQuantityDebitedLessThanOrEqualToZero);
         AssertionConcern.ValidateLessThanMinimum(Quantity, quantity, ErrorMessageQuantityDebitedLargerThanAvailable);
@@ -54,5 +56,11 @@ public class Product : Entity, IAggregateRoot
     {
         AssertionConcern.ValidateLessThanEqualToMinimum(quantity, 0, ErrorMessageQuantityAddedLessThanOrEqualToZero);
         Quantity += quantity;
+    }
+
+    public void AddCategory(Category category)
+    {
+        AssertionConcern.ValidateNull(category, ErrorMessageCategoryNull);
+        Category = category;
     }
 }
