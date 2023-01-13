@@ -1,6 +1,5 @@
 ﻿using EM.Catalog.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace EM.Catalog.Infraestructure.Persistense.Write;
 
