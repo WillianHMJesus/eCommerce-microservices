@@ -17,7 +17,7 @@ namespace EM.Catalog.API.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Post(AddProductRequest addProductRequest)
+        public async Task<IActionResult> PostAsync(AddProductRequest addProductRequest)
         {
             await _mediator.Send((AddProductCommand)addProductRequest);
 

@@ -4,13 +4,11 @@ namespace EM.Catalog.Domain;
 
 public interface IProductRepository : IRepository<Product>
 {
-    Task<Product> Add(Product product);
-    Task<Product> Update(Product product);
-    Task<Product> Delete(Product product);
-    Task<Product> GetById(Guid id);
+    Task<Product> AddAsync(Product product);
+    Task<Product> UpdateAsync(Product product);
+    Task<Product> GetByIdAsync(Guid id);
 
-    Task<Category> AddCategory(Category category);
-    Task<Category> UpdateCategory(Category category);
-    Task<Category> DeleteCategory(Guid id);
-    Task<Category> GetCategoryById(Guid id);
+    Task<Category> AddCategoryAsync(Category category);
+    Task<Category> UpdateCategoryAsync(Category category);
+    Task<Category> GetCategoryByIdAsync(Guid id);
 }

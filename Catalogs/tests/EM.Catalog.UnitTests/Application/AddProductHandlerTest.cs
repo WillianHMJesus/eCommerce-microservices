@@ -16,6 +16,6 @@ public class AddProductHandlerTest
 
         await addProductHandler.Handle(new AddProductCommand("iPhone 14 Pro", "iPhone 14 Pro 128GB Space Black", 999, 1, "Image iPhone 14 Pro"), CancellationToken.None);
 
-        mockProductRepository.Verify(x => x.Add(It.IsAny<Product>()), Times.Once);
+        mockProductRepository.Verify(x => x.AddAsync(It.IsAny<Product>()), Times.Once);
     }
 }
