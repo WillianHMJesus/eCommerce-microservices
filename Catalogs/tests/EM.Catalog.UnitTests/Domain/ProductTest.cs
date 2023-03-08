@@ -23,7 +23,7 @@ public class ProductTest
             => _productFixture.GenerateProductWithInvalidName());
 
         Assert.NotNull(domainException);
-        Assert.Equal(Product.ErrorMessageNameNullOrEmpty, domainException.Message);
+        Assert.Equal(ErrorMessage.ProductNameNullOrEmpty, domainException.Message);
     }
 
     [Fact]
@@ -33,7 +33,7 @@ public class ProductTest
             => _productFixture.GenerateProductWithInvalidName());
 
         Assert.NotNull(domainException);
-        Assert.Equal(Product.ErrorMessageNameNullOrEmpty, domainException.Message);
+        Assert.Equal(ErrorMessage.ProductNameNullOrEmpty, domainException.Message);
     }
 
     [Fact]
@@ -43,7 +43,7 @@ public class ProductTest
             => _productFixture.GenerateProductWithInvalidDescription());
 
         Assert.NotNull(domainException);
-        Assert.Equal(Product.ErrorMessageDescriptionNullOrEmpty, domainException.Message);
+        Assert.Equal(ErrorMessage.ProductDescriptionNullOrEmpty, domainException.Message);
     }
 
     [Fact]
@@ -53,7 +53,7 @@ public class ProductTest
             => _productFixture.GenerateProductWithInvalidValue());
 
         Assert.NotNull(domainException);
-        Assert.Equal(Product.ErrorMessageValueLessThanEqualToZero, domainException.Message);
+        Assert.Equal(ErrorMessage.ProductValueLessThanEqualToZero, domainException.Message);
     }
 
     [Fact]
@@ -63,7 +63,7 @@ public class ProductTest
             => _productFixture.GenerateProductWithInvalidQuantity());
 
         Assert.NotNull(domainException);
-        Assert.Equal(Product.ErrorMessageQuantityLessThanEqualToZero, domainException.Message);
+        Assert.Equal(ErrorMessage.ProductQuantityLessThanEqualToZero, domainException.Message);
     }
 
     [Fact]
@@ -73,7 +73,7 @@ public class ProductTest
             => _productFixture.GenerateProductWithInvalidImage());
 
         Assert.NotNull(domainException);
-        Assert.Equal(Product.ErrorMessageImageNullOrEmpty, domainException.Message);
+        Assert.Equal(ErrorMessage.ProductImageNullOrEmpty, domainException.Message);
     }
 
     [Fact]
@@ -115,7 +115,7 @@ public class ProductTest
         DomainException domainException = Assert.Throws<DomainException>(() => product.RemoveQuantity(0));
 
         Assert.NotNull(domainException);
-        Assert.Equal(Product.ErrorMessageQuantityDebitedLessThanOrEqualToZero, domainException.Message);
+        Assert.Equal(ErrorMessage.ProductQuantityDebitedLessThanOrEqualToZero, domainException.Message);
     }
 
     [Fact]
@@ -127,7 +127,7 @@ public class ProductTest
         DomainException domainException = Assert.Throws<DomainException>(() => product.RemoveQuantity(debitQuantity));
 
         Assert.NotNull(domainException);
-        Assert.Equal(Product.ErrorMessageQuantityDebitedLargerThanAvailable, domainException.Message);
+        Assert.Equal(ErrorMessage.ProductQuantityDebitedLargerThanAvailable, domainException.Message);
     }
 
     [Fact]
@@ -149,7 +149,7 @@ public class ProductTest
         DomainException domainException = Assert.Throws<DomainException>(() => product.AddQuantity(0));
 
         Assert.NotNull(domainException);
-        Assert.Equal(Product.ErrorMessageQuantityAddedLessThanOrEqualToZero, domainException.Message);
+        Assert.Equal(ErrorMessage.ProductQuantityAddedLessThanOrEqualToZero, domainException.Message);
     }
 
     [Fact]
@@ -171,6 +171,6 @@ public class ProductTest
         DomainException domainException = Assert.Throws<DomainException>(() => product.AddCategory(null));
 
         Assert.NotNull(domainException);
-        Assert.Equal(Product.ErrorMessageCategoryNull, domainException.Message);
+        Assert.Equal(ErrorMessage.ProductCategoryNull, domainException.Message);
     }
 }

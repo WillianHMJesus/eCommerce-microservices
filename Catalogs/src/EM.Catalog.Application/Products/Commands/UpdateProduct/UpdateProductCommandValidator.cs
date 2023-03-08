@@ -1,13 +1,17 @@
 ﻿using EM.Catalog.Domain;
 using FluentValidation;
 
-namespace EM.Catalog.Application.Products.Commands.AddProduct;
+namespace EM.Catalog.Application.Products.Commands.UpdateProduct;
 
-public sealed class AddProductCommandValidator : AbstractValidator<AddProductCommand>
+public class UpdateProductCommandValidator : AbstractValidator<UpdateProductCommand>
 {
-    public AddProductCommandValidator()
-	{
-		RuleFor(x => x.Name)
+    public UpdateProductCommandValidator()
+    {
+        RuleFor(x => x.Id)
+            .NotEqual(Guid.Empty)
+            .WithMessage(ErrorMessage.ProductInvalidId);
+
+        RuleFor(x => x.Name)
             .NotEmpty()
             .WithMessage(ErrorMessage.ProductNameNullOrEmpty);
 
@@ -26,9 +30,5 @@ public sealed class AddProductCommandValidator : AbstractValidator<AddProductCom
         RuleFor(x => x.Image)
             .NotEmpty()
             .WithMessage(ErrorMessage.ProductImageNullOrEmpty);
-
-        RuleFor(x => x.CategoryId)
-            .NotEqual(Guid.Empty)
-            .WithMessage(ErrorMessage.ProductInvalidCategoryId);
     }
 }

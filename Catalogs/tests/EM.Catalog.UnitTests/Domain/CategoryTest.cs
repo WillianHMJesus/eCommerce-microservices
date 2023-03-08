@@ -1,5 +1,4 @@
 ﻿using EM.Catalog.Domain;
-using EM.Catalog.Domain.Entities;
 using EM.Catalog.UnitTests.Fixtures;
 using Xunit;
 
@@ -30,7 +29,7 @@ public class CategoryTest
             => _categoryFixture.GenerateCategoryWithInvalidCode());
 
         Assert.NotNull(domainException);
-        Assert.Equal(Category.ErrorMessageCodeLessThanEqualToZero, domainException.Message);
+        Assert.Equal(ErrorMessage.CategoryCodeLessThanEqualToZero, domainException.Message);
     }
 
     [Fact]
@@ -40,7 +39,7 @@ public class CategoryTest
             => _categoryFixture.GenerateCategoryWithInvalidName());
 
         Assert.NotNull(domainException);
-        Assert.Equal(Category.ErrorMessageNameNullOrEmpty, domainException.Message);
+        Assert.Equal(ErrorMessage.CategoryNameNullOrEmpty, domainException.Message);
     }
 
     [Fact]
@@ -50,6 +49,6 @@ public class CategoryTest
             => _categoryFixture.GenerateCategoryWithInvalidDescription());
 
         Assert.NotNull(domainException);
-        Assert.Equal(Category.ErrorMessageDescriptionNullOrEmpty, domainException.Message);
+        Assert.Equal(ErrorMessage.CategoryDescriptionNullOrEmpty, domainException.Message);
     }
 }

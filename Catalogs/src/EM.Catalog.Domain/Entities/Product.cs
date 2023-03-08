@@ -1,17 +1,7 @@
 ﻿namespace EM.Catalog.Domain.Entities;
 
-public class Product : Entity, IAggregateRoot
+public class Product : Entity
 {
-    public const string ErrorMessageNameNullOrEmpty = "The product name cannot be null or empty.";
-    public const string ErrorMessageDescriptionNullOrEmpty = "The product description cannot be null or empty.";
-    public const string ErrorMessageValueLessThanEqualToZero = "The product value cannot be less than or equal to zero.";
-    public const string ErrorMessageQuantityLessThanEqualToZero = "The product quantity cannot be less than or equal to zero.";
-    public const string ErrorMessageImageNullOrEmpty = "The product image cannot be null or empty.";
-    public const string ErrorMessageQuantityDebitedLessThanOrEqualToZero = "The quantity debited cannot be less than or equal to zero.";
-    public const string ErrorMessageQuantityDebitedLargerThanAvailable = "The quantity debited cannot be larger than available.";
-    public const string ErrorMessageQuantityAddedLessThanOrEqualToZero = "The quantity added cannot be less than or equal to zero.";
-    public const string ErrorMessageCategoryNull = "";
-
     public Product(string name, string description, decimal value, short quantity, string image)
     {
         Name = name;
@@ -34,11 +24,11 @@ public class Product : Entity, IAggregateRoot
 
     public override void Validate()
     {
-        AssertionConcern.ValidateNullOrEmpty(Name, ErrorMessageNameNullOrEmpty);
-        AssertionConcern.ValidateNullOrEmpty(Description, ErrorMessageDescriptionNullOrEmpty);
-        AssertionConcern.ValidateLessThanEqualToMinimum(Value, 0, ErrorMessageValueLessThanEqualToZero);
-        AssertionConcern.ValidateLessThanEqualToMinimum(Quantity, 0, ErrorMessageQuantityLessThanEqualToZero);
-        AssertionConcern.ValidateNullOrEmpty(Image, ErrorMessageImageNullOrEmpty);
+        AssertionConcern.ValidateNullOrEmpty(Name, ErrorMessage.ProductNameNullOrEmpty);
+        AssertionConcern.ValidateNullOrEmpty(Description, ErrorMessage.ProductDescriptionNullOrEmpty);
+        AssertionConcern.ValidateLessThanEqualToMinimum(Value, 0, ErrorMessage.ProductValueLessThanEqualToZero);
+        AssertionConcern.ValidateLessThanEqualToMinimum(Quantity, 0, ErrorMessage.ProductQuantityLessThanEqualToZero);
+        AssertionConcern.ValidateNullOrEmpty(Image, ErrorMessage.ProductImageNullOrEmpty);
     }
 
     public void Enable() => Active = true;
@@ -47,20 +37,20 @@ public class Product : Entity, IAggregateRoot
 
     public void RemoveQuantity(short quantity)
     {
-        AssertionConcern.ValidateLessThanEqualToMinimum(quantity, 0, ErrorMessageQuantityDebitedLessThanOrEqualToZero);
-        AssertionConcern.ValidateLessThanMinimum(Quantity, quantity, ErrorMessageQuantityDebitedLargerThanAvailable);
+        AssertionConcern.ValidateLessThanEqualToMinimum(quantity, 0, ErrorMessage.ProductQuantityDebitedLessThanOrEqualToZero);
+        AssertionConcern.ValidateLessThanMinimum(Quantity, quantity, ErrorMessage.ProductQuantityDebitedLargerThanAvailable);
         Quantity -= quantity;
     }
 
     public void AddQuantity(short quantity)
     {
-        AssertionConcern.ValidateLessThanEqualToMinimum(quantity, 0, ErrorMessageQuantityAddedLessThanOrEqualToZero);
+        AssertionConcern.ValidateLessThanEqualToMinimum(quantity, 0, ErrorMessage.ProductQuantityAddedLessThanOrEqualToZero);
         Quantity += quantity;
     }
 
     public void AddCategory(Category category)
     {
-        AssertionConcern.ValidateNull(category, ErrorMessageCategoryNull);
+        AssertionConcern.ValidateNull(category, ErrorMessage.ProductCategoryNull);
         Category = category;
     }
 }

@@ -2,10 +2,6 @@
 
 public class Category : Entity
 {
-    public const string ErrorMessageCodeLessThanEqualToZero = "The category code cannot be less than or equal to zero.";
-    public const string ErrorMessageNameNullOrEmpty = "The category name cannot be null or empty.";
-    public const string ErrorMessageDescriptionNullOrEmpty = "The category description cannot be null or empty.";
-
     public Category(short code, string name, string description)
     {
         Code = code;
@@ -21,8 +17,8 @@ public class Category : Entity
 
     public override void Validate()
     {
-        AssertionConcern.ValidateLessThanEqualToMinimum(Code, 0, ErrorMessageCodeLessThanEqualToZero);
-        AssertionConcern.ValidateNullOrEmpty(Name, ErrorMessageNameNullOrEmpty);
-        AssertionConcern.ValidateNullOrEmpty(Description, ErrorMessageDescriptionNullOrEmpty);
+        AssertionConcern.ValidateLessThanEqualToMinimum(Code, 0, ErrorMessage.CategoryCodeLessThanEqualToZero);
+        AssertionConcern.ValidateNullOrEmpty(Name, ErrorMessage.CategoryNameNullOrEmpty);
+        AssertionConcern.ValidateNullOrEmpty(Description, ErrorMessage.CategoryDescriptionNullOrEmpty);
     }
 }

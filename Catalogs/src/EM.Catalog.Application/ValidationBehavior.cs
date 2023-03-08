@@ -1,15 +1,17 @@
-﻿using FluentValidation;
+﻿using EM.Catalog.Application.Results;
+using FluentValidation;
 using MediatR;
 
 namespace EM.Catalog.Application;
 
 public sealed class ValidationBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
     where TRequest : IRequest<TResponse>
+    where TResponse : Result
 {
     private readonly IEnumerable<IValidator<TRequest>> _validators;
 
     public ValidationBehavior(IEnumerable<IValidator<TRequest>> validators)
-        => _validators = validators;
+     => _validators = validators;
 
     public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
     {
@@ -18,25 +20,21 @@ public sealed class ValidationBehavior<TRequest, TResponse> : IPipelineBehavior<
             return await next();
         }
 
-        //ValidationContext<TRequest> context = new(request);
+        List<Error> responseErrors = _validators
+            .Select(validator => validator.Validate(request))
+            .SelectMany(validationResult => validationResult.Errors)
+            .Where(validateFailure => validateFailure is not null)
+            .Select(failure => new Error
+            {
+                Key = failure.PropertyName,
+                Message = failure.ErrorMessage
+            })
+            .Distinct()
+            .ToList();
 
-        Dictionary<string, string[]> errorsDictionary = _validators
-            .Select(x => x.Validate(request))
-            .SelectMany(x => x.Errors)
-            .Where(x => x != null)
-            .GroupBy(
-                x => x.PropertyName,
-                x => x.ErrorMessage,
-                (propertyName, errorMessages) => new
-                {
-                    Key = propertyName,
-                    Values = errorMessages.Distinct().ToArray()
-                })
-            .ToDictionary(x => x.Key, x => x.Values);
-
-        if (errorsDictionary.Any())
+        if (responseErrors.Any())
         {
-            //throw new ValidationException(errorsDictionary);
+            return (TResponse)Result.CreateResponseWithErrors(responseErrors);
         }
 
         return await next();

@@ -20,6 +20,6 @@ public class CategoryEntityTypeConfiguration : IEntityTypeConfiguration<Category
         builder.Property(x => x.Description)
             .IsRequired()
             .HasColumnType("varchar")
-            .HasMaxLength(200);
+            .HasMaxLength(100);
     }
 }

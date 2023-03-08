@@ -9,6 +9,7 @@ public class AddProductRequest
     public decimal Value { get; set; }
     public short Quantity { get; set; }
     public string Image { get; set; } = ""!;
+    public Guid CategoryId { get; set; }
 
     public static explicit operator AddProductCommand(AddProductRequest addProductRequest)
     {
@@ -17,6 +18,7 @@ public class AddProductRequest
             addProductRequest.Description, 
             addProductRequest.Value, 
             addProductRequest.Quantity, 
-            addProductRequest.Image);
+            addProductRequest.Image,
+            addProductRequest.CategoryId);
     }
 }

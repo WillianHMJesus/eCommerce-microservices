@@ -12,15 +12,24 @@ namespace EM.Catalog.API.Controllers
         private readonly IMediator _mediator;
 
         public ProductController(IMediator mediator)
-        {
-            _mediator = mediator;
-        }
+         => _mediator = mediator;
 
         [HttpPost]
         public async Task<IActionResult> PostAsync(AddProductRequest addProductRequest)
         {
-            await _mediator.Send((AddProductCommand)addProductRequest);
+            var response = await _mediator.Send((AddProductCommand)addProductRequest);
 
+            if (!response.Success)
+            {
+                return BadRequest(response.Errors);
+            }
+
+            return Created(nameof(GetByIdAsync), new { id = response.Data });
+        }
+
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetByIdAsync(Guid id)
+        {
             return NoContent();
         }
     }

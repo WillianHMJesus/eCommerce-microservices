@@ -20,11 +20,17 @@ public class ProductEntityTypeConfiguration : IEntityTypeConfiguration<Product>
         builder.Property(x => x.Description)
             .IsRequired()
             .HasColumnType("varchar")
-            .HasMaxLength(200);
+            .HasMaxLength(100);
 
         builder.Property(x => x.Image)
             .IsRequired()
             .HasColumnType("varchar")
             .HasMaxLength(50);
+
+        builder.Property<Guid>("CategoryId");
+        builder.HasOne(x => x.Category)
+            .WithMany()
+            .HasForeignKey("CategoryId")
+            .IsRequired();
     }
 }
