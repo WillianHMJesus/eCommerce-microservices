@@ -27,7 +27,7 @@ public sealed class AddProductHandler : ICommandHandler<AddProductCommand>
             return Result.CreateResponseWithErrors("CategoryId", ErrorMessage.ProductCategoryNotFound);
 
         Product product = new(request.Name, request.Description, request.Value, request.Quantity, request.Image);
-        product.AddCategory(category);
+        product.AssignCategory(category);
 
         await _productRepository.AddProductAsync(product);
 

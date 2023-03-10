@@ -17,4 +17,3 @@ public class ProductAddedHandler : IEventHandler<ProductAddedEvent>
         await _productRepository.AddProductReadDatabaseAsync(productDTO);
     }
 }
-

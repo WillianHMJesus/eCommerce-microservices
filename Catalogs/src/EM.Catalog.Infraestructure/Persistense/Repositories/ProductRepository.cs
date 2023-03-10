@@ -1,4 +1,5 @@
 ﻿using EM.Catalog.Application.Products.Events.ProductAdded;
+using EM.Catalog.Application.Products.Events.ProductUpdated;
 using EM.Catalog.Domain.DTOs;
 using EM.Catalog.Domain.Entities;
 using EM.Catalog.Domain.Interfaces;
@@ -44,7 +45,11 @@ public class ProductRepository : IProductRepository
     public async Task UpdateProductAsync(Product product)
     {
         _writeContext.Products.Update(product);
-        await _writeContext.SaveChangesAsync();
+
+        if (await _writeContext.SaveChangesAsync() > 0)
+        {
+            await _mediator.Publish((ProductUpdatedEvent)product);
+        }
     }
     #endregion
 

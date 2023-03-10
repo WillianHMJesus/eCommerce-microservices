@@ -30,5 +30,9 @@ public class UpdateProductCommandValidator : AbstractValidator<UpdateProductComm
         RuleFor(x => x.Image)
             .NotEmpty()
             .WithMessage(ErrorMessage.ProductImageNullOrEmpty);
+
+        RuleFor(x => x.CategoryId)
+            .NotEqual(Guid.Empty)
+            .WithMessage(ErrorMessage.ProductInvalidCategoryId);
     }
 }

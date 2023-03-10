@@ -1,5 +1,6 @@
 ﻿using EM.Catalog.API.Models;
 using EM.Catalog.Application.Products.Commands.AddProduct;
+using EM.Catalog.Application.Products.Commands.UpdateProduct;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -25,6 +26,19 @@ namespace EM.Catalog.API.Controllers
             }
 
             return Created(nameof(GetByIdAsync), new { id = response.Data });
+        }
+
+        [HttpPut]
+        public async Task<IActionResult> PutAsync(UpdateProductRequest updateProductRequest)
+        {
+            var response = await _mediator.Send((UpdateProductCommand)updateProductRequest);
+
+            if (!response.Success)
+            {
+                return BadRequest(response.Errors);
+            }
+
+            return NoContent();
         }
 
         [HttpGet("{id}")]

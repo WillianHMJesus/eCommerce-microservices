@@ -14,11 +14,13 @@ public class Product : Entity
         Validate();
     }
 
-    public string Name { get; init; }
-    public string Description { get; init; }
+    private Product() { }
+
+    public string Name { get; init; } = ""!;
+    public string Description { get; init; } = ""!;
     public decimal Value { get; init; }
     public short Quantity { get; private set; }
-    public string Image { get; init; }
+    public string Image { get; init; } = ""!;
     public bool Active { get; private set; }
     public Category? Category { get; private set; }
 
@@ -48,9 +50,29 @@ public class Product : Entity
         Quantity += quantity;
     }
 
-    public void AddCategory(Category category)
+    public void AssignCategory(Category category)
     {
         AssertionConcern.ValidateNull(category, ErrorMessage.ProductCategoryNull);
         Category = category;
+    }
+
+    public static class ProductFactory
+    {
+        public static Product NewProduct(Guid id, string name, string description, decimal value, short quantity, string image)
+        {
+            Product product = new Product
+            {
+                Id = id,
+                Name = name,
+                Description = description,
+                Value = value,
+                Quantity = quantity,
+                Image = image
+            };
+
+            product.Validate();
+
+            return product;
+        }
     }
 }

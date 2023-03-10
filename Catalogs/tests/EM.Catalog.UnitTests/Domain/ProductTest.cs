@@ -158,7 +158,7 @@ public class ProductTest
         Category category = _categoryFixture.GenerateCategory();
         Product product = _productFixture.GenerateProduct();
 
-        product.AddCategory(category);
+        product.AssignCategory(category);
 
         Assert.NotNull(product.Category);
     }
@@ -168,7 +168,7 @@ public class ProductTest
     {
         Product product = _productFixture.GenerateProduct();
 
-        DomainException domainException = Assert.Throws<DomainException>(() => product.AddCategory(null));
+        DomainException domainException = Assert.Throws<DomainException>(() => product.AssignCategory(null));
 
         Assert.NotNull(domainException);
         Assert.Equal(ErrorMessage.ProductCategoryNull, domainException.Message);
