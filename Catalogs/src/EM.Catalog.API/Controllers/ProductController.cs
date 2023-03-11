@@ -1,6 +1,8 @@
 ﻿using EM.Catalog.API.Models;
 using EM.Catalog.Application.Products.Commands.AddProduct;
 using EM.Catalog.Application.Products.Commands.UpdateProduct;
+using EM.Catalog.Application.Products.Queries.GetProductById;
+using EM.Catalog.Domain.DTOs;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -44,7 +46,9 @@ namespace EM.Catalog.API.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetByIdAsync(Guid id)
         {
-            return NoContent();
+            ProductDTO? product = await _mediator.Send(new GetProductByIdQuery { Id = id });
+
+            return Ok(product);
         }
     }
 }
