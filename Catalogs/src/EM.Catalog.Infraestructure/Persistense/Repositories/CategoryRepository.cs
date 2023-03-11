@@ -40,7 +40,7 @@ public class CategoryRepository : ICategoryRepository
     #endregion
 
     #region ReadDatabase
-    public async Task AddCategoryReadDatabaseAsync(CategoryDTO category)
+    public async Task AddCategoryAsync(CategoryDTO category)
     {
         await _readContext.Categories.InsertOneAsync(category);
     }
@@ -50,7 +50,7 @@ public class CategoryRepository : ICategoryRepository
         return await _readContext.Categories.Find(_ => true).ToListAsync();
     }
 
-    public async Task UpdateCategoryReadDatabaseAsync(CategoryDTO category)
+    public async Task UpdateCategoryAsync(CategoryDTO category)
     {
         await _readContext.Categories.ReplaceOneAsync(x => x.Id == category.Id, category);
     }

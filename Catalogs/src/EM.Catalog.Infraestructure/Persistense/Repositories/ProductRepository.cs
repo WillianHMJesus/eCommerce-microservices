@@ -54,7 +54,7 @@ public class ProductRepository : IProductRepository
     #endregion
 
     #region ReadDatabase
-    public async Task AddProductReadDatabaseAsync(ProductDTO product)
+    public async Task AddProductAsync(ProductDTO product)
     {
         await _readContext.Products.InsertOneAsync(product);
     }
@@ -69,7 +69,7 @@ public class ProductRepository : IProductRepository
         return await _readContext.Products.Find(x => x.Category.Id == categoryId).ToListAsync();
     }
 
-    public async Task UpdateProductReadDatabaseAsync(ProductDTO product)
+    public async Task UpdateProductAsync(ProductDTO product)
     {
         await _readContext.Products.ReplaceOneAsync(x => x.Id == product.Id, product);
     }

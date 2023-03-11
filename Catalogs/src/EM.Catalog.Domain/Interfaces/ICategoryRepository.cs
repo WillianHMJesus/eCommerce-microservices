@@ -12,8 +12,8 @@ public interface ICategoryRepository
     #endregion
 
     #region ReadDatabase
-    Task AddCategoryReadDatabaseAsync(CategoryDTO category);
+    Task AddCategoryAsync(CategoryDTO category);
     Task<IEnumerable<CategoryDTO>> GetAllCategoriesAsync();
-    Task UpdateCategoryReadDatabaseAsync(CategoryDTO category);
+    Task UpdateCategoryAsync(CategoryDTO category);
     #endregion
 }
