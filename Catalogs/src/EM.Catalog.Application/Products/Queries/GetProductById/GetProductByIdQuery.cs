@@ -3,7 +3,5 @@ using EM.Catalog.Domain.DTOs;
 
 namespace EM.Catalog.Application.Products.Queries.GetProductById;
 
-public class GetProductByIdQuery : IQuery<ProductDTO?>
-{
-    public Guid Id { get; set; }
-}
+public sealed record GetProductByIdQuery(Guid Id) : IQuery<ProductDTO?>
+{ }

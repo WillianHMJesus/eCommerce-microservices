@@ -9,10 +9,12 @@ public sealed class AddProductCommandValidator : AbstractValidator<AddProductCom
 	{
 		RuleFor(x => x.Name)
             .NotEmpty()
+            .NotNull()
             .WithMessage(ErrorMessage.ProductNameNullOrEmpty);
 
         RuleFor(x => x.Description)
             .NotEmpty()
+            .NotNull()
             .WithMessage(ErrorMessage.ProductDescriptionNullOrEmpty);
 
         RuleFor(x => x.Value)
@@ -25,6 +27,7 @@ public sealed class AddProductCommandValidator : AbstractValidator<AddProductCom
 
         RuleFor(x => x.Image)
             .NotEmpty()
+            .NotNull()
             .WithMessage(ErrorMessage.ProductImageNullOrEmpty);
 
         RuleFor(x => x.CategoryId)

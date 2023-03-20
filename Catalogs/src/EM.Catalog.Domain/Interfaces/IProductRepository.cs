@@ -13,7 +13,7 @@ public interface IProductRepository
 
     #region ReadDatabase
     Task AddProductAsync(ProductDTO product);
-    Task<IEnumerable<ProductDTO>> GetAllProductsAsync();
+    Task<IEnumerable<ProductDTO>> GetAllProductsAsync(short page = 1, short pageSize = 10);
     Task<IEnumerable<ProductDTO>> GetProductsByCategoryIdAsync(Guid categoryId);
     Task UpdateProductAsync(ProductDTO product);
     #endregion

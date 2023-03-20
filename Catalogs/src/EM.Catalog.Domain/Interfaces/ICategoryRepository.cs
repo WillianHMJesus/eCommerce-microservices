@@ -13,7 +13,7 @@ public interface ICategoryRepository
 
     #region ReadDatabase
     Task AddCategoryAsync(CategoryDTO category);
-    Task<IEnumerable<CategoryDTO>> GetAllCategoriesAsync();
+    Task<IEnumerable<CategoryDTO>> GetAllCategoriesAsync(short page = 1, short pageSize = 10);
     Task UpdateCategoryAsync(CategoryDTO category);
     #endregion
 }

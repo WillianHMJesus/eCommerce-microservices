@@ -19,14 +19,14 @@ public sealed class AddProductHandler : ICommandHandler<AddProductCommand>
         _categoryRepository = categoryRepository;
     }
 
-    public async Task<Result> Handle(AddProductCommand request, CancellationToken cancellationToken)
+    public async Task<Result> Handle(AddProductCommand command, CancellationToken cancellationToken)
     {
-        Category? category = await _categoryRepository.GetCategoryByIdAsync(request.CategoryId);
+        Category? category = await _categoryRepository.GetCategoryByIdAsync(command.CategoryId);
 
         if (category == null)
             return Result.CreateResponseWithErrors("CategoryId", ErrorMessage.ProductCategoryNotFound);
 
-        Product product = new(request.Name, request.Description, request.Value, request.Quantity, request.Image);
+        Product product = new(command.Name, command.Description, command.Value, command.Quantity, command.Image);
         product.AssignCategory(category);
 
         await _productRepository.AddProductAsync(product);

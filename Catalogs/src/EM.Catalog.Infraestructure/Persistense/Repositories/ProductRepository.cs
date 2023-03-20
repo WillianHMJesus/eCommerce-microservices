@@ -59,9 +59,12 @@ public class ProductRepository : IProductRepository
         await _readContext.Products.InsertOneAsync(product);
     }
 
-    public async Task<IEnumerable<ProductDTO>> GetAllProductsAsync()
+    public async Task<IEnumerable<ProductDTO>> GetAllProductsAsync(short page = 1, short pageSize = 10)
     {
-        return await _readContext.Products.Find(_ => true).ToListAsync();
+        return await _readContext.Products.Find(_ => true)
+            .Skip((page - 1) * pageSize)
+            .Limit(pageSize)
+            .ToListAsync();
     }
 
     public async Task<IEnumerable<ProductDTO>> GetProductsByCategoryIdAsync(Guid categoryId)

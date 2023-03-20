@@ -21,5 +21,6 @@ public class ErrorMessage
     public const string CategoryCodeLessThanEqualToZero = "The category code cannot be less than or equal to zero.";
     public const string CategoryNameNullOrEmpty = "The category name cannot be null or empty.";
     public const string CategoryDescriptionNullOrEmpty = "The category description cannot be null or empty.";
+    public const string CategoryInvalidId = "The category id cannot be invalid";
     #endregion
 }

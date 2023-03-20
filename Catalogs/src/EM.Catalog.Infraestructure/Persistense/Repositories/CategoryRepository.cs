@@ -1,8 +1,11 @@
-﻿using EM.Catalog.Domain.DTOs;
+﻿using EM.Catalog.Application.Categories.Events.CategoryAdded;
+using EM.Catalog.Application.Categories.Events.CategoryUpdated;
+using EM.Catalog.Domain.DTOs;
 using EM.Catalog.Domain.Entities;
 using EM.Catalog.Domain.Interfaces;
 using EM.Catalog.Infraestructure.Persistense.Read;
 using EM.Catalog.Infraestructure.Persistense.Write;
+using MediatR;
 using MongoDB.Driver;
 
 namespace EM.Catalog.Infraestructure.Persistense.Repositories;
@@ -11,20 +14,27 @@ public class CategoryRepository : ICategoryRepository
 {
     private readonly WriteContext _writeContext;
     private readonly ReadContext _readContext;
+    private readonly IMediator _mediator;
 
     public CategoryRepository(
         WriteContext writeContext,
-        ReadContext readContext)
+        ReadContext readContext,
+        IMediator mediator)
     {
         _writeContext = writeContext;
         _readContext = readContext;
+        _mediator = mediator;
     }
 
     #region WriteDatabase
     public async Task AddCategoryAsync(Category category)
     {
         await _writeContext.Categories.AddAsync(category);
-        await _writeContext.SaveChangesAsync();
+
+        if (await _writeContext.SaveChangesAsync() > 0)
+        {
+            await _mediator.Publish((CategoryAddedEvent)category);
+        }
     }
 
     public async Task<Category?> GetCategoryByIdAsync(Guid id)
@@ -35,7 +45,11 @@ public class CategoryRepository : ICategoryRepository
     public async Task UpdateCategoryAsync(Category category)
     {
         _writeContext.Categories.Update(category);
-        await _writeContext.SaveChangesAsync();
+
+        if (await _writeContext.SaveChangesAsync() > 0)
+        {
+            await _mediator.Publish((CategoryUpdatedEvent)category);
+        }
     }
     #endregion
 
@@ -45,9 +59,12 @@ public class CategoryRepository : ICategoryRepository
         await _readContext.Categories.InsertOneAsync(category);
     }
 
-    public async Task<IEnumerable<CategoryDTO>> GetAllCategoriesAsync()
+    public async Task<IEnumerable<CategoryDTO>> GetAllCategoriesAsync(short page = 1, short pageSize = 10)
     {
-        return await _readContext.Categories.Find(_ => true).ToListAsync();
+        return await _readContext.Categories.Find(_ => true)
+            .Skip((page - 1) * pageSize)
+            .Limit(pageSize)
+            .ToListAsync();
     }
 
     public async Task UpdateCategoryAsync(CategoryDTO category)
