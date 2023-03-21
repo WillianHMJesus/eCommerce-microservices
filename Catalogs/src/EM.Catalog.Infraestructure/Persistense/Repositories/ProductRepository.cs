@@ -30,11 +30,6 @@ public class ProductRepository : IProductRepository
     public async Task AddProductAsync(Product product)
     {
         await _writeContext.Products.AddAsync(product);
-
-        if (await _writeContext.SaveChangesAsync() > 0)
-        {
-            await _mediator.Publish((ProductAddedEvent)product);
-        }
     }
 
     public async Task<Product?> GetProductByIdAsync(Guid id)
@@ -46,10 +41,7 @@ public class ProductRepository : IProductRepository
     {
         _writeContext.Products.Update(product);
 
-        if (await _writeContext.SaveChangesAsync() > 0)
-        {
-            await _mediator.Publish((ProductUpdatedEvent)product);
-        }
+        await Task.CompletedTask;
     }
     #endregion
 
