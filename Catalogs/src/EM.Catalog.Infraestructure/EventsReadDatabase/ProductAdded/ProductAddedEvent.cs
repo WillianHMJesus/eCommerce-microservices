@@ -1,8 +1,8 @@
-﻿using EM.Catalog.Application.Interfaces;
-using EM.Catalog.Domain.DTOs;
+﻿using EM.Catalog.Domain.DTOs;
 using EM.Catalog.Domain.Entities;
+using EM.Catalog.Infraestructure.Interfaces;
 
-namespace EM.Catalog.Application.Products.Events.ProductAdded;
+namespace EM.Catalog.Infraestructure.EventsReadDatabase.ProductAdded;
 
 public sealed record ProductAddedEvent(Guid Id, string Name, string Description, decimal Value, short Quantity, string Image, Category Category)
     : IEvent

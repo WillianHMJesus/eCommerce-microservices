@@ -1,8 +1,8 @@
-﻿using EM.Catalog.Application.Interfaces;
-using EM.Catalog.Domain.DTOs;
+﻿using EM.Catalog.Domain.DTOs;
 using EM.Catalog.Domain.Entities;
+using EM.Catalog.Infraestructure.Interfaces;
 
-namespace EM.Catalog.Application.Products.Events.ProductUpdated;
+namespace EM.Catalog.Infraestructure.EventsReadDatabase.ProductUpdated;
 
 public sealed record ProductUpdatedEvent(Guid Id, string Name, string Description, decimal Value, short Quantity, string Image, Category Category)
     : IEvent

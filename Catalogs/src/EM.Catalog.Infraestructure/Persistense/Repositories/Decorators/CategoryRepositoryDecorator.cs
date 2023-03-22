@@ -1,9 +1,9 @@
-﻿using EM.Catalog.Application.Categories.Events.CategoryAdded;
-using EM.Catalog.Application.Categories.Events.CategoryUpdated;
-using EM.Catalog.Application.Interfaces;
+﻿using EM.Catalog.Application.Interfaces;
 using EM.Catalog.Domain.DTOs;
 using EM.Catalog.Domain.Entities;
 using EM.Catalog.Domain.Interfaces;
+using EM.Catalog.Infraestructure.EventsReadDatabase.CategoryAdded;
+using EM.Catalog.Infraestructure.EventsReadDatabase.CategoryUpdated;
 using MediatR;
 
 namespace EM.Catalog.Infraestructure.Persistense.Decorators;
@@ -34,11 +34,6 @@ public class CategoryRepositoryDecorator : ICategoryRepository
         }
     }
 
-    public async Task AddCategoryAsync(CategoryDTO category)
-    {
-        await _categoryRepository.AddCategoryAsync(category);
-    }
-
     public async Task<IEnumerable<CategoryDTO>> GetAllCategoriesAsync(short page = 1, short pageSize = 10)
     {
         return await _categoryRepository.GetAllCategoriesAsync(page, pageSize);
@@ -57,10 +52,5 @@ public class CategoryRepositoryDecorator : ICategoryRepository
         {
             await _mediator.Publish((CategoryUpdatedEvent)category);
         }
-    }
-
-    public async Task UpdateCategoryAsync(CategoryDTO category)
-    {
-        await _categoryRepository.UpdateCategoryAsync(category);
     }
 }

@@ -1,9 +1,9 @@
 ﻿using EM.Catalog.Application.Interfaces;
-using EM.Catalog.Application.Products.Events.ProductAdded;
-using EM.Catalog.Application.Products.Events.ProductUpdated;
 using EM.Catalog.Domain.DTOs;
 using EM.Catalog.Domain.Entities;
 using EM.Catalog.Domain.Interfaces;
+using EM.Catalog.Infraestructure.EventsReadDatabase.ProductAdded;
+using EM.Catalog.Infraestructure.EventsReadDatabase.ProductUpdated;
 using MediatR;
 
 namespace EM.Catalog.Infraestructure.Persistense.Decorators;
@@ -34,11 +34,6 @@ public class ProductRepositoryDecorator : IProductRepository
         }
     }
 
-    public async Task AddProductAsync(ProductDTO product)
-    {
-        await _productRepository.AddProductAsync(product);
-    }
-
     public async Task<IEnumerable<ProductDTO>> GetAllProductsAsync(short page = 1, short pageSize = 10)
     {
         return await _productRepository.GetAllProductsAsync(page, pageSize);
@@ -62,10 +57,5 @@ public class ProductRepositoryDecorator : IProductRepository
         {
             await _mediator.Publish((ProductUpdatedEvent)product);
         }
-    }
-
-    public async Task UpdateProductAsync(ProductDTO product)
-    {
-        await _productRepository.UpdateProductAsync(product);
     }
 }

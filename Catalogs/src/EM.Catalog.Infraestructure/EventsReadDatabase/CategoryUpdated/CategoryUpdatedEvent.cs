@@ -1,8 +1,8 @@
-﻿using EM.Catalog.Application.Interfaces;
-using EM.Catalog.Domain.DTOs;
+﻿using EM.Catalog.Domain.DTOs;
 using EM.Catalog.Domain.Entities;
+using EM.Catalog.Infraestructure.Interfaces;
 
-namespace EM.Catalog.Application.Categories.Events.CategoryUpdated;
+namespace EM.Catalog.Infraestructure.EventsReadDatabase.CategoryUpdated;
 
 public sealed record CategoryUpdatedEvent(Guid Id, short Code, string Name, string Description) : IEvent
 {

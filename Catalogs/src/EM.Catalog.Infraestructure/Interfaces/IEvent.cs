@@ -1,6 +1,6 @@
 ﻿using MediatR;
 
-namespace EM.Catalog.Application.Interfaces;
+namespace EM.Catalog.Infraestructure.Interfaces;
 
 public interface IEvent : INotification
 { }
