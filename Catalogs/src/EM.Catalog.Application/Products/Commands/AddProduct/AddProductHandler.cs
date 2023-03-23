@@ -9,19 +9,13 @@ namespace EM.Catalog.Application.Products.Commands.AddProduct;
 public sealed class AddProductHandler : ICommandHandler<AddProductCommand>
 {
     private readonly IProductRepository _productRepository;
-    private readonly ICategoryRepository _categoryRepository;
 
-    public AddProductHandler(
-        IProductRepository productRepository,
-        ICategoryRepository categoryRepository)
-    {
-        _productRepository = productRepository;
-        _categoryRepository = categoryRepository;
-    }
+    public AddProductHandler(IProductRepository productRepository)
+        => _productRepository = productRepository;
 
     public async Task<Result> Handle(AddProductCommand command, CancellationToken cancellationToken)
     {
-        Category? category = await _categoryRepository.GetCategoryByIdAsync(command.CategoryId);
+        Category? category = await _productRepository.GetCategoryByIdAsync(command.CategoryId);
 
         if (category == null)
             return Result.CreateResponseWithErrors("CategoryId", ErrorMessage.ProductCategoryNotFound);

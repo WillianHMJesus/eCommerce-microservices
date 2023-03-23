@@ -1,4 +1,4 @@
-﻿using EM.Catalog.Domain.DTOs;
+﻿using EM.Catalog.Application.DTOs;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 

@@ -5,7 +5,7 @@ using EM.Catalog.Application.Products.Queries.GetAllProducts;
 using EM.Catalog.Application.Products.Queries.GetProductById;
 using EM.Catalog.Application.Products.Queries.GetProductsByCategoryId;
 using EM.Catalog.Application.Results;
-using EM.Catalog.Domain.DTOs;
+using EM.Catalog.Application.DTOs;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 

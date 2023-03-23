@@ -20,11 +20,9 @@ public class UpdateProductHandlerTest
     public async Task Handle_ValidRequest_MustReturnWithSuccess()
     {
         Mock<IProductRepository> mockProductRepository = new();
-        Mock<ICategoryRepository> mockCategoryRepository = new();
         Category? category = _categoryFixture.GenerateCategory();
 
-        mockCategoryRepository.Setup(x => x.GetCategoryByIdAsync(It.IsAny<Guid>())).Returns(Task.FromResult<Category?>(category));
-        UpdateProductHandler addProductHandler = new(mockProductRepository.Object, mockCategoryRepository.Object);
+        UpdateProductHandler addProductHandler = new(mockProductRepository.Object);
 
         Result result = await addProductHandler.Handle(new UpdateProductCommand(Guid.NewGuid(), "iPhone 14 Pro", "iPhone 14 Pro 128GB Space Black", 999, 1, "Image iPhone 14 Pro", category.Id), CancellationToken.None);
 
@@ -35,10 +33,8 @@ public class UpdateProductHandlerTest
     public async Task Handle_InvalidRequest_MustReturnWithFailed()
     {
         Mock<IProductRepository> mockProductRepository = new();
-        Mock<ICategoryRepository> mockCategoryRepository = new();
 
-        mockCategoryRepository.Setup(x => x.GetCategoryByIdAsync(It.IsAny<Guid>())).Returns(Task.FromResult<Category?>(null));
-        UpdateProductHandler addProductHandler = new(mockProductRepository.Object, mockCategoryRepository.Object);
+        UpdateProductHandler addProductHandler = new(mockProductRepository.Object);
 
         Result result = await addProductHandler.Handle(new UpdateProductCommand(Guid.NewGuid(), "iPhone 14 Pro", "iPhone 14 Pro 128GB Space Black", 999, 1, "Image iPhone 14 Pro", Guid.NewGuid()), CancellationToken.None);
 

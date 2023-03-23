@@ -10,19 +10,13 @@ namespace EM.Catalog.Application.Products.Commands.UpdateProduct;
 public class UpdateProductHandler : ICommandHandler<UpdateProductCommand>
 {
     private readonly IProductRepository _productRepository;
-    private readonly ICategoryRepository _categoryRepository;
 
-    public UpdateProductHandler(
-        IProductRepository productRepository,
-        ICategoryRepository categoryRepository)
-    {
-        _productRepository = productRepository;
-        _categoryRepository = categoryRepository;
-    }
+    public UpdateProductHandler(IProductRepository productRepository)
+        => _productRepository = productRepository;
 
     public async Task<Result> Handle(UpdateProductCommand command, CancellationToken cancellationToken)
     {
-        Category? category = await _categoryRepository.GetCategoryByIdAsync(command.CategoryId);
+        Category? category = await _productRepository.GetCategoryByIdAsync(command.CategoryId);
 
         if (category == null)
             return Result.CreateResponseWithErrors("CategoryId", ErrorMessage.ProductCategoryNotFound);

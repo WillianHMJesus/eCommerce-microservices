@@ -4,7 +4,7 @@ using EM.Catalog.Application.Categories.Commands.UpdateCategory;
 using EM.Catalog.Application.Categories.Queries.GetAllCategories;
 using EM.Catalog.Application.Categories.Queries.GetCategoryById;
 using EM.Catalog.Application.Results;
-using EM.Catalog.Domain.DTOs;
+using EM.Catalog.Application.DTOs;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 

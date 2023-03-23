@@ -1,6 +1,5 @@
-﻿using EM.Catalog.Domain.DTOs;
+﻿using EM.Catalog.Application.DTOs;
 using EM.Catalog.Domain.Entities;
-using EM.Catalog.Infraestructure.Interfaces;
 
 namespace EM.Catalog.Infraestructure.EventsReadDatabase.ProductAdded;
 

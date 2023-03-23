@@ -1,5 +1,4 @@
-﻿using EM.Catalog.Domain.DTOs;
-using EM.Catalog.Infraestructure.Interfaces;
+﻿using EM.Catalog.Application.DTOs;
 using EM.Catalog.Infraestructure.Persistense.Read;
 
 namespace EM.Catalog.Infraestructure.EventsReadDatabase.CategoryAdded;

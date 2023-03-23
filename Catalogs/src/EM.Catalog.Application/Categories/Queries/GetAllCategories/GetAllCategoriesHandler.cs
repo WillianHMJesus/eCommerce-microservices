@@ -1,18 +1,17 @@
 ﻿using EM.Catalog.Application.Interfaces;
-using EM.Catalog.Domain.DTOs;
-using EM.Catalog.Domain.Interfaces;
+using EM.Catalog.Application.DTOs;
 
 namespace EM.Catalog.Application.Categories.Queries.GetAllCategories;
 
 public sealed class GetAllCategoriesHandler : IQueryHandler<GetAllCategoriesQuery, IEnumerable<CategoryDTO>>
 {
-    private readonly ICategoryRepository _categoryRepository;
+    private readonly IQueryGetAllCategories _queryGetAllCategories;
 
-    public GetAllCategoriesHandler(ICategoryRepository categoryRepository)
-        => _categoryRepository = categoryRepository;
+    public GetAllCategoriesHandler(IQueryGetAllCategories queryGetAllCategories)
+        => _queryGetAllCategories = queryGetAllCategories;
 
     public async Task<IEnumerable<CategoryDTO>> Handle(GetAllCategoriesQuery query, CancellationToken cancellationToken)
     {
-        return await _categoryRepository.GetAllCategoriesAsync(query.Page, query.PageSize);
+        return await _queryGetAllCategories.GetAsync(query.Page, query.PageSize);
     }
 }

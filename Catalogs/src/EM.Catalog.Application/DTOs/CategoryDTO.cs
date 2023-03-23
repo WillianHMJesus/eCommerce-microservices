@@ -1,6 +1,6 @@
 ﻿using EM.Catalog.Domain.Entities;
 
-namespace EM.Catalog.Domain.DTOs;
+namespace EM.Catalog.Application.DTOs;
 
 public sealed record CategoryDTO(Guid Id, short Code, string Name, string Description)
 {

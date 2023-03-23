@@ -7,15 +7,15 @@ namespace EM.Catalog.Application.Categories.Commands.AddCategory;
 
 public class AddCategoryHandler : ICommandHandler<AddCategoryCommand>
 {
-    private readonly ICategoryRepository _categoryRepository;
+    private readonly IProductRepository _productRepository;
 
-    public AddCategoryHandler(ICategoryRepository categoryRepository)
-        => _categoryRepository = categoryRepository;
+    public AddCategoryHandler(IProductRepository productRepository)
+        => _productRepository = productRepository;
 
     public async Task<Result> Handle(AddCategoryCommand command, CancellationToken cancellationToken)
     {
         Category category = new(command.Code, command.Name, command.Description);
-        await _categoryRepository.AddCategoryAsync(category);
+        await _productRepository.AddCategoryAsync(category);
 
         return Result.CreateResponseWithData(category.Id);
     }

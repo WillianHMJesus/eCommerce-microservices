@@ -1,12 +1,13 @@
 ﻿using EM.Catalog.Application.Interfaces;
-using EM.Catalog.Domain.DTOs;
 using EM.Catalog.Domain.Entities;
 using EM.Catalog.Domain.Interfaces;
+using EM.Catalog.Infraestructure.EventsReadDatabase.CategoryAdded;
+using EM.Catalog.Infraestructure.EventsReadDatabase.CategoryUpdated;
 using EM.Catalog.Infraestructure.EventsReadDatabase.ProductAdded;
 using EM.Catalog.Infraestructure.EventsReadDatabase.ProductUpdated;
 using MediatR;
 
-namespace EM.Catalog.Infraestructure.Persistense.Decorators;
+namespace EM.Catalog.Infraestructure.Persistense.Repositories;
 
 public class ProductRepositoryDecorator : IProductRepository
 {
@@ -24,6 +25,7 @@ public class ProductRepositoryDecorator : IProductRepository
         _mediator = mediator;
     }
 
+
     public async Task AddProductAsync(Product product)
     {
         await _productRepository.AddProductAsync(product);
@@ -34,21 +36,6 @@ public class ProductRepositoryDecorator : IProductRepository
         }
     }
 
-    public async Task<IEnumerable<ProductDTO>> GetAllProductsAsync(short page = 1, short pageSize = 10)
-    {
-        return await _productRepository.GetAllProductsAsync(page, pageSize);
-    }
-
-    public async Task<Product?> GetProductByIdAsync(Guid id)
-    {
-        return await _productRepository.GetProductByIdAsync(id);
-    }
-
-    public async Task<IEnumerable<ProductDTO>> GetProductsByCategoryIdAsync(Guid categoryId)
-    {
-        return await _productRepository.GetProductsByCategoryIdAsync(categoryId);
-    }
-
     public async Task UpdateProductAsync(Product product)
     {
         await _productRepository.UpdateProductAsync(product);
@@ -56,6 +43,32 @@ public class ProductRepositoryDecorator : IProductRepository
         if (await _unitOfWork.CommitAsync())
         {
             await _mediator.Publish((ProductUpdatedEvent)product);
+        }
+    }
+
+
+    public async Task AddCategoryAsync(Category category)
+    {
+        await _productRepository.AddCategoryAsync(category);
+
+        if (await _unitOfWork.CommitAsync())
+        {
+            await _mediator.Publish((CategoryAddedEvent)category);
+        }
+    }
+
+    public async Task<Category?> GetCategoryByIdAsync(Guid id)
+    {
+        return await _productRepository.GetCategoryByIdAsync(id);
+    }
+
+    public async Task UpdateCategoryAsync(Category category)
+    {
+        await _productRepository.UpdateCategoryAsync(category);
+
+        if (await _unitOfWork.CommitAsync())
+        {
+            await _mediator.Publish((CategoryUpdatedEvent)category);
         }
     }
 }

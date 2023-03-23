@@ -1,6 +1,6 @@
 ﻿using EM.Catalog.Domain.Entities;
 
-namespace EM.Catalog.Domain.DTOs;
+namespace EM.Catalog.Application.DTOs;
 
 public sealed record ProductDTO(Guid Id, string Name, string Description, decimal Value, short Quantity, string Image)
 {

@@ -1,24 +1,17 @@
 ﻿using EM.Catalog.Application.Interfaces;
-using EM.Catalog.Domain.DTOs;
-using EM.Catalog.Domain.Entities;
-using EM.Catalog.Domain.Interfaces;
+using EM.Catalog.Application.DTOs;
 
 namespace EM.Catalog.Application.Categories.Queries.GetCategoryById;
 
 public sealed class GetCategoryByIdHandler : IQueryHandler<GetCategoryByIdQuery, CategoryDTO?>
 {
-    private readonly ICategoryRepository _categoryRepository;
+    private readonly IQueryGetCategoryById _queryGetCategoryById;
 
-    public GetCategoryByIdHandler(ICategoryRepository categoryRepository)
-        => _categoryRepository = categoryRepository;
+    public GetCategoryByIdHandler(IQueryGetCategoryById queryGetCategoryById)
+        => _queryGetCategoryById = queryGetCategoryById;
 
     public async Task<CategoryDTO?> Handle(GetCategoryByIdQuery query, CancellationToken cancellationToken)
     {
-        Category? category = await _categoryRepository.GetCategoryByIdAsync(query.Id);
-
-        if (category == null)
-            return null;
-
-        return (CategoryDTO)category;
+        return await _queryGetCategoryById.GetAsync(query.Id);
     }
 }
