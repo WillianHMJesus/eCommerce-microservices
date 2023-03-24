@@ -20,10 +20,9 @@ public class ProductTest
     public void Validate_ValidProduct_MustNotReturnDomainException()
     {
         Exception domainException = Record.Exception(()
-            => _productFixture.GenerateProductWithInvalidName());
+            => _productFixture.GenerateProduct());
 
-        Assert.NotNull(domainException);
-        Assert.Equal(ErrorMessage.ProductNameNullOrEmpty, domainException.Message);
+        Assert.Null(domainException);
     }
 
     [Fact]

@@ -41,4 +41,12 @@ public class AssertionConcern
             throw new DomainException(message);
         }
     }
+
+    public static void ValidateDefault(Guid value, string message)
+    {
+        if (value == Guid.Empty)
+        {
+            throw new DomainException(message);
+        }
+    }
 }

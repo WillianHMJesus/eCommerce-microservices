@@ -17,7 +17,7 @@ public class Cart : Entity
 
     public override void Validate()
     {
-        AssertionConcern.ValidateNull(UserId, ErrorMessage.UserIdInvalid);
+        AssertionConcern.ValidateDefault(UserId, ErrorMessage.UserIdInvalid);
     }
 
     public void AddItem(Item item)

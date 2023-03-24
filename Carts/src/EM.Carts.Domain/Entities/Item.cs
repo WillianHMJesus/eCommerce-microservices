@@ -21,7 +21,7 @@ public class Item : Entity
 
     public override void Validate()
     {
-        AssertionConcern.ValidateNull(ProductId, ErrorMessage.ProductIdInvalid);
+        AssertionConcern.ValidateDefault(ProductId, ErrorMessage.ProductIdInvalid);
         AssertionConcern.ValidateNullOrEmpty(ProductName, ErrorMessage.ProductNameNullOrEmpty);
         AssertionConcern.ValidateNullOrEmpty(ProductImage, ErrorMessage.ProductImageNullOrEmpty);
         AssertionConcern.ValidateLessThanEqualToMinimum(Value, 0, ErrorMessage.ValueLessThanEqualToZero);
@@ -30,16 +30,15 @@ public class Item : Entity
 
     public void AddQuantity(int quantity)
     {
-        AssertionConcern.ValidateLessThanEqualToMinimum(Value, 0, ErrorMessage.QuantityLessThanEqualToZero);
-        Value += quantity;
+        AssertionConcern.ValidateLessThanEqualToMinimum(quantity, 0, ErrorMessage.QuantityLessThanEqualToZero);
+        Quantity += quantity;
     }
 
     public void SubtractQuantity(int quantity)
     {
-        AssertionConcern.ValidateLessThanEqualToMinimum(Value, 0, ErrorMessage.QuantityLessThanEqualToZero);
-        AssertionConcern.ValidateLessThanEqualToMinimum(Value -= quantity, 0, ErrorMessage.QuantityLessThanEqualToZero);
+        AssertionConcern.ValidateLessThanEqualToMinimum(quantity, 0, ErrorMessage.QuantityLessThanEqualToZero);
+        AssertionConcern.ValidateLessThanEqualToMinimum(Quantity - quantity, 0, ErrorMessage.QuantityLessThanEqualToZero);
 
-        Value -= quantity;
-
+        Quantity -= quantity;
     }
 }
