@@ -4,17 +4,17 @@
     "windowsAuthentication": false,
     "anonymousAuthentication": true,
     "iisExpress": {
-      "applicationUrl": "http://localhost:54785",
-      "sslPort": 44382
+      "applicationUrl": "http://localhost:63820",
+      "sslPort": 44396
     }
   },
   "profiles": {
-    "EM.Cart.API": {
+    "EM.Carts.API": {
       "commandName": "Project",
       "dotnetRunMessages": true,
       "launchBrowser": true,
       "launchUrl": "swagger",
-      "applicationUrl": "https://localhost:7250;http://localhost:5250",
+      "applicationUrl": "https://localhost:7292;http://localhost:5292",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }

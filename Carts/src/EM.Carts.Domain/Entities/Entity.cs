@@ -1,4 +1,4 @@
-﻿namespace EM.Cart.Domain.Entities;
+﻿namespace EM.Carts.Domain.Entities;
 
 public abstract class Entity
 {
@@ -8,3 +8,4 @@ public abstract class Entity
 
     public abstract void Validate();
 }
+

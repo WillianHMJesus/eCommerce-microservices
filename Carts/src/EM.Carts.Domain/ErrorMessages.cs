@@ -1,4 +1,4 @@
-﻿namespace EM.Cart.Domain;
+﻿namespace EM.Carts.Domain;
 
 public class ErrorMessage
 {

@@ -1,4 +1,4 @@
-﻿namespace EM.Cart.Domain.Entities;
+﻿namespace EM.Carts.Domain.Entities;
 
 public class Item : Entity
 {
@@ -9,6 +9,8 @@ public class Item : Entity
         ProductImage = productImage;
         Value = value;
         Quantity = quantity;
+
+        Validate();
     }
 
     public Guid ProductId { get; set; }

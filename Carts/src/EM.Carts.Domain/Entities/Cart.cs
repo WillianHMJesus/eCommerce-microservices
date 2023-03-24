@@ -1,4 +1,4 @@
-﻿namespace EM.Cart.Domain.Entities;
+﻿namespace EM.Carts.Domain.Entities;
 
 public class Cart : Entity
 {
@@ -6,10 +6,12 @@ public class Cart : Entity
     {
         UserId = userId;
         _items = new List<Item>();
+
+        Validate();
     }
 
     public Guid UserId { get; init; }
-    
+
     private List<Item> _items;
     public IReadOnlyCollection<Item> Items => _items;
 
