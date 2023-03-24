@@ -21,6 +21,7 @@ public static class Extension
     public static IServiceCollection AddDependencyInjection(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddMediatR(AssemblyReference.Assembly);
+        services.AddMediatR(Infraestructure.AssemblyReference.Assembly);
         services.AddValidatorsFromAssembly(AssemblyReference.Assembly);
         services.AddScoped(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
 

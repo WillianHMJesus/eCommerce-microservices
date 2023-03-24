@@ -3,13 +3,13 @@ version: '3.8'
 services:
 
   mssql:
-    build: ./SqlServer
+    build: ./Databases/SqlServer
     restart: always
     ports:
       - 1433:1433
 
   mongo:
-    build: ./MongoDb
+    build: ./Databases/MongoDb
     restart: always
     ports:
       - 27017:27017
