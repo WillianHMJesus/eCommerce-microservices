@@ -24,7 +24,7 @@ public class UpdateProductHandlerTest
         mockProductRepository.Setup(x => x.GetCategoryByIdAsync(It.IsAny<Guid>())).Returns(Task.FromResult<Category?>(category));
         UpdateProductHandler addProductHandler = new(mockProductRepository.Object);
 
-        Result result = await addProductHandler.Handle(new UpdateProductCommand(Guid.NewGuid(), "iPhone 14 Pro", "iPhone 14 Pro 128GB Space Black", 999, 1, "Image iPhone 14 Pro", category.Id), CancellationToken.None);
+        Result result = await addProductHandler.Handle(new UpdateProductCommand(Guid.NewGuid(), "iPhone 14 Pro", "iPhone 14 Pro 128GB Space Black", 999, 1, "Image iPhone 14 Pro", true, category.Id), CancellationToken.None);
 
         Assert.True(result.Success);
     }
@@ -35,7 +35,7 @@ public class UpdateProductHandlerTest
         Mock<IProductRepository> mockProductRepository = new();
         UpdateProductHandler addProductHandler = new(mockProductRepository.Object);
 
-        Result result = await addProductHandler.Handle(new UpdateProductCommand(Guid.NewGuid(), "iPhone 14 Pro", "iPhone 14 Pro 128GB Space Black", 999, 1, "Image iPhone 14 Pro", Guid.NewGuid()), CancellationToken.None);
+        Result result = await addProductHandler.Handle(new UpdateProductCommand(Guid.NewGuid(), "iPhone 14 Pro", "iPhone 14 Pro 128GB Space Black", 999, 1, "Image iPhone 14 Pro", true, Guid.NewGuid()), CancellationToken.None);
 
         Assert.False(result.Success);
         Assert.True(result.Errors?.Any(x => x.Message == ErrorMessage.ProductCategoryNotFound));

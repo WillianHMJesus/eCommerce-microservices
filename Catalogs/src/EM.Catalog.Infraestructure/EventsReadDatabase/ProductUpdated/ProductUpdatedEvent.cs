@@ -3,7 +3,7 @@ using EM.Catalog.Domain.Entities;
 
 namespace EM.Catalog.Infraestructure.EventsReadDatabase.ProductUpdated;
 
-public sealed record ProductUpdatedEvent(Guid Id, string Name, string Description, decimal Value, short Quantity, string Image, Category Category)
+public sealed record ProductUpdatedEvent(Guid Id, string Name, string Description, decimal Value, short Quantity, string Image, bool Available, Category Category)
     : IEvent
 {
     public static explicit operator ProductUpdatedEvent(Product product)
@@ -15,6 +15,7 @@ public sealed record ProductUpdatedEvent(Guid Id, string Name, string Descriptio
             product.Value,
             product.Quantity,
             product.Image,
+            product.Available,
             product.Category!);
     }
 
@@ -26,7 +27,8 @@ public sealed record ProductUpdatedEvent(Guid Id, string Name, string Descriptio
             productAddedEvent.Description,
             productAddedEvent.Value,
             productAddedEvent.Quantity,
-            productAddedEvent.Image)
+            productAddedEvent.Image,
+            productAddedEvent.Available)
         {
             Category = (CategoryDTO)productAddedEvent.Category
         };

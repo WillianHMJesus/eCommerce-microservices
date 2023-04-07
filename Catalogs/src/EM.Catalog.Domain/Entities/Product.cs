@@ -9,7 +9,7 @@ public class Product : Entity
         Value = value;
         Quantity = quantity;
         Image = image;
-        Active = true;
+        Available = true;
 
         Validate();
     }
@@ -21,7 +21,7 @@ public class Product : Entity
     public decimal Value { get; init; }
     public short Quantity { get; private set; }
     public string Image { get; init; } = ""!;
-    public bool Active { get; private set; }
+    public bool Available { get; private set; }
     public Category? Category { get; private set; }
 
     public override void Validate()
@@ -33,9 +33,9 @@ public class Product : Entity
         AssertionConcern.ValidateNullOrEmpty(Image, ErrorMessage.ProductImageNullOrEmpty);
     }
 
-    public void Enable() => Active = true;
+    public void MakeAvailable() => Available = true;
 
-    public void Disable() => Active = false;
+    public void MakeUnavailable() => Available = false;
 
     public void RemoveQuantity(short quantity)
     {
@@ -58,7 +58,7 @@ public class Product : Entity
 
     public static class ProductFactory
     {
-        public static Product NewProduct(Guid id, string name, string description, decimal value, short quantity, string image)
+        public static Product NewProduct(Guid id, string name, string description, decimal value, short quantity, string image, bool available)
         {
             Product product = new Product
             {
@@ -67,7 +67,8 @@ public class Product : Entity
                 Description = description,
                 Value = value,
                 Quantity = quantity,
-                Image = image
+                Image = image,
+                Available = available
             };
 
             product.Validate();

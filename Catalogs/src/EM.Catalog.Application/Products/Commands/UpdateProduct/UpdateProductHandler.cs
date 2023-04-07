@@ -21,7 +21,7 @@ public class UpdateProductHandler : ICommandHandler<UpdateProductCommand>
         if (category == null)
             return Result.CreateResponseWithErrors("CategoryId", ErrorMessage.ProductCategoryNotFound);
 
-        Product product = ProductFactory.NewProduct(command.Id, command.Name, command.Description, command.Value, command.Quantity, command.Image);
+        Product product = ProductFactory.NewProduct(command.Id, command.Name, command.Description, command.Value, command.Quantity, command.Image, command.Available);
         product.AssignCategory(category);
 
         await _productRepository.UpdateProductAsync(product);

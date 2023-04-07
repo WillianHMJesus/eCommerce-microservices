@@ -76,24 +76,24 @@ public class ProductTest
     }
 
     [Fact]
-    public void Enable_InvalidProduct_MustEnableProduct()
+    public void MakeAvailable_InvalidProduct_MustMakeAvailableProduct()
     {
         Product product = _productFixture.GenerateProduct();
-        product.Disable();
+        product.MakeUnavailable();
 
-        product.Enable();
+        product.MakeAvailable();
 
-        Assert.True(product.Active);
+        Assert.True(product.Available);
     }
 
     [Fact]
-    public void Disable_ValidProduct_MustDisableProduct()
+    public void MakeUnavailable_ValidProduct_MustMakeUnavailableProduct()
     {
         Product product = _productFixture.GenerateProduct();
 
-        product.Disable();
+        product.MakeUnavailable();
 
-        Assert.False(product.Active);
+        Assert.False(product.Available);
     }
 
     [Fact]

@@ -18,8 +18,8 @@ create table [Products](
 	[Description] varchar(100) not null,
 	[Value] decimal(8, 2) not null,
 	[Quantity] smallint not null,
-	[Active] bit not null,
 	[Image] varchar(50) not null,
+	[Available] bit not null,
 	[CategoryId] uniqueidentifier not null,
 
 	constraint [PK_Products] primary key ([Id]),

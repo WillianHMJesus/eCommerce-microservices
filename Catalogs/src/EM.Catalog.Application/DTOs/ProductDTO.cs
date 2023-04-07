@@ -2,7 +2,7 @@
 
 namespace EM.Catalog.Application.DTOs;
 
-public sealed record ProductDTO(Guid Id, string Name, string Description, decimal Value, short Quantity, string Image)
+public sealed record ProductDTO(Guid Id, string Name, string Description, decimal Value, short Quantity, string Image, bool Available)
 {
     public static explicit operator ProductDTO(Product product)
     {
@@ -12,7 +12,8 @@ public sealed record ProductDTO(Guid Id, string Name, string Description, decima
             product.Description,
             product.Value,
             product.Quantity,
-            product.Image);
+            product.Image,
+            product.Available);
     }
 
     public CategoryDTO Category { get; set; } = default!;

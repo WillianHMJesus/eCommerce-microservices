@@ -10,6 +10,7 @@ public class UpdateProductRequest
     public decimal Value { get; set; }
     public short Quantity { get; set; }
     public string Image { get; set; } = ""!;
+    public bool Available { get; set; }
     public Guid CategoryId { get; set; }
 
     public static explicit operator UpdateProductCommand(UpdateProductRequest updateProductRequest)
@@ -21,6 +22,7 @@ public class UpdateProductRequest
             updateProductRequest.Value,
             updateProductRequest.Quantity,
             updateProductRequest.Image,
+            updateProductRequest.Available,
             updateProductRequest.CategoryId);
     }
 }
