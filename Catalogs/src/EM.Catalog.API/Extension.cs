@@ -29,7 +29,7 @@ public static class Extension
         services.AddDbContext<WriteContext>(options => options.UseSqlServer(configuration.GetConnectionString("Catalog")));
 
         services.AddScoped<WriteContext>();
-        services.AddScoped<ReadContext>();
+        services.AddSingleton<ReadContext>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 
         services.AddScoped<IProductRepository, ProductRepository>();
