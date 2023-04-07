@@ -11,7 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Controllers\" />
+    <ProjectReference Include="..\EM.Carts.Application\EM.Carts.Application.csproj" />
   </ItemGroup>
 
 </Project>
