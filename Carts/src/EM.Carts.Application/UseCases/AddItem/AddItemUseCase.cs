@@ -12,13 +12,13 @@ public class AddItemUseCase : IAddItemUseCase
     public AddItemUseCase(ICartRepository cartRepository)
         => _cartRepository = cartRepository;
 
-    public async Task ExecuteAsync(AddItemRequest request)
+    public async Task ExecuteAsync(AddItemRequest request, Guid userId)
     {
-        Cart? cart = await _cartRepository.GetCartByUserIdAsync(request.UserId);
+        Cart? cart = await _cartRepository.GetCartByUserIdAsync(userId);
 
         if (cart == null)
         {
-            cart = new Cart(request.UserId);
+            cart = new Cart(userId);
             await _cartRepository.AddCartAsync(cart);
         }
 

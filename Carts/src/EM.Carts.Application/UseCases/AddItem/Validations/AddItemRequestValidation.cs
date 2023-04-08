@@ -11,7 +11,7 @@ public class AddItemRequestValidation : IAddItemUseCase
     public AddItemRequestValidation(IAddItemUseCase addItemUseCase)
         => _addItemUseCase = addItemUseCase;
 
-    public async Task ExecuteAsync(AddItemRequest request)
+    public async Task ExecuteAsync(AddItemRequest request, Guid userId)
     {
         AddItemRequestValidator validator = new();
         ValidationResult validationResult = validator.Validate(request);
@@ -19,10 +19,15 @@ public class AddItemRequestValidation : IAddItemUseCase
         if (!validationResult.IsValid)
         {
             _presenter.BadRequest(validationResult.Errors);
+            return;
         }
 
-        await _addItemUseCase.ExecuteAsync(request);
+        await _addItemUseCase.ExecuteAsync(request, userId);
     }
 
-    public void SetPresenter(IPresenter presenter) => _presenter = presenter;
+    public void SetPresenter(IPresenter presenter)
+    {
+        _presenter = presenter;
+        _addItemUseCase.SetPresenter(presenter);
+    }
 }

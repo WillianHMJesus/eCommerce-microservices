@@ -5,15 +5,14 @@ public class Cart : Entity
     public Cart(Guid userId)
     {
         UserId = userId;
-        _items = new List<Item>();
+        Items = new List<Item>();
 
         Validate();
     }
 
     public Guid UserId { get; init; }
 
-    private List<Item> _items;
-    public IReadOnlyCollection<Item> Items => _items;
+    public List<Item> Items { get; private set; }
 
     public override void Validate()
     {
@@ -23,6 +22,6 @@ public class Cart : Entity
     public void AddItem(Item item)
     {
         AssertionConcern.ValidateNull(item, ErrorMessage.CartItemNull);
-        _items.Add(item);
+        Items.Add(item);
     }
 }
