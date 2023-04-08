@@ -13,11 +13,11 @@ public class Item : Entity
         Validate();
     }
 
-    public Guid ProductId { get; set; }
-    public string ProductName { get; set; }
-    public string ProductImage { get; set; }
-    public decimal Value { get; set; }
-    public int Quantity { get; set; }
+    public Guid ProductId { get; private set; }
+    public string ProductName { get; private set; }
+    public string ProductImage { get; private set; }
+    public decimal Value { get; private set; }
+    public int Quantity { get; private set; }
 
     public override void Validate()
     {

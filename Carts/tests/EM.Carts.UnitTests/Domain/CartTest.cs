@@ -42,7 +42,7 @@ public class CartTest
     {
         Cart cart = _cartFixture.GenerateValidCart();
 
-        Exception domainException = Record.Exception(() 
+        Exception domainException = Record.Exception(()
             => cart.AddItem(_itemFixture.GenerateValidItem()));
 
         Assert.True(cart.Items.Any());
@@ -52,10 +52,12 @@ public class CartTest
     [Fact]
     public void AddItem_NullItem_MustReturnDomainException()
     {
-        Cart cart = new Cart(Guid.NewGuid());
+        Cart cart = new(Guid.NewGuid());
 
+#pragma warning disable CS8625
         Exception domainException = Record.Exception(()
             => cart.AddItem(null));
+#pragma warning restore CS8625
 
         Assert.NotNull(domainException);
         Assert.Equal(ErrorMessage.CartItemNull, domainException.Message);

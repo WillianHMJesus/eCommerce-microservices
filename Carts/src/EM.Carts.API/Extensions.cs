@@ -1,5 +1,6 @@
 ﻿using EM.Carts.Application.UseCases.AddItem;
 using EM.Carts.Application.UseCases.AddItem.Validations;
+using EM.Carts.Application.UseCases.GetCartByUserId;
 using EM.Carts.Domain.Interfaces;
 using EM.Carts.Infraestructure.Configurations;
 using EM.Carts.Infraestructure.Repositories;
@@ -17,6 +18,7 @@ public static class Extensions
 
         services.AddScoped<IAddItemUseCase, AddItemUseCase>();
         services.Decorate<IAddItemUseCase, AddItemRequestValidation>();
+        services.AddScoped<IGetCartByUserIdUseCase, GetCartByUserIdUseCase>();
 
         return services;
     }

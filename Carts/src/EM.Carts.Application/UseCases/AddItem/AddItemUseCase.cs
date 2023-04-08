@@ -22,12 +22,13 @@ public class AddItemUseCase : IAddItemUseCase
             await _cartRepository.AddCartAsync(cart);
         }
 
-        Item item = new Item(request.ProductId, request.ProductName, request.ProductImage, request.Value, request.Quantity);
+        Item item = new(request.ProductId, request.ProductName, request.ProductImage, request.Value, request.Quantity);
         cart.AddItem(item);
 
         await _cartRepository.UpdateCartAsync(cart);
         _presenter.Success();
     }
 
-    public void SetPresenter(IPresenter presenter) => _presenter = presenter;
+    public void SetPresenter(IPresenter presenter)
+        => _presenter = presenter;
 }
