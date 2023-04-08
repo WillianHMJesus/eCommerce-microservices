@@ -22,8 +22,17 @@ public class AddItemUseCase : IAddItemUseCase
             await _cartRepository.AddCartAsync(cart);
         }
 
-        Item item = new(request.ProductId, request.ProductName, request.ProductImage, request.Value, request.Quantity);
-        cart.AddItem(item);
+        Item? existingItem = cart.Items.FirstOrDefault(x => x.ProductId == request.ProductId);
+
+        if (existingItem == null)
+        {
+            Item item = new(request.ProductId, request.ProductName, request.ProductImage, request.Value, request.Quantity);
+            cart.AddItem(item);
+        }
+        else
+        {
+            existingItem.AddQuantity(request.Quantity);
+        }
 
         await _cartRepository.UpdateCartAsync(cart);
         _presenter.Success();
