@@ -17,7 +17,7 @@ public class CartsController : BaseController
     {
         _addItemUseCase.SetPresenter(this);
 
-        await _addItemUseCase.ExecuteAsync(addItemRequest);
+        await _addItemUseCase.ExecuteAsync(addItemRequest, GetUserId());
 
         return _actionResult;
     }
