@@ -4,7 +4,9 @@ ENV ACCEPT_EULA=Y
 
 WORKDIR /usr/src/app
 
-COPY . /usr/src/app
+COPY EntryPoint.sh /usr/src/app
+COPY SqlCmdStartup.sh /usr/src/app
+COPY StartupScript.sql /usr/src/app
 
 RUN chmod +x ./SqlCmdStartup.sh
 CMD /bin/bash ./EntryPoint.sh
