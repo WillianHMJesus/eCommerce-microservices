@@ -62,4 +62,32 @@ public class CartTest
         Assert.NotNull(domainException);
         Assert.Equal(ErrorMessage.CartItemNull, domainException.Message);
     }
+
+    [Fact]
+    public void RemoveItem_ValidItem_MustRemoveCartItem()
+    {
+        Item item = _itemFixture.GenerateValidItem();
+        Cart cart = _cartFixture.GenerateValidCart();
+        cart.AddItem(item);
+
+        Exception domainException = Record.Exception(()
+            => cart.RemoveItem(item));
+
+        Assert.DoesNotContain(item, cart.Items);
+        Assert.Null(domainException);
+    }
+
+    [Fact]
+    public void RemoveItem_NullItem_MustReturnDomainException()
+    {
+        Cart cart = new(Guid.NewGuid());
+
+#pragma warning disable CS8625
+        Exception domainException = Record.Exception(()
+            => cart.RemoveItem(null));
+#pragma warning restore CS8625
+
+        Assert.NotNull(domainException);
+        Assert.Equal(ErrorMessage.CartItemNull, domainException.Message);
+    }
 }
