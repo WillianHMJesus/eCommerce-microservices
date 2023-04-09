@@ -1,5 +1,7 @@
 ﻿using EM.Carts.Application.UseCases.AddItem;
 using EM.Carts.Application.UseCases.AddItem.Validations;
+using EM.Carts.Application.UseCases.AddItemQuantity;
+using EM.Carts.Application.UseCases.AddItemQuantity.Validations;
 using EM.Carts.Application.UseCases.GetCartByUserId;
 using EM.Carts.Domain.Interfaces;
 using EM.Carts.Infraestructure.Configurations;
@@ -18,6 +20,8 @@ public static class Extensions
 
         services.AddScoped<IAddItemUseCase, AddItemUseCase>();
         services.Decorate<IAddItemUseCase, AddItemRequestValidation>();
+        services.AddScoped<IAddItemQuantityUseCase, AddItemQuantityUseCase>();
+        services.Decorate<IAddItemQuantityUseCase, AddItemQuantityRequestValidation>();
         services.AddScoped<IGetCartByUserIdUseCase, GetCartByUserIdUseCase>();
 
         return services;
