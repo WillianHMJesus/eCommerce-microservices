@@ -2,6 +2,7 @@
 using EM.Carts.Application.UseCases.AddItem.Validations;
 using EM.Carts.Application.UseCases.AddItemQuantity;
 using EM.Carts.Application.UseCases.AddItemQuantity.Validations;
+using EM.Carts.Application.UseCases.DeleteAllItems;
 using EM.Carts.Application.UseCases.DeleteItem;
 using EM.Carts.Application.UseCases.DeleteItem.Validations;
 using EM.Carts.Application.UseCases.GetCartByUserId;
@@ -30,6 +31,7 @@ public static class Extensions
         services.Decorate<ISubtractItemQuantityUseCase, SubtractItemQuantityRequestValidation>();
         services.AddScoped<IDeleteItemUseCase, DeleteItemUseCase>();
         services.Decorate<IDeleteItemUseCase, DeleteItemRequestValidation>();
+        services.AddScoped<IDeleteAllItemsUseCase, DeleteAllItemsUseCase>();
         services.AddScoped<IGetCartByUserIdUseCase, GetCartByUserIdUseCase>();
 
         return services;

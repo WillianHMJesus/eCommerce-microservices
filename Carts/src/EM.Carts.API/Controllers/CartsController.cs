@@ -1,5 +1,6 @@
 ﻿using EM.Carts.Application.UseCases.AddItem;
 using EM.Carts.Application.UseCases.AddItemQuantity;
+using EM.Carts.Application.UseCases.DeleteAllItems;
 using EM.Carts.Application.UseCases.DeleteItem;
 using EM.Carts.Application.UseCases.GetCartByUserId;
 using EM.Carts.Application.UseCases.SubtractItemQuantity;
@@ -15,6 +16,7 @@ public class CartsController : BaseController
     private readonly IAddItemQuantityUseCase _addItemQuantityUseCase;
     private readonly ISubtractItemQuantityUseCase _subtractItemQuantityUseCase;
     private readonly IDeleteItemUseCase _deleteItemUseCase;
+    private readonly IDeleteAllItemsUseCase _deleteAllItemsUseCase;
     private readonly IGetCartByUserIdUseCase _getCartByUserIdUseCase;
 
     public CartsController(
@@ -22,12 +24,14 @@ public class CartsController : BaseController
         IAddItemQuantityUseCase addItemQuantityUseCase,
         ISubtractItemQuantityUseCase subtractItemQuantityUseCase,
         IDeleteItemUseCase deleteItemUseCase,
+        IDeleteAllItemsUseCase deleteAllItemsUseCase,
         IGetCartByUserIdUseCase getCartByUserIdUseCase)
     {
         _addItemUseCase = addItemUseCase;
         _addItemQuantityUseCase = addItemQuantityUseCase;
         _subtractItemQuantityUseCase = subtractItemQuantityUseCase;
         _deleteItemUseCase = deleteItemUseCase;
+        _deleteAllItemsUseCase = deleteAllItemsUseCase;
         _getCartByUserIdUseCase = getCartByUserIdUseCase;
     }
 
@@ -67,6 +71,16 @@ public class CartsController : BaseController
         _deleteItemUseCase.SetPresenter(this);
 
         await _deleteItemUseCase.ExecuteAsync(deleteItemRequest, GetUserId());
+
+        return _actionResult;
+    }
+
+    [HttpDelete()]
+    public async Task<IActionResult> DeleteAllItems()
+    {
+        _deleteAllItemsUseCase.SetPresenter(this);
+
+        await _deleteAllItemsUseCase.ExecuteAsync(GetUserId());
 
         return _actionResult;
     }

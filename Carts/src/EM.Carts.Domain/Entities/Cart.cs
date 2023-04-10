@@ -30,4 +30,9 @@ public class Cart : Entity
         AssertionConcern.ValidateNull(item, ErrorMessage.CartItemNull);
         Items.Remove(item);
     }
+
+    public void RemoveAllItems()
+    {
+        Items.Clear();
+    }
 }
