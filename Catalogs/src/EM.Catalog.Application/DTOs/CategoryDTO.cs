@@ -13,4 +13,3 @@ public sealed record CategoryDTO(Guid Id, short Code, string Name, string Descri
             category.Description);
     }
 }
-

@@ -2,7 +2,7 @@
 
 namespace EM.Catalog.API.Models;
 
-public class UpdateCategoryRequest
+public sealed record UpdateCategoryRequest
 {
     public Guid Id { get; set; }
     public short Code { get; set; }

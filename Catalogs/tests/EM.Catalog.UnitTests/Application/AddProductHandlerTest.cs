@@ -9,7 +9,7 @@ using Xunit;
 
 namespace EM.Catalog.UnitTests.Application;
 
-public class AddProductHandlerTest
+public sealed class AddProductHandlerTest
 {
     private readonly CategoryFixture _categoryFixture;
 
@@ -21,10 +21,11 @@ public class AddProductHandlerTest
     {
         Mock<IProductRepository> mockProductRepository = new();
         Category? category = _categoryFixture.GenerateCategory();
-        mockProductRepository.Setup(x => x.GetCategoryByIdAsync(It.IsAny<Guid>())).Returns(Task.FromResult<Category?>(category));
+        mockProductRepository.Setup(x => x.GetCategoryByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>())).Returns(Task.FromResult<Category?>(category));
         AddProductHandler addProductHandler = new(mockProductRepository.Object);
 
-        Result result = await addProductHandler.Handle(new AddProductCommand("iPhone 14 Pro", "iPhone 14 Pro 128GB Space Black", 999, 1, "Image iPhone 14 Pro", category.Id), CancellationToken.None);
+        Result result = await addProductHandler.Handle(new AddProductCommand("iPhone 14 Pro", "iPhone 14 Pro 128GB Space Black", 999, 1, "Image iPhone 14 Pro", category.Id), 
+            CancellationToken.None);
 
         Assert.True(result.Success);
         Assert.IsType<Guid>(result.Data);
@@ -36,7 +37,8 @@ public class AddProductHandlerTest
         Mock<IProductRepository> mockProductRepository = new();
         AddProductHandler addProductHandler = new(mockProductRepository.Object);
 
-        Result result = await addProductHandler.Handle(new AddProductCommand("iPhone 14 Pro", "iPhone 14 Pro 128GB Space Black", 999, 1, "Image iPhone 14 Pro", Guid.NewGuid()), CancellationToken.None);
+        Result result = await addProductHandler.Handle(new AddProductCommand("iPhone 14 Pro", "iPhone 14 Pro 128GB Space Black", 999, 1, "Image iPhone 14 Pro", Guid.NewGuid()), 
+            CancellationToken.None);
 
         Assert.False(result.Success);
         Assert.True(result.Errors?.Any(x => x.Message == ErrorMessage.ProductCategoryNotFound));

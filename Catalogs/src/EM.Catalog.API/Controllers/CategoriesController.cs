@@ -12,7 +12,7 @@ namespace EM.Catalog.API.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-public class CategoriesController : ControllerBase
+public sealed class CategoriesController : ControllerBase
 {
     private readonly IMediator _mediator;
 
@@ -20,9 +20,9 @@ public class CategoriesController : ControllerBase
         => _mediator = mediator;
 
     [HttpPost]
-    public async Task<IActionResult> AddAsync(AddCategoryRequest addCategoryRequest)
+    public async Task<IActionResult> AddAsync(AddCategoryRequest addCategoryRequest, CancellationToken cancellationToken)
     {
-        Result result = await _mediator.Send((AddCategoryCommand)addCategoryRequest);
+        Result result = await _mediator.Send((AddCategoryCommand)addCategoryRequest, cancellationToken);
 
         if (!result.Success)
         {
@@ -33,9 +33,9 @@ public class CategoriesController : ControllerBase
     }
 
     [HttpPut]
-    public async Task<IActionResult> UpdateAsync(UpdateCategoryRequest updateCategoryRequest)
+    public async Task<IActionResult> UpdateAsync(UpdateCategoryRequest updateCategoryRequest, CancellationToken cancellationToken)
     {
-        Result result = await _mediator.Send((UpdateCategoryCommand)updateCategoryRequest);
+        Result result = await _mediator.Send((UpdateCategoryCommand)updateCategoryRequest, cancellationToken);
 
         if (!result.Success)
         {
@@ -46,17 +46,17 @@ public class CategoriesController : ControllerBase
     }
 
     [HttpGet("{id}")]
-    public async Task<IActionResult> GetByIdAsync(Guid id)
+    public async Task<IActionResult> GetByIdAsync(Guid id, CancellationToken cancellationToken)
     {
-        CategoryDTO? category = await _mediator.Send(new GetCategoryByIdQuery(id));
+        CategoryDTO? category = await _mediator.Send(new GetCategoryByIdQuery(id), cancellationToken);
         
         return Ok(category);
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetAllAsync(short page, short pageSize)
+    public async Task<IActionResult> GetAllAsync(short page, short pageSize, CancellationToken cancellationToken)
     {
-        IEnumerable<CategoryDTO?> categories = await _mediator.Send(new GetAllCategoriesQuery(page, pageSize));
+        IEnumerable<CategoryDTO?> categories = await _mediator.Send(new GetAllCategoriesQuery(page, pageSize), cancellationToken);
 
         return Ok(categories);
     }

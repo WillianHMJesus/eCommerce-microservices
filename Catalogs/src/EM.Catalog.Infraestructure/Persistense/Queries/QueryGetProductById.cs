@@ -5,16 +5,16 @@ using MongoDB.Driver;
 
 namespace EM.Catalog.Infraestructure.Persistense.Queries;
 
-public class QueryGetProductById : IQueryGetProductById
+public sealed class QueryGetProductById : IQueryGetProductById
 {
     private readonly ReadContext _readContext;
 
     public QueryGetProductById(ReadContext readContext)
         => _readContext = readContext;
 
-    public async Task<ProductDTO> GetAsync(Guid id)
+    public async Task<ProductDTO> GetAsync(Guid id, CancellationToken cancellationToken)
     {
         return await _readContext.Products.Find(x => x.Id == id)
-            .FirstOrDefaultAsync();
+            .FirstOrDefaultAsync(cancellationToken);
     }
 }

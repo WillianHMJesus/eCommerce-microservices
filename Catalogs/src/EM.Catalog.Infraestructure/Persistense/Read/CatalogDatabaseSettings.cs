@@ -1,7 +1,7 @@
 ﻿namespace EM.Catalog.Infraestructure.Persistense.Read;
 
-public class CatalogDatabaseSettings
+public sealed record CatalogDatabaseSettings
 {
-    public string ConnectionString { get; set; } = null!;
-    public string DatabaseName { get; set; } = null!;
+    public string ConnectionString { get; set; } = ""!;
+    public string DatabaseName { get; set; } = ""!;
 }

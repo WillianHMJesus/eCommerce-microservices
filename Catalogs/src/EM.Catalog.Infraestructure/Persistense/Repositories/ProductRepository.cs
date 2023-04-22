@@ -4,40 +4,45 @@ using EM.Catalog.Infraestructure.Persistense.Write;
 
 namespace EM.Catalog.Infraestructure.Persistense.Repositories;
 
-public class ProductRepository : IProductRepository
+public sealed class ProductRepository : IProductRepository
 {
     private readonly WriteContext _writeContext;
 
     public ProductRepository(WriteContext writeContext)
         => _writeContext = writeContext;
 
-    public async Task AddProductAsync(Product product)
+    public async Task AddProductAsync(Product product, CancellationToken cancellationToken)
     {
-        await _writeContext.Products.AddAsync(product);
+        await _writeContext.Products.AddAsync(product, cancellationToken);
     }
 
-    public async Task UpdateProductAsync(Product product)
+    public async Task UpdateProductAsync(Product product, CancellationToken cancellationToken)
     {
-        _writeContext.Products.Update(product);
+        Task task = Task.Run(() =>
+        {
+            _writeContext.Products.Update(product);
+        }, cancellationToken);
 
-        await Task.CompletedTask;
+        await task;
     }
 
-
-    public async Task AddCategoryAsync(Category category)
+    public async Task AddCategoryAsync(Category category, CancellationToken cancellationToken)
     {
-        await _writeContext.Categories.AddAsync(category);
+        await _writeContext.Categories.AddAsync(category, cancellationToken);
     }
 
-    public async Task<Category?> GetCategoryByIdAsync(Guid id)
+    public async Task<Category?> GetCategoryByIdAsync(Guid id, CancellationToken cancellationToken)
     {
-        return await _writeContext.Categories.FindAsync(id);
+        return await _writeContext.Categories.FindAsync(id, cancellationToken);
     }
 
-    public async Task UpdateCategoryAsync(Category category)
+    public async Task UpdateCategoryAsync(Category category, CancellationToken cancellationToken)
     {
-        _writeContext.Categories.Update(category);
-
-        await Task.CompletedTask;
+        Task task = Task.Run(() =>
+        {
+            _writeContext.Categories.Update(category);
+        }, cancellationToken);
+        
+        await task;
     }
 }

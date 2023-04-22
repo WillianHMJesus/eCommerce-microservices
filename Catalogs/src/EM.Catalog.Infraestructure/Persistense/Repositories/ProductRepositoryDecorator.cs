@@ -9,7 +9,7 @@ using MediatR;
 
 namespace EM.Catalog.Infraestructure.Persistense.Repositories;
 
-public class ProductRepositoryDecorator : IProductRepository
+public sealed class ProductRepositoryDecorator : IProductRepository
 {
     private readonly IProductRepository _productRepository;
     private readonly IUnitOfWork _unitOfWork;
@@ -26,49 +26,49 @@ public class ProductRepositoryDecorator : IProductRepository
     }
 
 
-    public async Task AddProductAsync(Product product)
+    public async Task AddProductAsync(Product product, CancellationToken cancellationToken)
     {
-        await _productRepository.AddProductAsync(product);
+        await _productRepository.AddProductAsync(product, cancellationToken);
 
         if (await _unitOfWork.CommitAsync())
         {
-            await _mediator.Publish((ProductAddedEvent)product);
+            await _mediator.Publish((ProductAddedEvent)product, cancellationToken);
         }
     }
 
-    public async Task UpdateProductAsync(Product product)
+    public async Task UpdateProductAsync(Product product, CancellationToken cancellationToken)
     {
-        await _productRepository.UpdateProductAsync(product);
+        await _productRepository.UpdateProductAsync(product, cancellationToken);
 
         if (await _unitOfWork.CommitAsync())
         {
-            await _mediator.Publish((ProductUpdatedEvent)product);
+            await _mediator.Publish((ProductUpdatedEvent)product, cancellationToken);
         }
     }
 
 
-    public async Task AddCategoryAsync(Category category)
+    public async Task AddCategoryAsync(Category category, CancellationToken cancellationToken)
     {
-        await _productRepository.AddCategoryAsync(category);
+        await _productRepository.AddCategoryAsync(category, cancellationToken);
 
         if (await _unitOfWork.CommitAsync())
         {
-            await _mediator.Publish((CategoryAddedEvent)category);
+            await _mediator.Publish((CategoryAddedEvent)category, cancellationToken);
         }
     }
 
-    public async Task<Category?> GetCategoryByIdAsync(Guid id)
+    public async Task<Category?> GetCategoryByIdAsync(Guid id, CancellationToken cancellationToken)
     {
-        return await _productRepository.GetCategoryByIdAsync(id);
+        return await _productRepository.GetCategoryByIdAsync(id, cancellationToken);
     }
 
-    public async Task UpdateCategoryAsync(Category category)
+    public async Task UpdateCategoryAsync(Category category, CancellationToken cancellationToken)
     {
-        await _productRepository.UpdateCategoryAsync(category);
+        await _productRepository.UpdateCategoryAsync(category, cancellationToken);
 
         if (await _unitOfWork.CommitAsync())
         {
-            await _mediator.Publish((CategoryUpdatedEvent)category);
+            await _mediator.Publish((CategoryUpdatedEvent)category, cancellationToken);
         }
     }
 }

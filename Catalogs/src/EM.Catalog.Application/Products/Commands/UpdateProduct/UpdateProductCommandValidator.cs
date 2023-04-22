@@ -3,7 +3,7 @@ using FluentValidation;
 
 namespace EM.Catalog.Application.Products.Commands.UpdateProduct;
 
-public class UpdateProductCommandValidator : AbstractValidator<UpdateProductCommand>
+public sealed class UpdateProductCommandValidator : AbstractValidator<UpdateProductCommand>
 {
     public UpdateProductCommandValidator()
     {

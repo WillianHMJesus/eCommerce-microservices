@@ -12,6 +12,6 @@ public sealed class GetCategoryByIdHandler : IQueryHandler<GetCategoryByIdQuery,
 
     public async Task<CategoryDTO?> Handle(GetCategoryByIdQuery query, CancellationToken cancellationToken)
     {
-        return await _queryGetCategoryById.GetAsync(query.Id);
+        return await _queryGetCategoryById.GetAsync(query.Id, cancellationToken);
     }
 }

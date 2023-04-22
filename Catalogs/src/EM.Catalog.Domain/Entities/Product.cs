@@ -14,7 +14,18 @@ public class Product : Entity
         Validate();
     }
 
-    private Product() { }
+    public Product(Guid id, string name, string description, decimal value, short quantity, string image, bool available) 
+    {
+        Id = id;
+        Name = name;
+        Description = description;
+        Value = value;
+        Quantity = quantity;
+        Image = image;
+        Available = available;
+
+        Validate();
+    }
 
     public string Name { get; init; } = ""!;
     public string Description { get; init; } = ""!;
@@ -54,26 +65,5 @@ public class Product : Entity
     {
         AssertionConcern.ValidateNull(category, ErrorMessage.ProductCategoryNull);
         Category = category;
-    }
-
-    public static class ProductFactory
-    {
-        public static Product NewProduct(Guid id, string name, string description, decimal value, short quantity, string image, bool available)
-        {
-            Product product = new Product
-            {
-                Id = id,
-                Name = name,
-                Description = description,
-                Value = value,
-                Quantity = quantity,
-                Image = image,
-                Available = available
-            };
-
-            product.Validate();
-
-            return product;
-        }
     }
 }

@@ -13,7 +13,7 @@ namespace EM.Catalog.API.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-public class ProductsController : ControllerBase
+public sealed class ProductsController : ControllerBase
 {
     private readonly IMediator _mediator;
 
@@ -21,9 +21,9 @@ public class ProductsController : ControllerBase
         => _mediator = mediator;
 
     [HttpPost]
-    public async Task<IActionResult> AddAsync(AddProductRequest addProductRequest)
+    public async Task<IActionResult> AddAsync(AddProductRequest addProductRequest, CancellationToken cancellationToken)
     {
-        Result result = await _mediator.Send((AddProductCommand)addProductRequest);
+        Result result = await _mediator.Send((AddProductCommand)addProductRequest, cancellationToken);
 
         if (!result.Success)
         {
@@ -34,9 +34,9 @@ public class ProductsController : ControllerBase
     }
 
     [HttpPut]
-    public async Task<IActionResult> UpdateAsync(UpdateProductRequest updateProductRequest)
+    public async Task<IActionResult> UpdateAsync(UpdateProductRequest updateProductRequest, CancellationToken cancellationToken)
     {
-        Result result = await _mediator.Send((UpdateProductCommand)updateProductRequest);
+        Result result = await _mediator.Send((UpdateProductCommand)updateProductRequest, cancellationToken);
 
         if (!result.Success)
         {
@@ -47,25 +47,25 @@ public class ProductsController : ControllerBase
     }
 
     [HttpGet("{id}")]
-    public async Task<IActionResult> GetByIdAsync(Guid id)
+    public async Task<IActionResult> GetByIdAsync(Guid id, CancellationToken cancellationToken)
     {
-        ProductDTO? product = await _mediator.Send(new GetProductByIdQuery(id));
+        ProductDTO? product = await _mediator.Send(new GetProductByIdQuery(id), cancellationToken);
 
         return Ok(product);
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetAllAsync(short page, short pageSize)
+    public async Task<IActionResult> GetAllAsync(short page, short pageSize, CancellationToken cancellationToken)
     {
-        IEnumerable<ProductDTO?> products = await _mediator.Send(new GetAllProductsQuery(page, pageSize));
+        IEnumerable<ProductDTO?> products = await _mediator.Send(new GetAllProductsQuery(page, pageSize), cancellationToken);
 
         return Ok(products);
     }
 
     [HttpGet("Category/{categoryId}")]
-    public async Task<IActionResult> GetByCategoryIdAsync(Guid categoryId)
+    public async Task<IActionResult> GetByCategoryIdAsync(Guid categoryId, CancellationToken cancellationToken)
     {
-        IEnumerable<ProductDTO?> products = await _mediator.Send(new GetProductsByCategoryIdQuery(categoryId));
+        IEnumerable<ProductDTO?> products = await _mediator.Send(new GetProductsByCategoryIdQuery(categoryId), cancellationToken);
 
         return Ok(products);
     }

@@ -5,18 +5,18 @@ using MongoDB.Driver;
 
 namespace EM.Catalog.Infraestructure.Persistense.Queries;
 
-public class QueryGetAllCategories : IQueryGetAllCategories
+public sealed class QueryGetAllCategories : IQueryGetAllCategories
 {
     private readonly ReadContext _readContext;
 
     public QueryGetAllCategories(ReadContext readContext)
         => _readContext = readContext;
 
-    public async Task<IEnumerable<CategoryDTO>> GetAsync(short page, short pageSize)
+    public async Task<IEnumerable<CategoryDTO>> GetAsync(short page, short pageSize, CancellationToken cancellationToken)
     {
         return await _readContext.Categories.Find(_ => true)
             .Skip((page - 1) * pageSize)
             .Limit(pageSize)
-            .ToListAsync();
+            .ToListAsync(cancellationToken);
     }
 }

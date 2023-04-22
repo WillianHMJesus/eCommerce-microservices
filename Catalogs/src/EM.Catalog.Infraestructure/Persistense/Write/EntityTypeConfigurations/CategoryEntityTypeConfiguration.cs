@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace EM.Catalog.Infraestructure.Persistense.Write.EntityTypeConfigurations;
 
-public class CategoryEntityTypeConfiguration : IEntityTypeConfiguration<Category>
+public sealed class CategoryEntityTypeConfiguration : IEntityTypeConfiguration<Category>
 {
     public void Configure(EntityTypeBuilder<Category> builder)
     {

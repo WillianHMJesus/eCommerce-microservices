@@ -14,6 +14,6 @@ public sealed class CategoryUpdatedHandler : IEventHandler<CategoryUpdatedEvent>
     public async Task Handle(CategoryUpdatedEvent _event, CancellationToken cancellationToken)
     {
         CategoryDTO categoryDTO = (CategoryDTO)_event;
-        await _readContext.Categories.ReplaceOneAsync(x => x.Id == categoryDTO.Id, categoryDTO);
+        await _readContext.Categories.ReplaceOneAsync(x => x.Id == categoryDTO.Id, categoryDTO, cancellationToken: cancellationToken);
     }
 }

@@ -5,7 +5,7 @@ using Xunit;
 
 namespace EM.Catalog.UnitTests.Domain;
 
-public class ProductTest
+public sealed class ProductTest
 {
     private readonly ProductFixture _productFixture;
     private readonly CategoryFixture _categoryFixture;
@@ -167,7 +167,9 @@ public class ProductTest
     {
         Product product = _productFixture.GenerateProduct();
 
+#pragma warning disable CS8625
         DomainException domainException = Assert.Throws<DomainException>(() => product.AssignCategory(null));
+#pragma warning restore CS8625
 
         Assert.NotNull(domainException);
         Assert.Equal(ErrorMessage.ProductCategoryNull, domainException.Message);

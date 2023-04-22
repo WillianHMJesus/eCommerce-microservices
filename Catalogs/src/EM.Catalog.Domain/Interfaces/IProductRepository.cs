@@ -4,10 +4,10 @@ namespace EM.Catalog.Domain.Interfaces;
 
 public interface IProductRepository
 {
-    Task AddProductAsync(Product product);
-    Task UpdateProductAsync(Product product);
+    Task AddProductAsync(Product product, CancellationToken cancellationToken);
+    Task UpdateProductAsync(Product product, CancellationToken cancellationToken);
 
-    Task AddCategoryAsync(Category category);
-    Task<Category?> GetCategoryByIdAsync(Guid id);
-    Task UpdateCategoryAsync(Category category);
+    Task AddCategoryAsync(Category category, CancellationToken cancellationToken);
+    Task<Category?> GetCategoryByIdAsync(Guid id, CancellationToken cancellationToken);
+    Task UpdateCategoryAsync(Category category, CancellationToken cancellationToken);
 }

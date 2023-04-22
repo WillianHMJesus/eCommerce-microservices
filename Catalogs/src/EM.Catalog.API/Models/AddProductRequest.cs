@@ -2,7 +2,7 @@
 
 namespace EM.Catalog.API.Models;
 
-public class AddProductRequest
+public sealed record AddProductRequest
 {
     public string Name { get; set; } = ""!;
     public string Description { get; set; } = ""!;

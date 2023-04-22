@@ -1,6 +1,6 @@
 ﻿namespace EM.Catalog.Domain;
 
-public class AssertionConcern
+public sealed class AssertionConcern
 {
     public static void ValidateNullOrEmpty(string value, string message)
     {

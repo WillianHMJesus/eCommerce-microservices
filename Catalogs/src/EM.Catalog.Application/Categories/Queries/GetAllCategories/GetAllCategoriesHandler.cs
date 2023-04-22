@@ -12,6 +12,6 @@ public sealed class GetAllCategoriesHandler : IQueryHandler<GetAllCategoriesQuer
 
     public async Task<IEnumerable<CategoryDTO>> Handle(GetAllCategoriesQuery query, CancellationToken cancellationToken)
     {
-        return await _queryGetAllCategories.GetAsync(query.Page, query.PageSize);
+        return await _queryGetAllCategories.GetAsync(query.Page, query.PageSize, cancellationToken);
     }
 }

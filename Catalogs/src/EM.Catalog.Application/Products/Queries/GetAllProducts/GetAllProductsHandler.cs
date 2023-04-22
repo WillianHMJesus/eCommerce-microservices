@@ -12,6 +12,6 @@ public sealed class GetAllProductsHandler : IQueryHandler<GetAllProductsQuery, I
 
     public async Task<IEnumerable<ProductDTO>> Handle(GetAllProductsQuery query, CancellationToken cancellationToken)
     {
-        return await _queryGetAllProducts.GetAsync(query.Page, query.PageSize);
+        return await _queryGetAllProducts.GetAsync(query.Page, query.PageSize, cancellationToken);
     }
 }

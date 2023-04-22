@@ -4,7 +4,7 @@ using MongoDB.Driver;
 
 namespace EM.Catalog.Infraestructure.Persistense.Read;
 
-public class ReadContext
+public sealed class ReadContext
 {
     private readonly IMongoDatabase _database;
 

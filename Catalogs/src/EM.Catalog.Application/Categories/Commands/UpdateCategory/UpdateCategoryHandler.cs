@@ -2,7 +2,6 @@
 using EM.Catalog.Application.Results;
 using EM.Catalog.Domain.Entities;
 using EM.Catalog.Domain.Interfaces;
-using static EM.Catalog.Domain.Entities.Category;
 
 namespace EM.Catalog.Application.Categories.Commands.UpdateCategory;
 
@@ -15,8 +14,8 @@ public sealed class UpdateCategoryHandler : ICommandHandler<UpdateCategoryComman
 
     public async Task<Result> Handle(UpdateCategoryCommand command, CancellationToken cancellationToken)
     {
-        Category category = CategoryFactory.NewCategory(command.Id, command.Code, command.Name, command.Description);
-        await _productRepository.UpdateCategoryAsync(category);
+        Category category = new(command.Id, command.Code, command.Name, command.Description);
+        await _productRepository.UpdateCategoryAsync(category, cancellationToken);
 
         return new Result();
     }

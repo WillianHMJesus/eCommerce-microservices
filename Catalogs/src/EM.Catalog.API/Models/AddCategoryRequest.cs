@@ -2,7 +2,7 @@
 
 namespace EM.Catalog.API.Models;
 
-public class AddCategoryRequest
+public sealed record AddCategoryRequest
 {
     public short Code { get; set; }
     public string Name { get; set; } = ""!;

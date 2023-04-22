@@ -3,7 +3,7 @@ using EM.Catalog.Domain.Entities;
 
 namespace EM.Catalog.UnitTests.Fixtures;
 
-public class ProductFixture
+public sealed class ProductFixture
 {
     public Product GenerateProduct()
     {

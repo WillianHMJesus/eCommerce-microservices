@@ -24,11 +24,10 @@ public sealed class ValidationBehavior<TRequest, TResponse> : IPipelineBehavior<
             .Select(validator => validator.Validate(request))
             .SelectMany(validationResult => validationResult.Errors)
             .Where(validateFailure => validateFailure is not null)
-            .Select(failure => new Error
-            {
-                Key = failure.PropertyName,
-                Message = failure.ErrorMessage
-            })
+            .Select(failure => new Error(
+                failure.PropertyName,
+                failure.ErrorMessage
+            ))
             .Distinct()
             .ToList();
 

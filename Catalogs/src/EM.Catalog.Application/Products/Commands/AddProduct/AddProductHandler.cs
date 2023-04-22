@@ -15,7 +15,7 @@ public sealed class AddProductHandler : ICommandHandler<AddProductCommand>
 
     public async Task<Result> Handle(AddProductCommand command, CancellationToken cancellationToken)
     {
-        Category? category = await _productRepository.GetCategoryByIdAsync(command.CategoryId);
+        Category? category = await _productRepository.GetCategoryByIdAsync(command.CategoryId, cancellationToken);
 
         if (category == null)
             return Result.CreateResponseWithErrors("CategoryId", ErrorMessage.ProductCategoryNotFound);
@@ -23,7 +23,7 @@ public sealed class AddProductHandler : ICommandHandler<AddProductCommand>
         Product product = new(command.Name, command.Description, command.Value, command.Quantity, command.Image);
         product.AssignCategory(category);
 
-        await _productRepository.AddProductAsync(product);
+        await _productRepository.AddProductAsync(product, cancellationToken);
 
         return Result.CreateResponseWithData(product.Id);
     }

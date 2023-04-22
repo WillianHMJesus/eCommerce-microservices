@@ -14,6 +14,6 @@ public class ProductUpdatedHandler : IEventHandler<ProductUpdatedEvent>
     public async Task Handle(ProductUpdatedEvent _event, CancellationToken cancellationToken)
     {
         ProductDTO productDTO = (ProductDTO)_event;
-        await _readContext.Products.ReplaceOneAsync(x => x.Id == productDTO.Id, productDTO);
+        await _readContext.Products.ReplaceOneAsync(x => x.Id == productDTO.Id, productDTO, cancellationToken: cancellationToken);
     }
 }

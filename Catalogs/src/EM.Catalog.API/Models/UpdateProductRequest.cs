@@ -2,7 +2,7 @@
 
 namespace EM.Catalog.API.Models;
 
-public class UpdateProductRequest
+public sealed record UpdateProductRequest
 {
     public Guid Id { get; set; }
     public string Name { get; set; } = ""!;

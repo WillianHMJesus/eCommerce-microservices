@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace EM.Catalog.Infraestructure.Persistense.Write.EntityTypeConfigurations;
 
-public class ProductEntityTypeConfiguration : IEntityTypeConfiguration<Product>
+public sealed class ProductEntityTypeConfiguration : IEntityTypeConfiguration<Product>
 {
     public void Configure(EntityTypeBuilder<Product> builder)
     {

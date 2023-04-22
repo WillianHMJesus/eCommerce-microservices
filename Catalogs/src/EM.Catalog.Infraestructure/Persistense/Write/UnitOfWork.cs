@@ -2,7 +2,7 @@
 
 namespace EM.Catalog.Infraestructure.Persistense.Write;
 
-public class UnitOfWork : IUnitOfWork
+public sealed class UnitOfWork : IUnitOfWork
 {
     private readonly WriteContext _writeContext;
 

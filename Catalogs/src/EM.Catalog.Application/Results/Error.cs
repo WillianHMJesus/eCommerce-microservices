@@ -1,7 +1,3 @@
 ﻿namespace EM.Catalog.Application.Results;
 
-public struct Error
-{
-    public string Key { get; set; }
-    public string Message { get; set; }
-}
+public sealed record Error(string Key, string Message);

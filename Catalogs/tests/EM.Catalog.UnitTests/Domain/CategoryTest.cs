@@ -4,7 +4,7 @@ using Xunit;
 
 namespace EM.Catalog.UnitTests.Domain;
 
-public class CategoryTest
+public sealed class CategoryTest
 {
     private readonly CategoryFixture _categoryFixture;
 

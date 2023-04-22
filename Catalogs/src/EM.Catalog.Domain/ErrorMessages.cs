@@ -1,6 +1,6 @@
 ﻿namespace EM.Catalog.Domain;
 
-public class ErrorMessage
+public sealed record ErrorMessage
 {
     #region Product
     public const string ProductNameNullOrEmpty = "The product name cannot be null or empty.";

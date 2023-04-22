@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace EM.Catalog.Infraestructure.Persistense.Write;
 
-public class WriteContext : DbContext
+public sealed class WriteContext : DbContext
 {
     public WriteContext(DbContextOptions<WriteContext> options)
         : base(options) { }

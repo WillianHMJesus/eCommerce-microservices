@@ -7,7 +7,7 @@ using Xunit;
 
 namespace EM.Catalog.UnitTests.Application;
 
-public class UpdateCategoryHandlerTest
+public sealed class UpdateCategoryHandlerTest
 {
     [Fact]
     public async Task Handle_ValidRequest_MustReturnWithSuccess()
@@ -15,9 +15,10 @@ public class UpdateCategoryHandlerTest
         Mock<IProductRepository> mockProductRepository = new();
         UpdateCategoryHandler updateCategoryHandler = new(mockProductRepository.Object);
 
-        Result result = await updateCategoryHandler.Handle(new UpdateCategoryCommand(Guid.NewGuid(), 10, "Informática", "Categoria de informática"), CancellationToken.None);
+        Result result = await updateCategoryHandler.Handle(new UpdateCategoryCommand(Guid.NewGuid(), 10, "Informática", "Categoria de informática"), 
+            CancellationToken.None);
 
-        mockProductRepository.Verify(x => x.UpdateCategoryAsync(It.IsAny<Category>()), Times.Once);
+        mockProductRepository.Verify(x => x.UpdateCategoryAsync(It.IsAny<Category>(), It.IsAny<CancellationToken>()), Times.Once);
         Assert.True(result.Success);
     }
 }
