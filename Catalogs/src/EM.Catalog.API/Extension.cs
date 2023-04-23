@@ -6,7 +6,7 @@ using EM.Catalog.Application.Products.Queries.GetAllProducts;
 using EM.Catalog.Application.Products.Queries.GetProductById;
 using EM.Catalog.Application.Products.Queries.GetProductsByCategoryId;
 using EM.Catalog.Domain.Interfaces;
-using EM.Catalog.Infraestructure.Persistense.Queries;
+using EM.Catalog.Infraestructure.Queries;
 using EM.Catalog.Infraestructure.Persistense.Read;
 using EM.Catalog.Infraestructure.Persistense.Repositories;
 using EM.Catalog.Infraestructure.Persistense.Write;

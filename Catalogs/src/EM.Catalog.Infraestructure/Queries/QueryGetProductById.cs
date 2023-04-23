@@ -3,7 +3,7 @@ using EM.Catalog.Application.DTOs;
 using EM.Catalog.Infraestructure.Persistense.Read;
 using MongoDB.Driver;
 
-namespace EM.Catalog.Infraestructure.Persistense.Queries;
+namespace EM.Catalog.Infraestructure.Queries;
 
 public sealed class QueryGetProductById : IQueryGetProductById
 {
