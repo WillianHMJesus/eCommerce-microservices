@@ -5,14 +5,14 @@ namespace EM.Catalog.Infraestructure.EventsReadDatabase.CategoryAdded;
 
 public sealed class CategoryAddedHandler : IEventHandler<CategoryAddedEvent>
 {
-    private readonly ReadContext _readContext;
+    private readonly IDatabaseReadManager _databaseManager;
 
-    public CategoryAddedHandler(ReadContext readContext)
-        => _readContext = readContext;
+    public CategoryAddedHandler(IDatabaseReadManager databaseManager)
+        => _databaseManager = databaseManager;
 
     public async Task Handle(CategoryAddedEvent _event, CancellationToken cancellationToken)
     {
         CategoryDTO categoryDTO = (CategoryDTO)_event;
-        await _readContext.Categories.InsertOneAsync(categoryDTO, null, cancellationToken);
+        await _databaseManager.AddCategoryAsync(categoryDTO, cancellationToken);
     }
 }

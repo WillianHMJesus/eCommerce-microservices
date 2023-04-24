@@ -4,5 +4,5 @@ namespace EM.Catalog.Application.Categories.Queries.GetCategoryById;
 
 public interface IQueryGetCategoryById
 {
-    Task<CategoryDTO> GetAsync(Guid id, CancellationToken cancellationToken);
+    Task<CategoryDTO?> GetAsync(Guid id, CancellationToken cancellationToken);
 }

@@ -5,14 +5,14 @@ namespace EM.Catalog.Infraestructure.EventsReadDatabase.ProductAdded;
 
 public sealed class ProductAddedHandler : IEventHandler<ProductAddedEvent>
 {
-    private readonly ReadContext _readContext;
+    private readonly IDatabaseReadManager _databaseManager;
 
-    public ProductAddedHandler(ReadContext readContext)
-        => _readContext = readContext;
+    public ProductAddedHandler(IDatabaseReadManager databaseManager)
+        => _databaseManager = databaseManager;
 
     public async Task Handle(ProductAddedEvent _event, CancellationToken cancellationToken)
     {
         ProductDTO productDTO = (ProductDTO)_event;
-        await _readContext.Products.InsertOneAsync(productDTO, null, cancellationToken);
+        await _databaseManager.AddProductAsync(productDTO, cancellationToken);
     }
 }

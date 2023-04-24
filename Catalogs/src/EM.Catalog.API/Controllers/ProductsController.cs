@@ -25,12 +25,9 @@ public sealed class ProductsController : ControllerBase
     {
         Result result = await _mediator.Send((AddProductCommand)addProductRequest, cancellationToken);
 
-        if (!result.Success)
-        {
-            return BadRequest(result.Errors);
-        }
-
-        return Created(nameof(GetByIdAsync), new { id = result.Data });
+        return !result.Success ? 
+            BadRequest(result.Errors) : 
+            Created(nameof(GetByIdAsync), new { id = result.Data });
     }
 
     [HttpPut]
@@ -38,12 +35,9 @@ public sealed class ProductsController : ControllerBase
     {
         Result result = await _mediator.Send((UpdateProductCommand)updateProductRequest, cancellationToken);
 
-        if (!result.Success)
-        {
-            return BadRequest(result.Errors);
-        }
-
-        return NoContent();
+        return !result.Success ?
+            BadRequest(result.Errors) :
+            NoContent();
     }
 
     [HttpGet("{id}")]

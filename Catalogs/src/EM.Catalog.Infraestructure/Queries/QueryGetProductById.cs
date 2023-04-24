@@ -1,20 +1,18 @@
 ﻿using EM.Catalog.Application.Products.Queries.GetProductById;
 using EM.Catalog.Application.DTOs;
 using EM.Catalog.Infraestructure.Persistense.Read;
-using MongoDB.Driver;
 
 namespace EM.Catalog.Infraestructure.Queries;
 
 public sealed class QueryGetProductById : IQueryGetProductById
 {
-    private readonly ReadContext _readContext;
+    private readonly IDatabaseReadManager _databaseManager;
 
-    public QueryGetProductById(ReadContext readContext)
-        => _readContext = readContext;
+    public QueryGetProductById(IDatabaseReadManager databaseManager)
+        => _databaseManager = databaseManager;
 
-    public async Task<ProductDTO> GetAsync(Guid id, CancellationToken cancellationToken)
+    public async Task<ProductDTO?> GetAsync(Guid id, CancellationToken cancellationToken)
     {
-        return await _readContext.Products.Find(x => x.Id == id)
-            .FirstOrDefaultAsync(cancellationToken);
+        return await _databaseManager.GetProductByIdAsync(id, cancellationToken);
     }
 }

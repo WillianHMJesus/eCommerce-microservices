@@ -6,9 +6,9 @@ namespace EM.Catalog.Infraestructure.Persistense.Repositories;
 
 public sealed class ProductRepository : IProductRepository
 {
-    private readonly WriteContext _writeContext;
+    private readonly CatalogContext _writeContext;
 
-    public ProductRepository(WriteContext writeContext)
+    public ProductRepository(CatalogContext writeContext)
         => _writeContext = writeContext;
 
     public async Task AddProductAsync(Product product, CancellationToken cancellationToken)

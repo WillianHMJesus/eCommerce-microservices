@@ -4,5 +4,5 @@ namespace EM.Catalog.Application.Products.Queries.GetProductById;
 
 public interface IQueryGetProductById
 {
-    Task<ProductDTO> GetAsync(Guid id, CancellationToken cancellationToken);
+    Task<ProductDTO?> GetAsync(Guid id, CancellationToken cancellationToken);
 }

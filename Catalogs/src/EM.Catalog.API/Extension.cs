@@ -26,10 +26,10 @@ public static class Extension
         services.AddScoped(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
 
         services.Configure<CatalogDatabaseSettings>(configuration.GetSection("CatalogDatabase"));
-        services.AddDbContext<WriteContext>(options => options.UseSqlServer(configuration.GetConnectionString("Catalog")));
+        services.AddDbContext<CatalogContext>(options => options.UseSqlServer(configuration.GetConnectionString("Catalog")));
 
-        services.AddScoped<WriteContext>();
-        services.AddSingleton<ReadContext>();
+        services.AddScoped<CatalogContext>();
+        services.AddSingleton<MongoDbManager>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 
         services.AddScoped<IProductRepository, ProductRepository>();

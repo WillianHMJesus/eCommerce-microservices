@@ -24,12 +24,9 @@ public sealed class CategoriesController : ControllerBase
     {
         Result result = await _mediator.Send((AddCategoryCommand)addCategoryRequest, cancellationToken);
 
-        if (!result.Success)
-        {
-            return BadRequest(result.Errors);
-        }
-
-        return Created(nameof(GetByIdAsync), new { id = result.Data });
+        return !result.Success ?
+            BadRequest(result.Errors) :
+            Created(nameof(GetByIdAsync), new { id = result.Data });
     }
 
     [HttpPut]
@@ -37,12 +34,9 @@ public sealed class CategoriesController : ControllerBase
     {
         Result result = await _mediator.Send((UpdateCategoryCommand)updateCategoryRequest, cancellationToken);
 
-        if (!result.Success)
-        {
-            return BadRequest(result.Errors);
-        }
-
-        return NoContent();
+        return !result.Success ? 
+            BadRequest(result.Errors) : 
+            NoContent();
     }
 
     [HttpGet("{id}")]

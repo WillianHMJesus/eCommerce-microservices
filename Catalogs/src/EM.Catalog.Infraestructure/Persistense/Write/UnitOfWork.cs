@@ -4,9 +4,9 @@ namespace EM.Catalog.Infraestructure.Persistense.Write;
 
 public sealed class UnitOfWork : IUnitOfWork
 {
-    private readonly WriteContext _writeContext;
+    private readonly CatalogContext _writeContext;
 
-    public UnitOfWork(WriteContext writeContext)
+    public UnitOfWork(CatalogContext writeContext)
         => _writeContext = writeContext;
 
     public async Task<bool> CommitAsync()

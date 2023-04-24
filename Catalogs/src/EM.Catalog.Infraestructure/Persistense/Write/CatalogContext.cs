@@ -3,9 +3,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace EM.Catalog.Infraestructure.Persistense.Write;
 
-public sealed class WriteContext : DbContext
+public sealed class CatalogContext : DbContext
 {
-    public WriteContext(DbContextOptions<WriteContext> options)
+    public CatalogContext(DbContextOptions<CatalogContext> options)
         : base(options) { }
 
     public DbSet<Product> Products { get; set; } = default!;
@@ -13,7 +13,7 @@ public sealed class WriteContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.ApplyConfigurationsFromAssembly(typeof(WriteContext).Assembly);
+        modelBuilder.ApplyConfigurationsFromAssembly(typeof(CatalogContext).Assembly);
 
         base.OnModelCreating(modelBuilder);
     }
