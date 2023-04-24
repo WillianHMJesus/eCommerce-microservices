@@ -7,7 +7,7 @@ using EM.Catalog.Infraestructure.EventsReadDatabase.ProductAdded;
 using EM.Catalog.Infraestructure.EventsReadDatabase.ProductUpdated;
 using MediatR;
 
-namespace EM.Catalog.Infraestructure.Persistense.Repositories;
+namespace EM.Catalog.Infraestructure.Persistense.Write.Repositories;
 
 public sealed class ProductRepositoryDecorator : IProductRepository
 {

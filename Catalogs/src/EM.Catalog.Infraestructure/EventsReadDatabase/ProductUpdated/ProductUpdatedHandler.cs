@@ -1,5 +1,5 @@
 ﻿using EM.Catalog.Application.DTOs;
-using EM.Catalog.Infraestructure.Persistense.Read;
+using EM.Catalog.Infraestructure.Persistense.Read.Managers;
 
 namespace EM.Catalog.Infraestructure.EventsReadDatabase.ProductUpdated;
 

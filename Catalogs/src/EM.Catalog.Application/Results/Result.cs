@@ -18,7 +18,7 @@ public class Result
 
     public static Result CreateResponseWithErrors(string key, string message)
     {
-        Error error = new Error(key, message);
+        Error error = new(key, message);
 
         return new Result
         {

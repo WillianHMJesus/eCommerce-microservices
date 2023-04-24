@@ -1,8 +1,7 @@
 ﻿using EM.Catalog.Domain.Entities;
 using EM.Catalog.Domain.Interfaces;
-using EM.Catalog.Infraestructure.Persistense.Write;
 
-namespace EM.Catalog.Infraestructure.Persistense.Repositories;
+namespace EM.Catalog.Infraestructure.Persistense.Write.Repositories;
 
 public sealed class ProductRepository : IProductRepository
 {

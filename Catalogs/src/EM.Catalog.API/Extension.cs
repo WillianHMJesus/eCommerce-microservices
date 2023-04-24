@@ -8,11 +8,12 @@ using EM.Catalog.Application.Products.Queries.GetProductsByCategoryId;
 using EM.Catalog.Domain.Interfaces;
 using EM.Catalog.Infraestructure.Queries;
 using EM.Catalog.Infraestructure.Persistense.Read;
-using EM.Catalog.Infraestructure.Persistense.Repositories;
 using EM.Catalog.Infraestructure.Persistense.Write;
 using FluentValidation;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using EM.Catalog.Infraestructure.Persistense.Read.Managers;
+using EM.Catalog.Infraestructure.Persistense.Write.Repositories;
 
 namespace EM.Catalog.API;
 
@@ -29,7 +30,8 @@ public static class Extension
         services.AddDbContext<CatalogContext>(options => options.UseSqlServer(configuration.GetConnectionString("Catalog")));
 
         services.AddScoped<CatalogContext>();
-        services.AddSingleton<IDatabaseReadManager, MongoDbManager>();
+        services.AddSingleton<MongoDbConfiguration>();
+        services.AddScoped<IDatabaseReadManager, MongoDbManager>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 
         services.AddScoped<IProductRepository, ProductRepository>();

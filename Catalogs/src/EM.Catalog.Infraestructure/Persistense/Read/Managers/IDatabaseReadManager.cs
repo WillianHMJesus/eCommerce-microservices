@@ -1,6 +1,6 @@
 ﻿using EM.Catalog.Application.DTOs;
 
-namespace EM.Catalog.Infraestructure.Persistense.Read;
+namespace EM.Catalog.Infraestructure.Persistense.Read.Managers;
 
 public interface IDatabaseReadManager
 {
