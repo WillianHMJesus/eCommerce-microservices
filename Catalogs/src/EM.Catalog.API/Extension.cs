@@ -29,7 +29,7 @@ public static class Extension
         services.AddDbContext<CatalogContext>(options => options.UseSqlServer(configuration.GetConnectionString("Catalog")));
 
         services.AddScoped<CatalogContext>();
-        services.AddSingleton<MongoDbManager>();
+        services.AddSingleton<IDatabaseReadManager, MongoDbManager>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 
         services.AddScoped<IProductRepository, ProductRepository>();
