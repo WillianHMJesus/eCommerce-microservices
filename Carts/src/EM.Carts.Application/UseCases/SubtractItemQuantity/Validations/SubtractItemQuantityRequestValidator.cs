@@ -7,6 +7,10 @@ public class SubtractItemQuantityRequestValidator : AbstractValidator<SubtractIt
 {
     public SubtractItemQuantityRequestValidator()
     {
+        RuleFor(x => x.UserId)
+            .NotEqual(default(Guid))
+            .WithMessage(ErrorMessage.UserIdInvalid);
+
         RuleFor(x => x.ProductId)
             .NotEqual(default(Guid))
             .WithMessage(ErrorMessage.ProductIdInvalid);

@@ -10,7 +10,7 @@ namespace EM.Carts.API.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-public class CartsController : BaseController
+public sealed class CartsController : BaseController
 {
     private readonly IAddItemUseCase _addItemUseCase;
     private readonly IAddItemQuantityUseCase _addItemQuantityUseCase;
@@ -39,8 +39,9 @@ public class CartsController : BaseController
     public async Task<IActionResult> AddItem(AddItemRequest addItemRequest)
     {
         _addItemUseCase.SetPresenter(this);
+        addItemRequest.UserId = GetUserId();
 
-        await _addItemUseCase.ExecuteAsync(addItemRequest, GetUserId());
+        await _addItemUseCase.ExecuteAsync(addItemRequest);
 
         return _actionResult;
     }
@@ -49,8 +50,9 @@ public class CartsController : BaseController
     public async Task<IActionResult> AddItemQuantity(AddItemQuantityRequest addItemQuantityRequest)
     {
         _addItemQuantityUseCase.SetPresenter(this);
+        addItemQuantityRequest.UserId = GetUserId();
 
-        await _addItemQuantityUseCase.ExecuteAsync(addItemQuantityRequest, GetUserId());
+        await _addItemQuantityUseCase.ExecuteAsync(addItemQuantityRequest);
 
         return _actionResult;
     }
@@ -59,8 +61,9 @@ public class CartsController : BaseController
     public async Task<IActionResult> SubtractItemQuantity(SubtractItemQuantityRequest subtractItemQuantityRequest)
     {
         _subtractItemQuantityUseCase.SetPresenter(this);
+        subtractItemQuantityRequest.UserId = GetUserId();
 
-        await _subtractItemQuantityUseCase.ExecuteAsync(subtractItemQuantityRequest, GetUserId());
+        await _subtractItemQuantityUseCase.ExecuteAsync(subtractItemQuantityRequest);
 
         return _actionResult;
     }
@@ -69,8 +72,9 @@ public class CartsController : BaseController
     public async Task<IActionResult> DeleteItem(DeleteItemRequest deleteItemRequest)
     {
         _deleteItemUseCase.SetPresenter(this);
+        deleteItemRequest.UserId = GetUserId();
 
-        await _deleteItemUseCase.ExecuteAsync(deleteItemRequest, GetUserId());
+        await _deleteItemUseCase.ExecuteAsync(deleteItemRequest);
 
         return _actionResult;
     }

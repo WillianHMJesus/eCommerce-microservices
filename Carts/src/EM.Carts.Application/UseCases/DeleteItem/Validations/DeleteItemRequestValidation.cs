@@ -3,7 +3,7 @@ using FluentValidation.Results;
 
 namespace EM.Carts.Application.UseCases.DeleteItem.Validations;
 
-public class DeleteItemRequestValidation : IDeleteItemUseCase
+public sealed class DeleteItemRequestValidation : IDeleteItemUseCase
 {
     private readonly IDeleteItemUseCase _deleteItemUseCase;
     private IPresenter _presenter = default!;
@@ -11,7 +11,7 @@ public class DeleteItemRequestValidation : IDeleteItemUseCase
     public DeleteItemRequestValidation(IDeleteItemUseCase deleteItemUseCase)
         => _deleteItemUseCase = deleteItemUseCase;
 
-    public async Task ExecuteAsync(DeleteItemRequest request, Guid userId)
+    public async Task ExecuteAsync(DeleteItemRequest request)
     {
         DeleteItemRequestValidator validator = new();
         ValidationResult validationResult = validator.Validate(request);
@@ -22,7 +22,7 @@ public class DeleteItemRequestValidation : IDeleteItemUseCase
             return;
         }
 
-        await _deleteItemUseCase.ExecuteAsync(request, userId);
+        await _deleteItemUseCase.ExecuteAsync(request);
     }
 
     public void SetPresenter(IPresenter presenter)

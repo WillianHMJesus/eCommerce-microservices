@@ -1,6 +1,6 @@
 ﻿namespace EM.Carts.Domain;
 
-public class ErrorMessage
+public sealed record ErrorMessage
 {
     public const string UserIdInvalid = "The user id cannot be invalid";
     public const string CartItemNull = "The cart item cannot be null";
@@ -11,5 +11,6 @@ public class ErrorMessage
     public const string ProductImageNullOrEmpty = "The product image cannot be null or empty.";
     public const string ValueLessThanEqualToZero = "The value cannot be less than or equal to zero.";
     public const string QuantityLessThanEqualToZero = "The quantity cannot be less than or equal to zero.";
+    public const string QuantityGreaterThanAvailable = "The quantity cannot be greater than the available quantity.";
     public const string ItemNotFound = "The item not found";
 }

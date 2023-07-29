@@ -1,6 +1,6 @@
 ﻿namespace EM.Carts.Domain.Entities;
 
-public class Cart : Entity
+public sealed class Cart : Entity
 {
     public Cart(Guid userId)
     {
@@ -12,7 +12,7 @@ public class Cart : Entity
 
     public Guid UserId { get; init; }
 
-    public List<Item> Items { get; private set; }
+    public List<Item> Items { get; init; }
 
     public override void Validate()
     {

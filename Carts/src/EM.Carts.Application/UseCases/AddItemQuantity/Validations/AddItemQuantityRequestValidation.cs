@@ -3,7 +3,7 @@ using FluentValidation.Results;
 
 namespace EM.Carts.Application.UseCases.AddItemQuantity.Validations;
 
-public class AddItemQuantityRequestValidation : IAddItemQuantityUseCase
+public sealed class AddItemQuantityRequestValidation : IAddItemQuantityUseCase
 {
     private readonly IAddItemQuantityUseCase _addItemQuantityUseCase;
     private IPresenter _presenter = default!;
@@ -11,7 +11,7 @@ public class AddItemQuantityRequestValidation : IAddItemQuantityUseCase
     public AddItemQuantityRequestValidation(IAddItemQuantityUseCase addItemQuantityUseCase)
         => _addItemQuantityUseCase = addItemQuantityUseCase;
 
-    public async Task ExecuteAsync(AddItemQuantityRequest request, Guid userId)
+    public async Task ExecuteAsync(AddItemQuantityRequest request)
     {
         AddItemQuantityRequestValidator validator = new();
         ValidationResult validationResult = validator.Validate(request);
@@ -22,7 +22,7 @@ public class AddItemQuantityRequestValidation : IAddItemQuantityUseCase
             return;
         }
 
-        await _addItemQuantityUseCase.ExecuteAsync(request, userId);
+        await _addItemQuantityUseCase.ExecuteAsync(request);
     }
 
     public void SetPresenter(IPresenter presenter)

@@ -1,9 +1,9 @@
 ﻿using EM.Carts.Domain.Entities;
 using System;
 
-namespace EM.Carts.UnitTests.Fixtures;
+namespace EM.Carts.UnitTests.Fixtures.Domain;
 
-public class CartFixture
+public sealed class CartFixture
 {
     public Cart GenerateValidCart()
     {

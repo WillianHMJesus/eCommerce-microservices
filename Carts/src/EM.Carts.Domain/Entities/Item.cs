@@ -1,6 +1,6 @@
 ﻿namespace EM.Carts.Domain.Entities;
 
-public class Item : Entity
+public sealed class Item : Entity
 {
     public Item(Guid productId, string productName, string productImage, decimal value, int quantity)
     {
@@ -13,10 +13,10 @@ public class Item : Entity
         Validate();
     }
 
-    public Guid ProductId { get; private set; }
-    public string ProductName { get; private set; }
-    public string ProductImage { get; private set; }
-    public decimal Value { get; private set; }
+    public Guid ProductId { get; init; }
+    public string ProductName { get; init; }
+    public string ProductImage { get; init; }
+    public decimal Value { get; init; }
     public int Quantity { get; private set; }
 
     public override void Validate()
@@ -37,7 +37,7 @@ public class Item : Entity
     public void SubtractQuantity(int quantity)
     {
         AssertionConcern.ValidateLessThanEqualToMinimum(quantity, 0, ErrorMessage.QuantityLessThanEqualToZero);
-        AssertionConcern.ValidateLessThanEqualToMinimum(Quantity - quantity, 0, ErrorMessage.QuantityLessThanEqualToZero);
+        AssertionConcern.ValidateLessThanEqualToMinimum(Quantity - quantity, 0, ErrorMessage.QuantityGreaterThanAvailable);
 
         Quantity -= quantity;
     }

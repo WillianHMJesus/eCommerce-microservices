@@ -4,6 +4,6 @@ namespace EM.Carts.Application.UseCases.AddItemQuantity;
 
 public interface IAddItemQuantityUseCase
 {
-    Task ExecuteAsync(AddItemQuantityRequest request, Guid userId);
+    Task ExecuteAsync(AddItemQuantityRequest request);
     void SetPresenter(IPresenter presenter);
 }

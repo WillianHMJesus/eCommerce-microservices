@@ -5,7 +5,7 @@ using MongoDB.Driver;
 
 namespace EM.Carts.Infraestructure.Repositories;
 
-public class CartRepository : ICartRepository
+public sealed class CartRepository : ICartRepository
 {
     private readonly MongoDbConfiguration _mongoDb;
 
@@ -13,18 +13,11 @@ public class CartRepository : ICartRepository
         => _mongoDb = mongoDb;
 
     public async Task AddCartAsync(Cart cart)
-    {
-        await _mongoDb.CartCollection.InsertOneAsync(cart);
-    }
+        => await _mongoDb.CartCollection.InsertOneAsync(cart);
 
     public async Task<Cart?> GetCartByUserIdAsync(Guid userId)
-    {
-        return await _mongoDb.CartCollection.Find(x => x.UserId == userId)
-            .FirstOrDefaultAsync();
-    }
+        => await _mongoDb.CartCollection.Find(x => x.UserId == userId).FirstOrDefaultAsync();
 
     public async Task UpdateCartAsync(Cart cart)
-    {
-        await _mongoDb.CartCollection.ReplaceOneAsync(x => x.Id == cart.Id, cart);
-    }
+        => await _mongoDb.CartCollection.ReplaceOneAsync(x => x.Id == cart.Id, cart);
 }

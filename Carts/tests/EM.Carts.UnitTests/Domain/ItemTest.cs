@@ -1,12 +1,12 @@
 ﻿using EM.Carts.Domain;
 using EM.Carts.Domain.Entities;
-using EM.Carts.UnitTests.Fixtures;
+using EM.Carts.UnitTests.Fixtures.Domain;
 using System;
 using Xunit;
 
 namespace EM.Carts.UnitTests.Domain;
 
-public class ItemTest
+public sealed class ItemTest
 {
     private readonly ItemFixture _itemFixture;
 
@@ -133,7 +133,7 @@ public class ItemTest
             => item.SubtractQuantity(item.Quantity));
 
         Assert.NotNull(domainException);
-        Assert.Equal(ErrorMessage.QuantityLessThanEqualToZero, domainException.Message);
+        Assert.Equal(ErrorMessage.QuantityGreaterThanAvailable, domainException.Message);
     }
 
     [Fact]
@@ -145,6 +145,6 @@ public class ItemTest
             => item.SubtractQuantity(item.Quantity + 1));
 
         Assert.NotNull(domainException);
-        Assert.Equal(ErrorMessage.QuantityLessThanEqualToZero, domainException.Message);
+        Assert.Equal(ErrorMessage.QuantityGreaterThanAvailable, domainException.Message);
     }
 }

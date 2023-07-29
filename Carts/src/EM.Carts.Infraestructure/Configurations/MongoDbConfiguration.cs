@@ -1,11 +1,10 @@
 ﻿using EM.Carts.Domain.Entities;
 using Microsoft.Extensions.Options;
-using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
 
 namespace EM.Carts.Infraestructure.Configurations;
 
-public class MongoDbConfiguration
+public sealed class MongoDbConfiguration
 {
     private readonly IMongoDatabase _database;
 

@@ -4,7 +4,7 @@ using EM.Carts.Domain.Interfaces;
 
 namespace EM.Carts.Application.UseCases.AddItem;
 
-public class AddItemUseCase : IAddItemUseCase
+public sealed class AddItemUseCase : IAddItemUseCase
 {
     private readonly ICartRepository _cartRepository;
     private IPresenter _presenter = default!;
@@ -12,13 +12,13 @@ public class AddItemUseCase : IAddItemUseCase
     public AddItemUseCase(ICartRepository cartRepository)
         => _cartRepository = cartRepository;
 
-    public async Task ExecuteAsync(AddItemRequest request, Guid userId)
+    public async Task ExecuteAsync(AddItemRequest request)
     {
-        Cart? cart = await _cartRepository.GetCartByUserIdAsync(userId);
+        Cart? cart = await _cartRepository.GetCartByUserIdAsync(request.UserId);
 
         if (cart == null)
         {
-            cart = new Cart(userId);
+            cart = new Cart(request.UserId);
             await _cartRepository.AddCartAsync(cart);
         }
 

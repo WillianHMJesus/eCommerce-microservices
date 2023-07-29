@@ -4,6 +4,6 @@ namespace EM.Carts.Application.UseCases.SubtractItemQuantity;
 
 public interface ISubtractItemQuantityUseCase
 {
-    Task ExecuteAsync(SubtractItemQuantityRequest request, Guid userId);
+    Task ExecuteAsync(SubtractItemQuantityRequest request);
     void SetPresenter(IPresenter presenter);
 }

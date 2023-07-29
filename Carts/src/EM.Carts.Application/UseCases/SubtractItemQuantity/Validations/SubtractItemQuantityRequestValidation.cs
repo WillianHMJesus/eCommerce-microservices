@@ -3,7 +3,7 @@ using FluentValidation.Results;
 
 namespace EM.Carts.Application.UseCases.SubtractItemQuantity.Validations;
 
-public class SubtractItemQuantityRequestValidation : ISubtractItemQuantityUseCase
+public sealed class SubtractItemQuantityRequestValidation : ISubtractItemQuantityUseCase
 {
     private readonly ISubtractItemQuantityUseCase _subtractItemQuantityUseCase;
     private IPresenter _presenter = default!;
@@ -11,7 +11,7 @@ public class SubtractItemQuantityRequestValidation : ISubtractItemQuantityUseCas
     public SubtractItemQuantityRequestValidation(ISubtractItemQuantityUseCase subtractItemQuantityUseCase)
         => _subtractItemQuantityUseCase = subtractItemQuantityUseCase;
 
-    public async Task ExecuteAsync(SubtractItemQuantityRequest request, Guid userId)
+    public async Task ExecuteAsync(SubtractItemQuantityRequest request)
     {
         SubtractItemQuantityRequestValidator validator = new();
         ValidationResult validationResult = validator.Validate(request);
@@ -22,7 +22,7 @@ public class SubtractItemQuantityRequestValidation : ISubtractItemQuantityUseCas
             return;
         }
 
-        await _subtractItemQuantityUseCase.ExecuteAsync(request, userId);
+        await _subtractItemQuantityUseCase.ExecuteAsync(request);
     }
 
     public void SetPresenter(IPresenter presenter)

@@ -5,7 +5,7 @@ using EM.Carts.Domain.Interfaces;
 
 namespace EM.Carts.Application.UseCases.SubtractItemQuantity;
 
-public class SubtractItemQuantityUseCase : ISubtractItemQuantityUseCase
+public sealed class SubtractItemQuantityUseCase : ISubtractItemQuantityUseCase
 {
     private readonly ICartRepository _cartRepository;
     private IPresenter _presenter = default!;
@@ -13,9 +13,9 @@ public class SubtractItemQuantityUseCase : ISubtractItemQuantityUseCase
     public SubtractItemQuantityUseCase(ICartRepository cartRepository)
         => _cartRepository = cartRepository;
 
-    public async Task ExecuteAsync(SubtractItemQuantityRequest request, Guid userId)
+    public async Task ExecuteAsync(SubtractItemQuantityRequest request)
     {
-        Cart? cart = await _cartRepository.GetCartByUserIdAsync(userId);
+        Cart? cart = await _cartRepository.GetCartByUserIdAsync(request.UserId);
 
         if (cart == null)
         {

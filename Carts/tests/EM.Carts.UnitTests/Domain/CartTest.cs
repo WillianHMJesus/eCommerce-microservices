@@ -1,13 +1,13 @@
 ﻿using EM.Carts.Domain;
 using EM.Carts.Domain.Entities;
-using EM.Carts.UnitTests.Fixtures;
+using EM.Carts.UnitTests.Fixtures.Domain;
 using System;
 using System.Linq;
 using Xunit;
 
 namespace EM.Carts.UnitTests.Domain;
 
-public class CartTest
+public sealed class CartTest
 {
     private readonly CartFixture _cartFixture;
     private readonly ItemFixture _itemFixture;

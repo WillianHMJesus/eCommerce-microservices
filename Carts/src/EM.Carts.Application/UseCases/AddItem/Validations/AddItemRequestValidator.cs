@@ -3,10 +3,14 @@ using FluentValidation;
 
 namespace EM.Carts.Application.UseCases.AddItem.Validations;
 
-public class AddItemRequestValidator : AbstractValidator<AddItemRequest>
+public sealed class AddItemRequestValidator : AbstractValidator<AddItemRequest>
 {
     public AddItemRequestValidator()
     {
+        RuleFor(x => x.UserId)
+            .NotEqual(default(Guid))
+            .WithMessage(ErrorMessage.UserIdInvalid);
+
         RuleFor(x => x.ProductId)
             .NotEqual(default(Guid))
             .WithMessage(ErrorMessage.ProductIdInvalid);

@@ -1,6 +1,6 @@
 ﻿namespace EM.Carts.Domain;
 
-public class AssertionConcern
+public sealed class AssertionConcern
 {
     public static void ValidateNullOrEmpty(string value, string message)
     {

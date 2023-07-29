@@ -5,7 +5,7 @@ using EM.Carts.Domain.Interfaces;
 
 namespace EM.Carts.Application.UseCases.GetCartByUserId;
 
-public class GetCartByUserIdUseCase : IGetCartByUserIdUseCase
+public sealed class GetCartByUserIdUseCase : IGetCartByUserIdUseCase
 {
     private readonly ICartRepository _cartRepository;
     private IPresenter _presenter = default!;
@@ -16,14 +16,9 @@ public class GetCartByUserIdUseCase : IGetCartByUserIdUseCase
     public async Task ExecuteAsync(Guid userId)
     {
         Cart? cart = await _cartRepository.GetCartByUserIdAsync(userId);
+        CartDTO? cartDTO = cart != null ? (CartDTO)cart : null;
 
-        if (cart == null)
-        {
-            _presenter.Success();
-            return;
-        }
-
-        _presenter.Success((CartDTO)cart);
+        _presenter.Success(cartDTO);
     }
 
     public void SetPresenter(IPresenter presenter)

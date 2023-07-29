@@ -5,7 +5,7 @@ using EM.Carts.Domain.Interfaces;
 
 namespace EM.Carts.Application.UseCases.DeleteAllItems;
 
-public class DeleteAllItemsUseCase : IDeleteAllItemsUseCase
+public sealed class DeleteAllItemsUseCase : IDeleteAllItemsUseCase
 {
     private readonly ICartRepository _cartRepository;
     private IPresenter _presenter = default!;

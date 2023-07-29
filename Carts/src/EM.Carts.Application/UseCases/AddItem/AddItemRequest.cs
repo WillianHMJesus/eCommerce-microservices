@@ -1,7 +1,11 @@
-﻿namespace EM.Carts.Application.UseCases.AddItem;
+﻿using System.Text.Json.Serialization;
 
-public class AddItemRequest
+namespace EM.Carts.Application.UseCases.AddItem;
+
+public sealed record AddItemRequest
 {
+    [JsonIgnore]
+    public Guid UserId { get; set; }
     public Guid ProductId { get; set; }
     public string ProductName { get; set; } = ""!;
     public string ProductImage { get; set; } = ""!;

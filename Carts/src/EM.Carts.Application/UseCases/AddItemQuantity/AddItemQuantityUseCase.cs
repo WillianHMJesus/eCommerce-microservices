@@ -5,7 +5,7 @@ using EM.Carts.Domain.Interfaces;
 
 namespace EM.Carts.Application.UseCases.AddItemQuantity;
 
-public class AddItemQuantityUseCase : IAddItemQuantityUseCase
+public sealed class AddItemQuantityUseCase : IAddItemQuantityUseCase
 {
     private readonly ICartRepository _cartRepository;
     private IPresenter _presenter = default!;
@@ -13,13 +13,13 @@ public class AddItemQuantityUseCase : IAddItemQuantityUseCase
     public AddItemQuantityUseCase(ICartRepository cartRepository)
         => _cartRepository = cartRepository;
 
-    public async Task ExecuteAsync(AddItemQuantityRequest request, Guid userId)
+    public async Task ExecuteAsync(AddItemQuantityRequest request)
     {
-        Cart? cart = await _cartRepository.GetCartByUserIdAsync(userId);
+        Cart? cart = await _cartRepository.GetCartByUserIdAsync(request.UserId);
         
         if (cart == null)
         {
-            _presenter.BadRequest(new 
+            _presenter.BadRequest(new
             {
                 ErrorMessage = ErrorMessage.CartNotFound
             });
