@@ -25,7 +25,6 @@ public sealed class ProductRepositoryDecorator : IProductRepository
         _mediator = mediator;
     }
 
-
     public async Task AddProductAsync(Product product, CancellationToken cancellationToken)
     {
         await _productRepository.AddProductAsync(product, cancellationToken);

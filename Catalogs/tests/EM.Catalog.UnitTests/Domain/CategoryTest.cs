@@ -9,9 +9,7 @@ public sealed class CategoryTest
     private readonly CategoryFixture _categoryFixture;
 
     public CategoryTest()
-    {
-        _categoryFixture = new CategoryFixture();
-    }
+        => _categoryFixture = new CategoryFixture();
 
     [Fact]
     public void Validate_ValidCategory_MustNotReturnDomainException()

@@ -11,7 +11,7 @@ public sealed class ValidationBehavior<TRequest, TResponse> : IPipelineBehavior<
     private readonly IEnumerable<IValidator<TRequest>> _validators;
 
     public ValidationBehavior(IEnumerable<IValidator<TRequest>> validators)
-     => _validators = validators;
+        => _validators = validators;
 
     public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
     {
@@ -26,8 +26,7 @@ public sealed class ValidationBehavior<TRequest, TResponse> : IPipelineBehavior<
             .Where(validateFailure => validateFailure is not null)
             .Select(failure => new Error(
                 failure.PropertyName,
-                failure.ErrorMessage
-            ))
+                failure.ErrorMessage))
             .Distinct()
             .ToList();
 

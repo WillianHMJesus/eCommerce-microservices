@@ -1,5 +1,4 @@
 ﻿using EM.Catalog.Application.DTOs;
-using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 
 namespace EM.Catalog.Infraestructure.Persistense.Read.Managers;
