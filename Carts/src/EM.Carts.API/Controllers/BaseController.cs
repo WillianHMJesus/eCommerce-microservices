@@ -16,6 +16,6 @@ public abstract class BaseController : ControllerBase, IPresenter
         => _actionResult = Ok(data);
 
     [NonAction]
-    void IBadRequest.BadRequest(object erros)
-        => _actionResult = BadRequest(erros);
+    void IBadRequest.BadRequest(object errors)
+        => _actionResult = BadRequest(errors);
 }

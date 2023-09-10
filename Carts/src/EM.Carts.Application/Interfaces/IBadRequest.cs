@@ -2,5 +2,5 @@
 
 public interface IBadRequest
 {
-    void BadRequest(object erros);
+    void BadRequest(object errors);
 }
