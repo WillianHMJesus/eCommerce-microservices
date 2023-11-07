@@ -1,4 +1,6 @@
-﻿namespace EM.Catalog.Domain.Entities;
+﻿using EM.Shared.Core;
+
+namespace EM.Catalog.Domain.Entities;
 
 public class Category : Entity
 {

@@ -1,0 +1,60 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31912.275
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Core", "Core", "{B0F73506-74B4-4559-B343-03F87EFF0266}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Externals", "Externals", "{430E3693-71FB-486B-8026-E877CD588CC4}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EM.Payments.Worker", "src\EM.Payments.Worker\EM.Payments.Worker.csproj", "{ACDB7D6A-62D6-42BA-9513-D00742698276}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EM.Payments.Application", "src\EM.Payments.Application\EM.Payments.Application.csproj", "{C7F08303-AD76-4688-A1EC-205923C773ED}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EM.Shared.Core", "..\Shared\src\EM.Shared.Core\EM.Shared.Core.csproj", "{7702D8AA-5EE0-4FD4-AFAD-63D0DFE2ABC8}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EM.Payments.Domain", "src\EM.Payments.Domain\EM.Payments.Domain.csproj", "{B56BA662-9D67-4C7F-A5F5-15D6B9CA2CE2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EM.Payments.Infraestructure", "src\EM.Payments.Infraestructure\EM.Payments.Infraestructure.csproj", "{11846801-6CED-4483-A5B0-25E0EF302145}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{ACDB7D6A-62D6-42BA-9513-D00742698276}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ACDB7D6A-62D6-42BA-9513-D00742698276}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ACDB7D6A-62D6-42BA-9513-D00742698276}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ACDB7D6A-62D6-42BA-9513-D00742698276}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C7F08303-AD76-4688-A1EC-205923C773ED}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C7F08303-AD76-4688-A1EC-205923C773ED}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C7F08303-AD76-4688-A1EC-205923C773ED}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C7F08303-AD76-4688-A1EC-205923C773ED}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7702D8AA-5EE0-4FD4-AFAD-63D0DFE2ABC8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7702D8AA-5EE0-4FD4-AFAD-63D0DFE2ABC8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7702D8AA-5EE0-4FD4-AFAD-63D0DFE2ABC8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7702D8AA-5EE0-4FD4-AFAD-63D0DFE2ABC8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B56BA662-9D67-4C7F-A5F5-15D6B9CA2CE2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B56BA662-9D67-4C7F-A5F5-15D6B9CA2CE2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B56BA662-9D67-4C7F-A5F5-15D6B9CA2CE2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B56BA662-9D67-4C7F-A5F5-15D6B9CA2CE2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{11846801-6CED-4483-A5B0-25E0EF302145}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{11846801-6CED-4483-A5B0-25E0EF302145}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{11846801-6CED-4483-A5B0-25E0EF302145}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{11846801-6CED-4483-A5B0-25E0EF302145}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{ACDB7D6A-62D6-42BA-9513-D00742698276} = {430E3693-71FB-486B-8026-E877CD588CC4}
+		{C7F08303-AD76-4688-A1EC-205923C773ED} = {B0F73506-74B4-4559-B343-03F87EFF0266}
+		{7702D8AA-5EE0-4FD4-AFAD-63D0DFE2ABC8} = {B0F73506-74B4-4559-B343-03F87EFF0266}
+		{B56BA662-9D67-4C7F-A5F5-15D6B9CA2CE2} = {B0F73506-74B4-4559-B343-03F87EFF0266}
+		{11846801-6CED-4483-A5B0-25E0EF302145} = {430E3693-71FB-486B-8026-E877CD588CC4}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {7649BBCA-072B-46A8-89C4-6BC65B830ADD}
+	EndGlobalSection
+EndGlobal

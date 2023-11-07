@@ -1,6 +1,7 @@
 ﻿using EM.Catalog.Domain;
 using EM.Catalog.Domain.Entities;
 using EM.Catalog.UnitTests.Fixtures;
+using EM.Shared.Core;
 using Xunit;
 
 namespace EM.Catalog.UnitTests.Domain;

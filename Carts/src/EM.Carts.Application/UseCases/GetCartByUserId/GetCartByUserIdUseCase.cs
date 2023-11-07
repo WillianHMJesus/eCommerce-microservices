@@ -16,9 +16,15 @@ public sealed class GetCartByUserIdUseCase : IGetCartByUserIdUseCase
     public async Task ExecuteAsync(Guid userId)
     {
         Cart? cart = await _cartRepository.GetCartByUserIdAsync(userId);
-        CartDTO? cartDTO = cart != null ? (CartDTO)cart : null;
+        
+        if(cart == null)
+        {
+            _presenter.Success();
+            return;
+        }
 
-        _presenter.Success(cartDTO);
+        CartDTO? cartDTO = (CartDTO)cart;
+        _presenter.Success(cartDTO?.Items);
     }
 
     public void SetPresenter(IPresenter presenter)

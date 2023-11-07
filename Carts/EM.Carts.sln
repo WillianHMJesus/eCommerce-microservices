@@ -9,17 +9,19 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Externals", "Externals", "{
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{9F496676-544E-4165-AD85-51509C3A87FC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EM.Carts.Application", "src\EM.Carts.Application\EM.Carts.Application.csproj", "{233924E3-100E-49E7-AD5E-BD7FA77C9BCC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EM.Carts.Application", "src\EM.Carts.Application\EM.Carts.Application.csproj", "{233924E3-100E-49E7-AD5E-BD7FA77C9BCC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EM.Carts.Domain", "src\EM.Carts.Domain\EM.Carts.Domain.csproj", "{7EE00A7C-1EEF-4E6B-8AB4-728FEA4A970C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EM.Carts.Domain", "src\EM.Carts.Domain\EM.Carts.Domain.csproj", "{7EE00A7C-1EEF-4E6B-8AB4-728FEA4A970C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EM.Carts.Infraestructure", "src\EM.Carts.Infraestructure\EM.Carts.Infraestructure.csproj", "{959F7477-9879-42E7-83B9-C27CD5C1BB71}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EM.Carts.Infraestructure", "src\EM.Carts.Infraestructure\EM.Carts.Infraestructure.csproj", "{959F7477-9879-42E7-83B9-C27CD5C1BB71}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EM.Carts.API", "src\EM.Carts.API\EM.Carts.API.csproj", "{7992D51F-1C6C-41BD-8A55-EE4E84F2C46D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EM.Carts.API", "src\EM.Carts.API\EM.Carts.API.csproj", "{7992D51F-1C6C-41BD-8A55-EE4E84F2C46D}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Unit", "Unit", "{F0F5D139-6FC7-4491-A304-E4C3B61BC8E2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EM.Carts.UnitTests", "tests\EM.Carts.UnitTests\EM.Carts.UnitTests.csproj", "{F4551BF2-CAF4-4CFA-A204-879ADBA3544A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EM.Carts.UnitTests", "tests\EM.Carts.UnitTests\EM.Carts.UnitTests.csproj", "{F4551BF2-CAF4-4CFA-A204-879ADBA3544A}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EM.Shared.Core", "..\Shared\src\EM.Shared.Core\EM.Shared.Core.csproj", "{AFE22110-08C3-4A64-9028-816B7D8088EA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -47,6 +49,10 @@ Global
 		{F4551BF2-CAF4-4CFA-A204-879ADBA3544A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F4551BF2-CAF4-4CFA-A204-879ADBA3544A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F4551BF2-CAF4-4CFA-A204-879ADBA3544A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AFE22110-08C3-4A64-9028-816B7D8088EA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AFE22110-08C3-4A64-9028-816B7D8088EA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AFE22110-08C3-4A64-9028-816B7D8088EA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AFE22110-08C3-4A64-9028-816B7D8088EA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -58,6 +64,7 @@ Global
 		{7992D51F-1C6C-41BD-8A55-EE4E84F2C46D} = {2B041ACD-B020-4BA0-B180-A0D137C8D5D6}
 		{F0F5D139-6FC7-4491-A304-E4C3B61BC8E2} = {9F496676-544E-4165-AD85-51509C3A87FC}
 		{F4551BF2-CAF4-4CFA-A204-879ADBA3544A} = {F0F5D139-6FC7-4491-A304-E4C3B61BC8E2}
+		{AFE22110-08C3-4A64-9028-816B7D8088EA} = {0B9C81FD-4902-4B52-BB26-428208BCC633}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {C73D63F0-C568-4438-83A0-4C1F9EB3915B}

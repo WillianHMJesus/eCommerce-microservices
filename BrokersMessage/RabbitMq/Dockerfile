@@ -1,0 +1,3 @@
+FROM rabbitmq:management
+ENV RABBITMQ_DEFAULT_USER=guest
+ENV RABBITMQ_DEFAULT_PASS=guest

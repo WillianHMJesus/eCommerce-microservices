@@ -7,11 +7,13 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.3" />
+    <PackageReference Include="Scrutor" Version="4.2.2" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Controllers\" />
+    <ProjectReference Include="..\EM.Checkout.Application\EM.Checkout.Application.csproj" />
+    <ProjectReference Include="..\EM.Checkout.Infraestructure\EM.Checkout.Infraestructure.csproj" />
   </ItemGroup>
 
 </Project>

@@ -1,4 +1,4 @@
-﻿namespace EM.Carts.Domain;
+﻿namespace EM.Shared.Core;
 
 public sealed class DomainException : Exception
 {

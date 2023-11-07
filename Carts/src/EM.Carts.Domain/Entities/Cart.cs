@@ -1,4 +1,6 @@
-﻿namespace EM.Carts.Domain.Entities;
+﻿using EM.Shared.Core;
+
+namespace EM.Carts.Domain.Entities;
 
 public sealed class Cart : Entity
 {

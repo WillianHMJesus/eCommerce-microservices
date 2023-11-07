@@ -26,3 +26,30 @@ create table [Products](
 	constraint [FK_Products_Catalog] foreign key ([CategoryId]) references [Categories] ([Id])
 );
 go
+
+create database [Checkout];
+go
+use [Checkout];
+
+create table [Orders](
+	[Id] uniqueidentifier not null,
+	[UserId] uniqueidentifier not null,
+	[OrderStatus] smallint not null,
+
+	constraint [PK_Orders] primary key ([Id])
+);
+go
+
+create table [Items](
+	[Id] uniqueidentifier not null,
+	[ProductId] uniqueidentifier not null,
+	[ProductName] varchar(50) not null,
+	[ProductImage] varchar(50) not null,
+	[Quantity] smallint not null,
+	[Value] decimal(8, 2) not null,
+	[OrderId] uniqueidentifier not null,
+
+	constraint [PK_Items] primary key ([Id]),
+	constraint [FK_Items_Orders] foreign key ([OrderId]) references [Orders] ([Id])
+);
+go
