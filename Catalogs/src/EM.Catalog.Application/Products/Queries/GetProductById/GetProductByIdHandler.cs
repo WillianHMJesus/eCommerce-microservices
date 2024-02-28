@@ -1,17 +1,17 @@
 ﻿using EM.Catalog.Application.Interfaces;
-using EM.Catalog.Application.DTOs;
+using EM.Catalog.Application.Products.Models;
 
 namespace EM.Catalog.Application.Products.Queries.GetProductById;
 
 public sealed class GetProductByIdHandler : IQueryHandler<GetProductByIdQuery, ProductDTO?>
 {
-    private readonly IQueryGetProductById _queryGetProductById;
+    private readonly IReadRepository _readRepository;
 
-    public GetProductByIdHandler(IQueryGetProductById queryGetProductById)
-        => _queryGetProductById = queryGetProductById;
+    public GetProductByIdHandler(IReadRepository readRepository)
+        => _readRepository = readRepository;
 
     public async Task<ProductDTO?> Handle(GetProductByIdQuery query, CancellationToken cancellationToken)
     {
-        return await _queryGetProductById.GetAsync(query.Id, cancellationToken);
+        return await _readRepository.GetProductByIdAsync(query.Id, cancellationToken);
     }
 }

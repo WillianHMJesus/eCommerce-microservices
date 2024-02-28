@@ -1,4 +1,5 @@
-﻿using EM.Catalog.Application.Products.Commands.UpdateProduct;
+﻿using AutoMapper;
+using EM.Catalog.Application.Products.Commands.UpdateProduct;
 using EM.Catalog.Application.Results;
 using EM.Catalog.Domain;
 using EM.Catalog.Domain.Entities;
@@ -11,18 +12,24 @@ namespace EM.Catalog.UnitTests.Application;
 
 public sealed class UpdateProductHandlerTest
 {
-    private readonly CategoryFixture _categoryFixture;
+    private readonly Mock<IWriteRepository> _mockWriteRepository;
+    private readonly Mock<IMapper> _mockMapper;
 
     public UpdateProductHandlerTest()
-        => _categoryFixture = new CategoryFixture();
+    {
+        _mockWriteRepository = new();
+        _mockMapper = new();
+    }
 
     [Fact]
     public async Task Handle_ValidRequest_MustReturnWithSuccess()
     {
-        Mock<IProductRepository> mockProductRepository = new();
-        Category? category = _categoryFixture.GenerateCategory();
-        mockProductRepository.Setup(x => x.GetCategoryByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>())).Returns(Task.FromResult<Category?>(category));
-        UpdateProductHandler addProductHandler = new(mockProductRepository.Object);
+        Category? category = new CategoryFixture().GenerateCategory();
+        UpdateProductHandler addProductHandler = new(_mockWriteRepository.Object, _mockMapper.Object);
+        _mockWriteRepository.Setup(x => x.GetCategoryByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.FromResult<Category?>(category));
+        _mockMapper.Setup(x => x.Map<Product>(It.IsAny<UpdateProductCommand>()))
+            .Returns(new ProductFixture().GenerateProduct());
 
         Result result = await addProductHandler.Handle(new UpdateProductCommand(Guid.NewGuid(), "iPhone 14 Pro", "iPhone 14 Pro 128GB Space Black", 999, 1, "Image iPhone 14 Pro", true, category.Id), 
             CancellationToken.None);
@@ -33,8 +40,7 @@ public sealed class UpdateProductHandlerTest
     [Fact]
     public async Task Handle_InvalidRequest_MustReturnWithFailed()
     {
-        Mock<IProductRepository> mockProductRepository = new();
-        UpdateProductHandler addProductHandler = new(mockProductRepository.Object);
+        UpdateProductHandler addProductHandler = new(_mockWriteRepository.Object, _mockMapper.Object);
 
         Result result = await addProductHandler.Handle(new UpdateProductCommand(Guid.NewGuid(), "iPhone 14 Pro", "iPhone 14 Pro 128GB Space Black", 999, 1, "Image iPhone 14 Pro", true, Guid.NewGuid()), 
             CancellationToken.None);

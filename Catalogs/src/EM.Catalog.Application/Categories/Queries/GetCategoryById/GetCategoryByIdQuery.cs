@@ -1,5 +1,5 @@
-﻿using EM.Catalog.Application.Interfaces;
-using EM.Catalog.Application.DTOs;
+﻿using EM.Catalog.Application.Categories.Models;
+using EM.Catalog.Application.Interfaces;
 
 namespace EM.Catalog.Application.Categories.Queries.GetCategoryById;
 

@@ -1,19 +1,11 @@
 ﻿using EM.Catalog.Application;
-using EM.Catalog.Application.Categories.Queries.GetAllCategories;
-using EM.Catalog.Application.Categories.Queries.GetCategoryById;
 using EM.Catalog.Application.Interfaces;
-using EM.Catalog.Application.Products.Queries.GetAllProducts;
-using EM.Catalog.Application.Products.Queries.GetProductById;
-using EM.Catalog.Application.Products.Queries.GetProductsByCategoryId;
 using EM.Catalog.Domain.Interfaces;
-using EM.Catalog.Infraestructure.Queries;
 using EM.Catalog.Infraestructure.Persistense.Read;
 using EM.Catalog.Infraestructure.Persistense.Write;
 using FluentValidation;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using EM.Catalog.Infraestructure.Persistense.Read.Managers;
-using EM.Catalog.Infraestructure.Persistense.Write.Repositories;
 
 namespace EM.Catalog.API;
 
@@ -23,6 +15,7 @@ public static class Extension
     {
         services.AddMediatR(AssemblyReference.Assembly);
         services.AddMediatR(Infraestructure.AssemblyReference.Assembly);
+        services.AddAutoMapper(AssemblyReference.Assembly);
         services.AddValidatorsFromAssembly(AssemblyReference.Assembly);
         services.AddScoped(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
 
@@ -30,18 +23,9 @@ public static class Extension
         services.AddDbContext<CatalogContext>(options => options.UseSqlServer(configuration.GetConnectionString("Catalog")));
 
         services.AddScoped<CatalogContext>();
-        services.AddSingleton<MongoDbConfiguration>();
-        services.AddScoped<IDatabaseReadManager, MongoDbManager>();
+        services.AddScoped<IWriteRepository, WriteRepository>();
+        services.AddScoped<IReadRepository, ReadRepository>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
-
-        services.AddScoped<IProductRepository, ProductRepository>();
-        services.Decorate<IProductRepository, ProductRepositoryDecorator>();
-
-        services.AddScoped<IQueryGetAllCategories, QueryGetAllCategories>();
-        services.AddScoped<IQueryGetCategoryById, QueryGetCategoryById>();
-        services.AddScoped<IQueryGetAllProducts, QueryGetAllProducts>();
-        services.AddScoped<IQueryGetProductById, QueryGetProductById>();
-        services.AddScoped<IQueryGetProductsByCategoryId, QueryGetProductsByCategoryId>();
 
         return services;
     }

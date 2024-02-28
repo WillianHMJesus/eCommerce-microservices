@@ -1,4 +1,5 @@
-﻿using EM.Catalog.Application.Products.Commands.AddProduct;
+﻿using AutoMapper;
+using EM.Catalog.Application.Products.Commands.AddProduct;
 using EM.Catalog.Application.Results;
 using EM.Catalog.Domain;
 using EM.Catalog.Domain.Entities;
@@ -11,18 +12,24 @@ namespace EM.Catalog.UnitTests.Application;
 
 public sealed class AddProductHandlerTest
 {
-    private readonly CategoryFixture _categoryFixture;
+    private readonly Mock<IWriteRepository> _mockWriteRepository;
+    Mock<IMapper> _mockMapper = new();
 
     public AddProductHandlerTest()
-        => _categoryFixture = new CategoryFixture();
+    {
+        _mockWriteRepository = new();
+        _mockMapper = new();
+    }
 
     [Fact]
     public async Task Handle_ValidRequest_MustReturnWithSuccess()
     {
-        Mock<IProductRepository> mockProductRepository = new();
-        Category? category = _categoryFixture.GenerateCategory();
-        mockProductRepository.Setup(x => x.GetCategoryByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>())).Returns(Task.FromResult<Category?>(category));
-        AddProductHandler addProductHandler = new(mockProductRepository.Object);
+        Category? category = new CategoryFixture().GenerateCategory();
+        AddProductHandler addProductHandler = new(_mockWriteRepository.Object, _mockMapper.Object);
+        _mockWriteRepository.Setup(x => x.GetCategoryByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.FromResult<Category?>(category));
+        _mockMapper.Setup(x => x.Map<Product>(It.IsAny<AddProductCommand>()))
+            .Returns(new ProductFixture().GenerateProduct());
 
         Result result = await addProductHandler.Handle(new AddProductCommand("iPhone 14 Pro", "iPhone 14 Pro 128GB Space Black", 999, 1, "Image iPhone 14 Pro", category.Id), 
             CancellationToken.None);
@@ -34,8 +41,7 @@ public sealed class AddProductHandlerTest
     [Fact]
     public async Task Handle_InvalidRequest_MustReturnWithFailed()
     {
-        Mock<IProductRepository> mockProductRepository = new();
-        AddProductHandler addProductHandler = new(mockProductRepository.Object);
+        AddProductHandler addProductHandler = new(_mockWriteRepository.Object, _mockMapper.Object);
 
         Result result = await addProductHandler.Handle(new AddProductCommand("iPhone 14 Pro", "iPhone 14 Pro 128GB Space Black", 999, 1, "Image iPhone 14 Pro", Guid.NewGuid()), 
             CancellationToken.None);

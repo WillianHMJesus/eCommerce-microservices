@@ -1,4 +1,5 @@
-﻿using EM.Catalog.Application.Interfaces;
+﻿using AutoMapper;
+using EM.Catalog.Application.Interfaces;
 using EM.Catalog.Application.Results;
 using EM.Catalog.Domain;
 using EM.Catalog.Domain.Entities;
@@ -8,22 +9,28 @@ namespace EM.Catalog.Application.Products.Commands.UpdateProduct;
 
 public sealed class UpdateProductHandler : ICommandHandler<UpdateProductCommand>
 {
-    private readonly IProductRepository _productRepository;
+    private readonly IWriteRepository _writeRepository;
+    private readonly IMapper _mapper;
 
-    public UpdateProductHandler(IProductRepository productRepository)
-        => _productRepository = productRepository;
+    public UpdateProductHandler(
+        IWriteRepository writeRepository,
+        IMapper mapper)
+    {
+        _writeRepository = writeRepository;
+        _mapper = mapper;
+    }
 
     public async Task<Result> Handle(UpdateProductCommand command, CancellationToken cancellationToken)
     {
-        Category? category = await _productRepository.GetCategoryByIdAsync(command.CategoryId, cancellationToken);
+        Category? category = await _writeRepository.GetCategoryByIdAsync(command.CategoryId, cancellationToken);
 
         if (category == null)
             return Result.CreateResponseWithErrors("CategoryId", ErrorMessage.ProductCategoryNotFound);
 
-        Product product = new(command.Id, command.Name, command.Description, command.Value, command.Quantity, command.Image, command.Available);
+        Product product = _mapper.Map<Product>(command);
         product.AssignCategory(category);
 
-        await _productRepository.UpdateProductAsync(product, cancellationToken);
+        await _writeRepository.UpdateProductAsync(product, cancellationToken);
 
         return new Result();
     }

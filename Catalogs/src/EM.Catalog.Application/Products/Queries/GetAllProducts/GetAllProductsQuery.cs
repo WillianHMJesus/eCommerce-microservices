@@ -1,5 +1,5 @@
 ﻿using EM.Catalog.Application.Interfaces;
-using EM.Catalog.Application.DTOs;
+using EM.Catalog.Application.Products.Models;
 
 namespace EM.Catalog.Application.Products.Queries.GetAllProducts;
 

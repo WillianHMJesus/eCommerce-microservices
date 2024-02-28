@@ -1,13 +1,13 @@
-﻿using EM.Catalog.API.Models;
-using EM.Catalog.Application.Products.Commands.AddProduct;
+﻿using EM.Catalog.Application.Products.Commands.AddProduct;
 using EM.Catalog.Application.Products.Commands.UpdateProduct;
 using EM.Catalog.Application.Products.Queries.GetAllProducts;
 using EM.Catalog.Application.Products.Queries.GetProductById;
 using EM.Catalog.Application.Products.Queries.GetProductsByCategoryId;
 using EM.Catalog.Application.Results;
-using EM.Catalog.Application.DTOs;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using EM.Catalog.Application.Products.Models;
+using AutoMapper;
 
 namespace EM.Catalog.API.Controllers;
 
@@ -16,14 +16,21 @@ namespace EM.Catalog.API.Controllers;
 public sealed class ProductsController : ControllerBase
 {
     private readonly IMediator _mediator;
+    private readonly IMapper _mapper;
 
-    public ProductsController(IMediator mediator)
-        => _mediator = mediator;
+    public ProductsController(
+        IMediator mediator,
+        IMapper mapper)
+    {
+        _mediator = mediator;
+        _mapper = mapper;
+    }
 
     [HttpPost]
     public async Task<IActionResult> AddAsync(AddProductRequest addProductRequest, CancellationToken cancellationToken)
     {
-        Result result = await _mediator.Send((AddProductCommand)addProductRequest, cancellationToken);
+        AddProductCommand addProductCommand = _mapper.Map<AddProductCommand>(addProductRequest);
+        Result result = await _mediator.Send(addProductCommand, cancellationToken);
 
         return !result.Success ? 
             BadRequest(result.Errors) : 
@@ -33,7 +40,8 @@ public sealed class ProductsController : ControllerBase
     [HttpPut]
     public async Task<IActionResult> UpdateAsync(UpdateProductRequest updateProductRequest, CancellationToken cancellationToken)
     {
-        Result result = await _mediator.Send((UpdateProductCommand)updateProductRequest, cancellationToken);
+        UpdateProductCommand updateProductCommand = _mapper.Map<UpdateProductCommand>(updateProductRequest);
+        Result result = await _mediator.Send(updateProductCommand, cancellationToken);
 
         return !result.Success ?
             BadRequest(result.Errors) :
