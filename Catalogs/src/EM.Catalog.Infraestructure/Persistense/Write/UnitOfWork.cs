@@ -1,4 +1,4 @@
-﻿using EM.Catalog.Application.Interfaces;
+﻿using EM.Catalog.Domain.Interfaces;
 
 namespace EM.Catalog.Infraestructure.Persistense.Write;
 
@@ -9,8 +9,8 @@ public sealed class UnitOfWork : IUnitOfWork
     public UnitOfWork(CatalogContext writeContext)
         => _writeContext = writeContext;
 
-    public async Task<bool> CommitAsync()
+    public async Task<bool> CommitAsync(CancellationToken cancellationToken)
     {
-        return await _writeContext.SaveChangesAsync() > 0;
+        return await _writeContext.SaveChangesAsync(cancellationToken) > 0;
     }
 }

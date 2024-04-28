@@ -16,13 +16,11 @@ public sealed class UpdateCategoryCommandValidator : AbstractValidator<UpdateCat
             .WithMessage(ErrorMessage.CategoryCodeLessThanEqualToZero);
 
         RuleFor(x => x.Name)
-            .NotEmpty()
-            .NotNull()
+            .Must(x => !string.IsNullOrEmpty(x))
             .WithMessage(ErrorMessage.CategoryNameNullOrEmpty);
 
         RuleFor(x => x.Description)
-           .NotEmpty()
-           .NotNull()
+           .Must(x => !string.IsNullOrEmpty(x))
            .WithMessage(ErrorMessage.CategoryDescriptionNullOrEmpty);
     }
 }

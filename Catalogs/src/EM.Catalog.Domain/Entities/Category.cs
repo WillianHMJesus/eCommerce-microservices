@@ -13,16 +13,6 @@ public class Category : Entity
         Validate();
     }
 
-    public Category(Guid id, short code, string name, string description)
-    {
-        Id = id;
-        Code = code;
-        Name = name;
-        Description = description;
-
-        Validate();
-    }
-
     public short Code { get; init; }
     public string Name { get; init; } = ""!;
     public string Description { get; init; } = ""!;

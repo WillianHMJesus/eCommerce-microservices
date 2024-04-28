@@ -14,12 +14,20 @@ public sealed class CategoryMapping : Profile
     {
         CreateMap<AddCategoryRequest, AddCategoryCommand>();
         CreateMap<UpdateCategoryRequest, UpdateCategoryCommand>();
-        CreateMap<Category, CategoryDTO>();
-        CreateMap<Category, CategoryAddedEvent>();
-        CreateMap<CategoryAddedEvent, CategoryDTO>();
-        CreateMap<Category, CategoryUpdatedEvent>();
-        CreateMap<CategoryUpdatedEvent, CategoryDTO>();
-        CreateMap<AddCategoryCommand, Category>();
-        CreateMap<UpdateCategoryCommand, Category>();
+        CreateMap<Category, CategoryAddedEvent>().ReverseMap();
+        CreateMap<Category, CategoryUpdatedEvent>().ReverseMap();
+        CreateMap<Category?, CategoryDTO?>();
+        CreateMap<IEnumerable<Category>, IEnumerable<CategoryDTO>>();
+
+        CreateMap<AddCategoryCommand, Category>()
+            .ForCtorParam("code", x => x.MapFrom(src => src.Code))
+            .ForCtorParam("name", x => x.MapFrom(src => src.Name))
+            .ForCtorParam("description", x => x.MapFrom(src => src.Description))
+            .ForMember(x => x.Id, opt => opt.Ignore());
+
+        CreateMap<UpdateCategoryCommand, Category>()
+            .ForCtorParam("code", x => x.MapFrom(src => src.Code))
+            .ForCtorParam("name", x => x.MapFrom(src => src.Name))
+            .ForCtorParam("description", x => x.MapFrom(src => src.Description));
     }
 }

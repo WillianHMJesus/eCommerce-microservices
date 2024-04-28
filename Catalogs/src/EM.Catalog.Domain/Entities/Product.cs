@@ -4,27 +4,14 @@ namespace EM.Catalog.Domain.Entities;
 
 public class Product : Entity
 {
-    public Product(string name, string description, decimal value, short quantity, string image)
+    public Product(string name, string description, decimal value, string image)
     {
         Name = name;
         Description = description;
         Value = value;
-        Quantity = quantity;
         Image = image;
+        Quantity = 0;
         Available = true;
-
-        Validate();
-    }
-
-    public Product(Guid id, string name, string description, decimal value, short quantity, string image, bool available) 
-    {
-        Id = id;
-        Name = name;
-        Description = description;
-        Value = value;
-        Quantity = quantity;
-        Image = image;
-        Available = available;
 
         Validate();
     }
@@ -42,7 +29,6 @@ public class Product : Entity
         AssertionConcern.ValidateNullOrEmpty(Name, ErrorMessage.ProductNameNullOrEmpty);
         AssertionConcern.ValidateNullOrEmpty(Description, ErrorMessage.ProductDescriptionNullOrEmpty);
         AssertionConcern.ValidateLessThanEqualToMinimum(Value, 0, ErrorMessage.ProductValueLessThanEqualToZero);
-        AssertionConcern.ValidateLessThanEqualToMinimum(Quantity, 0, ErrorMessage.ProductQuantityLessThanEqualToZero);
         AssertionConcern.ValidateNullOrEmpty(Image, ErrorMessage.ProductImageNullOrEmpty);
     }
 

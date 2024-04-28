@@ -12,13 +12,11 @@ public sealed class UpdateProductCommandValidator : AbstractValidator<UpdateProd
             .WithMessage(ErrorMessage.ProductInvalidId);
 
         RuleFor(x => x.Name)
-            .NotEmpty()
-            .NotNull()
+            .Must(x => !string.IsNullOrEmpty(x))
             .WithMessage(ErrorMessage.ProductNameNullOrEmpty);
 
         RuleFor(x => x.Description)
-            .NotEmpty()
-            .NotNull()
+            .Must(x => !string.IsNullOrEmpty(x))
             .WithMessage(ErrorMessage.ProductDescriptionNullOrEmpty);
 
         RuleFor(x => x.Value)
@@ -30,8 +28,7 @@ public sealed class UpdateProductCommandValidator : AbstractValidator<UpdateProd
             .WithMessage(ErrorMessage.ProductQuantityLessThanEqualToZero);
 
         RuleFor(x => x.Image)
-            .NotEmpty()
-            .NotNull()
+            .Must(x => !string.IsNullOrEmpty(x))
             .WithMessage(ErrorMessage.ProductImageNullOrEmpty);
 
         RuleFor(x => x.CategoryId)

@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using EM.Catalog.Application.Categories.Models;
 using EM.Catalog.Application.Products.Commands.AddProduct;
 using EM.Catalog.Application.Products.Commands.UpdateProduct;
 using EM.Catalog.Application.Products.Events.ProductAdded;
@@ -14,12 +15,26 @@ public sealed class ProductMapping : Profile
     {
         CreateMap<AddProductRequest, AddProductCommand>();
         CreateMap<UpdateProductRequest, UpdateProductCommand>();
-        CreateMap<Product, ProductDTO>();
-        CreateMap<Product, ProductAddedEvent>();
-        CreateMap<ProductAddedEvent, ProductDTO>();
-        CreateMap<Product, ProductUpdatedEvent>();
-        CreateMap<ProductUpdatedEvent, ProductDTO>();
-        CreateMap<AddProductCommand, Product>();
-        CreateMap<UpdateProductCommand, Product>();
+        CreateMap<Product, ProductAddedEvent>().ReverseMap();
+        CreateMap<Product, ProductUpdatedEvent>().ReverseMap();
+        CreateMap<Product?, ProductDTO?>();
+        CreateMap<Category?, CategoryDTO?>();
+        CreateMap<IEnumerable<Product>, IEnumerable<ProductDTO>>();
+
+        CreateMap<AddProductCommand, Product>()
+            .ForCtorParam("name", x => x.MapFrom(src => src.Name))
+            .ForCtorParam("description", x => x.MapFrom(src => src.Description))
+            .ForCtorParam("value", x => x.MapFrom(src => src.Value))
+            .ForCtorParam("image", x => x.MapFrom(src => src.Image))
+            .ForMember(x => x.Id, opt => opt.Ignore())
+            .ForMember(x => x.Available, opt => opt.Ignore())
+            .ForMember(x => x.Category, opt => opt.Ignore());
+
+        CreateMap<UpdateProductCommand, Product>()
+            .ForCtorParam("name", x => x.MapFrom(src => src.Name))
+            .ForCtorParam("description", x => x.MapFrom(src => src.Description))
+            .ForCtorParam("value", x => x.MapFrom(src => src.Value))
+            .ForCtorParam("image", x => x.MapFrom(src => src.Image))
+            .ForMember(x => x.Category, opt => opt.Ignore());
     }
 }
