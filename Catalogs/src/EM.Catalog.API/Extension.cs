@@ -1,5 +1,4 @@
 ﻿using EM.Catalog.Application;
-using EM.Catalog.Application.Interfaces;
 using EM.Catalog.Domain.Interfaces;
 using EM.Catalog.Infraestructure.Persistense.Read;
 using EM.Catalog.Infraestructure.Persistense.Write;
@@ -13,8 +12,7 @@ public static class Extension
 {
     public static IServiceCollection AddDependencyInjection(this IServiceCollection services, IConfiguration configuration)
     {
-        services.AddMediatR(AssemblyReference.Assembly);
-        services.AddMediatR(Infraestructure.AssemblyReference.Assembly);
+        services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(AssemblyReference.Assembly));
         services.AddAutoMapper(AssemblyReference.Assembly);
         services.AddValidatorsFromAssembly(AssemblyReference.Assembly);
         services.AddScoped(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));

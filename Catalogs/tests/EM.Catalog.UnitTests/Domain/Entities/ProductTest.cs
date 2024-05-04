@@ -2,6 +2,7 @@
 using EM.Catalog.Domain;
 using EM.Catalog.Domain.Entities;
 using EM.Shared.Core;
+using FluentAssertions;
 using Xunit;
 
 namespace EM.Catalog.UnitTests.Domain.Entities;
@@ -19,7 +20,7 @@ public sealed class ProductTest
 
         Exception domainException = Record.Exception(() => product.Validate());
 
-        Assert.Null(domainException);
+        domainException.Should().BeNull();
     }
 
     [Fact]
@@ -31,8 +32,8 @@ public sealed class ProductTest
 
         DomainException domainException = Assert.Throws<DomainException>(() => product.Validate());
 
-        Assert.NotNull(domainException);
-        Assert.Equal(ErrorMessage.ProductNameNullOrEmpty, domainException.Message);
+        domainException.Should().NotBeNull();
+        domainException.Message.Should().Be(ErrorMessage.ProductNameNullOrEmpty);
     }
 
     [Fact]
@@ -44,8 +45,8 @@ public sealed class ProductTest
 
         DomainException domainException = Assert.Throws<DomainException>(() => product.Validate());
 
-        Assert.NotNull(domainException);
-        Assert.Equal(ErrorMessage.ProductNameNullOrEmpty, domainException.Message);
+        domainException.Should().NotBeNull();
+        domainException.Message.Should().Be(ErrorMessage.ProductNameNullOrEmpty);
     }
 
     [Fact]
@@ -57,8 +58,8 @@ public sealed class ProductTest
 
         DomainException domainException = Assert.Throws<DomainException>(() => product.Validate());
 
-        Assert.NotNull(domainException);
-        Assert.Equal(ErrorMessage.ProductDescriptionNullOrEmpty, domainException.Message);
+        domainException.Should().NotBeNull();
+        domainException.Message.Should().Be(ErrorMessage.ProductDescriptionNullOrEmpty);
     }
 
     [Fact]
@@ -70,8 +71,8 @@ public sealed class ProductTest
 
         DomainException domainException = Assert.Throws<DomainException>(() => product.Validate());
 
-        Assert.NotNull(domainException);
-        Assert.Equal(ErrorMessage.ProductDescriptionNullOrEmpty, domainException.Message);
+        domainException.Should().NotBeNull();
+        domainException.Message.Should().Be(ErrorMessage.ProductDescriptionNullOrEmpty);
     }
 
     [Fact]
@@ -83,8 +84,8 @@ public sealed class ProductTest
 
         DomainException domainException = Assert.Throws<DomainException>(() => product.Validate());
 
-        Assert.NotNull(domainException);
-        Assert.Equal(ErrorMessage.ProductValueLessThanEqualToZero, domainException.Message);
+        domainException.Should().NotBeNull();
+        domainException.Message.Should().Be(ErrorMessage.ProductValueLessThanEqualToZero);
     }
 
     [Fact]
@@ -96,8 +97,8 @@ public sealed class ProductTest
 
         DomainException domainException = Assert.Throws<DomainException>(() => product.Validate());
 
-        Assert.NotNull(domainException);
-        Assert.Equal(ErrorMessage.ProductImageNullOrEmpty, domainException.Message);
+        domainException.Should().NotBeNull();
+        domainException.Message.Should().Be(ErrorMessage.ProductImageNullOrEmpty);
     }
 
     [Fact]
@@ -109,8 +110,21 @@ public sealed class ProductTest
 
         DomainException domainException = Assert.Throws<DomainException>(() => product.Validate());
 
-        Assert.NotNull(domainException);
-        Assert.Equal(ErrorMessage.ProductImageNullOrEmpty, domainException.Message);
+        domainException.Should().NotBeNull();
+        domainException.Message.Should().Be(ErrorMessage.ProductImageNullOrEmpty);
+    }
+
+    [Fact]
+    public void Validate_DefaultProductCategoryId_ShouldReturnDomainException()
+    {
+        Product product = _fixture.Build<Product>()
+            .With(x => x.CategoryId, Guid.Empty)
+            .Create();
+
+        DomainException domainException = Assert.Throws<DomainException>(() => product.Validate());
+
+        domainException.Should().NotBeNull();
+        domainException.Message.Should().Be(ErrorMessage.ProductInvalidCategoryId);
     }
 
     [Fact]
@@ -120,7 +134,7 @@ public sealed class ProductTest
 
         product.MakeAvailable();
 
-        Assert.True(product.Available);
+        product.Available.Should().BeTrue();
     }
 
     [Fact]
@@ -130,7 +144,7 @@ public sealed class ProductTest
 
         product.MakeUnavailable();
 
-        Assert.False(product.Available);
+        product.Available.Should().BeFalse();
     }
 
     [Fact]
@@ -141,7 +155,7 @@ public sealed class ProductTest
 
         product.AddQuantity(quantityAdded);
 
-        Assert.Equal(quantityAdded, product.Quantity);
+        product.Quantity.Should().Be(quantityAdded);
     }
 
     [Fact]
@@ -151,8 +165,8 @@ public sealed class ProductTest
 
         DomainException domainException = Assert.Throws<DomainException>(() => product.AddQuantity(0));
 
-        Assert.NotNull(domainException);
-        Assert.Equal(ErrorMessage.ProductQuantityAddedLessThanOrEqualToZero, domainException.Message);
+        domainException.Should().NotBeNull();
+        domainException.Message.Should().Be(ErrorMessage.ProductQuantityAddedLessThanOrEqualToZero);
     }
 
     [Fact]
@@ -163,7 +177,7 @@ public sealed class ProductTest
 
         product.RemoveQuantity(product.Quantity);
 
-        Assert.Equal(0, product.Quantity);
+        product.Quantity.Should().Be(0);
     }
 
     [Fact]
@@ -173,8 +187,8 @@ public sealed class ProductTest
 
         DomainException domainException = Assert.Throws<DomainException>(() => product.RemoveQuantity(0));
 
-        Assert.NotNull(domainException);
-        Assert.Equal(ErrorMessage.ProductQuantityDebitedLessThanOrEqualToZero, domainException.Message);
+        domainException.Should().NotBeNull();
+        domainException.Message.Should().Be(ErrorMessage.ProductQuantityDebitedLessThanOrEqualToZero);
     }
 
     [Fact]
@@ -185,30 +199,7 @@ public sealed class ProductTest
 
         DomainException domainException = Assert.Throws<DomainException>(() => product.RemoveQuantity(debitQuantity));
 
-        Assert.NotNull(domainException);
-        Assert.Equal(ErrorMessage.ProductQuantityDebitedLargerThanAvailable, domainException.Message);
-    }
-
-    [Fact]
-    public void AddCategory_ValidCategory_ShouldAddProductCategory()
-    {
-        Product product = _fixture.Create<Product>();
-
-        product.AssignCategory(_fixture.Create<Category>());
-
-        Assert.NotNull(product.Category);
-    }
-
-    [Fact]
-    public void AddCategory_NullValue_ShouldReturnDomainException()
-    {
-        Product product = _fixture.Create<Product>();
-
-#pragma warning disable CS8625
-        DomainException domainException = Assert.Throws<DomainException>(() => product.AssignCategory(null));
-#pragma warning restore CS8625
-
-        Assert.NotNull(domainException);
-        Assert.Equal(ErrorMessage.ProductCategoryNull, domainException.Message);
+        domainException.Should().NotBeNull();
+        domainException.Message.Should().Be(ErrorMessage.ProductQuantityDebitedLargerThanAvailable);
     }
 }

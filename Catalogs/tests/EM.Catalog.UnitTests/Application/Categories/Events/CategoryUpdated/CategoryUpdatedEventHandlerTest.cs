@@ -1,4 +1,5 @@
 ﻿using AutoFixture;
+using AutoFixture.AutoMoq;
 using AutoMapper;
 using EM.Catalog.Application.Categories.Events.CategoryUpdated;
 using EM.Catalog.Domain.Entities;
@@ -10,17 +11,29 @@ namespace EM.Catalog.UnitTests.Application.Categories.Events.CategoryUpdated;
 
 public sealed class CategoryUpdatedEventHandlerTest
 {
-    [Fact]
-    public async void Handle_ValidCategoryUpdatedEvent_ShouldInvokeReadRepositoryUpdateCategoryAsync()
+    private readonly Mock<IReadRepository> _repositoryMock;
+    private readonly CategoryUpdatedEventHandler _categoryUpdatedEventHandler;
+    private readonly CategoryUpdatedEvent _categoryUpdatedEvent;
+
+    public CategoryUpdatedEventHandlerTest()
     {
-        Mock<IReadRepository> readRepositoryMock = new();
-        Mock<IMapper> mapperMock = new();
-        Category category = new Fixture().Create<Category>();
-        mapperMock.Setup(x => x.Map<Category>(It.IsAny<CategoryUpdatedEvent>())).Returns(category);
-        CategoryUpdatedEventHandler categoryUpdatedEvent = new(readRepositoryMock.Object, mapperMock.Object);
+        IFixture fixture = new Fixture().Customize(new AutoMoqCustomization());
+        _repositoryMock = fixture.Freeze<Mock<IReadRepository>>();
+        Category category = fixture.Create<Category>();
 
-        await categoryUpdatedEvent.Handle(new Fixture().Create<CategoryUpdatedEvent>(), It.IsAny<CancellationToken>());
+        fixture.Freeze<Mock<IMapper>>()
+            .Setup(x => x.Map<Category>(It.IsAny<CategoryUpdatedEvent>()))
+            .Returns(category);
 
-        readRepositoryMock.Verify(x => x.UpdateCategoryAsync(It.IsAny<Category>(), It.IsAny<CancellationToken>()), Times.Once);
+        _categoryUpdatedEventHandler = fixture.Create<CategoryUpdatedEventHandler>();
+        _categoryUpdatedEvent = fixture.Create<CategoryUpdatedEvent>();
+    }
+
+    [Fact]
+    public async Task Handle_ValidCategoryUpdatedEvent_ShouldInvokeReadRepositoryUpdateCategoryAsync()
+    {
+        await _categoryUpdatedEventHandler.Handle(_categoryUpdatedEvent, CancellationToken.None);
+
+        _repositoryMock.Verify(x => x.UpdateCategoryAsync(It.IsAny<Category>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 }

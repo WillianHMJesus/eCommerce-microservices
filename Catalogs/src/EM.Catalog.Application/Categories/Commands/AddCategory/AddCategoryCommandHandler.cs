@@ -5,6 +5,7 @@ using EM.Catalog.Application.Results;
 using EM.Catalog.Domain;
 using EM.Catalog.Domain.Entities;
 using EM.Catalog.Domain.Interfaces;
+using EM.Shared.Core;
 using MediatR;
 
 namespace EM.Catalog.Application.Categories.Commands.AddCategory;
@@ -35,11 +36,12 @@ public sealed class AddCategoryCommandHandler : ICommandHandler<AddCategoryComma
 
         if (!await _unitOfWork.CommitAsync(cancellationToken))
         {
-            return Result.CreateResponseWithErrors("Category", ErrorMessage.CategoryAnErrorOccorred);
+            throw new DomainException(ErrorMessage.CategoryAnErrorOccorred);
         }
 
         CategoryAddedEvent categoryAddedEvent = _mapper.Map<CategoryAddedEvent>(category);
         await _mediator.Publish(categoryAddedEvent, cancellationToken);
+
         return Result.CreateResponseWithData(category.Id);
     }
 }

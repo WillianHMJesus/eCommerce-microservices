@@ -1,6 +1,5 @@
 ﻿using AutoFixture;
-using AutoMapper;
-using EM.Catalog.Application.Products.Models;
+using AutoFixture.AutoMoq;
 using EM.Catalog.Application.Products.Queries.GetProductsByCategoryId;
 using EM.Catalog.Domain.Interfaces;
 using Moq;
@@ -10,15 +9,23 @@ namespace EM.Catalog.UnitTests.Application.Products.Queries.GetProductsByCategor
 
 public sealed class GetProductsByCategoryIdQueryHandlerTest
 {
-    [Fact]
-    public async void Handle_ValidGetProductsByCategoryIdQuery_ShouldInvokeReadRepositoryGetProductsByCategoryIdAsync()
+    private readonly Mock<IReadRepository> _repositoryMock;
+    private readonly GetProductsByCategoryIdQueryHandler _getProductsByCategoryIdQueryHandler;
+    private readonly GetProductsByCategoryIdQuery _getProductsByCategoryIdQuery;
+
+    public GetProductsByCategoryIdQueryHandlerTest()
     {
-        Mock<IReadRepository> readRepositoryMock = new();
-        Mock<IMapper> mapperMock = new();
-        GetProductsByCategoryIdQueryHandler getProductsByCategoryIdQueryHandler = new(readRepositoryMock.Object, mapperMock.Object);
+        IFixture fixture = new Fixture().Customize(new AutoMoqCustomization());
+        _repositoryMock = fixture.Freeze<Mock<IReadRepository>>();
+        _getProductsByCategoryIdQueryHandler = fixture.Create<GetProductsByCategoryIdQueryHandler>();
+        _getProductsByCategoryIdQuery = fixture.Create<GetProductsByCategoryIdQuery>();
+    }
 
-        IEnumerable<ProductDTO> productDTOs = await getProductsByCategoryIdQueryHandler.Handle(new Fixture().Create<GetProductsByCategoryIdQuery>(), It.IsAny<CancellationToken>());
+    [Fact]
+    public async Task Handle_ValidGetProductsByCategoryIdQuery_ShouldInvokeReadRepositoryGetProductsByCategoryIdAsync()
+    {
+        await _getProductsByCategoryIdQueryHandler.Handle(_getProductsByCategoryIdQuery, CancellationToken.None);
 
-        readRepositoryMock.Verify(x => x.GetProductsByCategoryIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()), Times.Once);
+        _repositoryMock.Verify(x => x.GetProductsByCategoryIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 }

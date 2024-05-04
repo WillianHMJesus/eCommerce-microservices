@@ -1,10 +1,14 @@
 ﻿using AutoFixture;
+using AutoFixture.AutoMoq;
 using AutoMapper;
 using EM.Catalog.Application.Products.Commands.UpdateProduct;
+using EM.Catalog.Application.Products.Events.ProductUpdated;
 using EM.Catalog.Application.Results;
 using EM.Catalog.Domain;
 using EM.Catalog.Domain.Entities;
 using EM.Catalog.Domain.Interfaces;
+using EM.Shared.Core;
+using FluentAssertions;
 using MediatR;
 using Moq;
 using Xunit;
@@ -14,43 +18,54 @@ namespace EM.Catalog.UnitTests.Application.Products.Commands.UpdateProduct;
 public sealed class UpdateProductCommandHandlerTest
 {
     private readonly Mock<IWriteRepository> _writeRepositoryMock;
-    private readonly Mock<IReadRepository> _readRepositoryMock;
     private readonly Mock<IUnitOfWork> _unitOfWorkMock;
     private readonly Mock<IMediator> _mediatorMock;
-    private readonly Mock<IMapper> _mapperMock;
     private readonly UpdateProductCommandHandler _updateProductCommandHandler;
+    private readonly UpdateProductCommand _updateProductCommand;
 
     public UpdateProductCommandHandlerTest()
     {
-        _writeRepositoryMock = new();
-        _readRepositoryMock = new();
-        _unitOfWorkMock = new();
-        _mediatorMock = new();
-        _mapperMock = new();
-        _updateProductCommandHandler = new(_writeRepositoryMock.Object, _readRepositoryMock.Object, _unitOfWorkMock.Object, _mediatorMock.Object, _mapperMock.Object);
+        IFixture fixture = new Fixture().Customize(new AutoMoqCustomization());
+        _writeRepositoryMock = fixture.Freeze<Mock<IWriteRepository>>();
+        _unitOfWorkMock = fixture.Freeze<Mock<IUnitOfWork>>();
+        _mediatorMock = fixture.Freeze<Mock<IMediator>>();
+        Product product = fixture.Create<Product>();
+
+        fixture.Freeze<Mock<IMapper>>()
+            .Setup(x => x.Map<Product>(It.IsAny<UpdateProductCommand>()))
+            .Returns(product);
+
+        _updateProductCommandHandler = fixture.Create<UpdateProductCommandHandler>();
+        _updateProductCommand = fixture.Create<UpdateProductCommand>();
     }
 
     [Fact]
     public async Task Handle_ValidUpdateProductCommand_ShouldInvokeWriteRepositoryUpdateProductAsync()
     {
-        Category? category = new Fixture().Create<Category>();
-        _readRepositoryMock.Setup(x => x.GetCategoryByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
-            .Returns(Task.FromResult<Category?>(category));
-        Product product = new Fixture().Create<Product>();
-        _mapperMock.Setup(x => x.Map<Product>(It.IsAny<UpdateProductCommand>())).Returns(product);
+        _unitOfWorkMock
+            .Setup(x => x.CommitAsync(It.IsAny<CancellationToken>()))
+            .Returns(Task.FromResult(true));
 
-        Result result = await _updateProductCommandHandler.Handle(new Fixture().Create<UpdateProductCommand>(), It.IsAny<CancellationToken>());
+        Result result = await _updateProductCommandHandler.Handle(_updateProductCommand, CancellationToken.None);
 
         _writeRepositoryMock.Verify(x => x.UpdateProduct(It.IsAny<Product>()), Times.Once);
-        Assert.True(result.Success);
+        _unitOfWorkMock.Verify(x => x.CommitAsync(It.IsAny<CancellationToken>()));
+        _mediatorMock.Verify(x => x.Publish(It.IsAny<ProductUpdatedEvent>(), It.IsAny<CancellationToken>()), Times.Once);
+        result.Success.Should().BeTrue();
+        result.Data.Should().BeNull();
     }
 
     [Fact]
     public async Task Handle_ProductCategoryNotFound_ShouldReturnWithFailed()
     {
-        Result result = await _updateProductCommandHandler.Handle(new Fixture().Create<UpdateProductCommand>(), It.IsAny<CancellationToken>());
+        _unitOfWorkMock
+            .Setup(x => x.CommitAsync(It.IsAny<CancellationToken>()))
+            .Returns(Task.FromResult(false));
 
-        Assert.False(result.Success);
-        Assert.True(result.Errors?.Any(x => x.Message == ErrorMessage.ProductCategoryNotFound));
+        DomainException domainException = await Assert.ThrowsAsync<DomainException>(
+            async () => await _updateProductCommandHandler.Handle(_updateProductCommand, CancellationToken.None));
+
+        domainException.Should().NotBeNull();
+        domainException.Message.Should().Be(ErrorMessage.ProductAnErrorOccorred);
     }
 }

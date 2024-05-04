@@ -34,17 +34,9 @@ public sealed class AssertionConcern
         }
     }
 
-    public static void ValidateNull(object value, string message)
+    public static void ValidateNullOrDefault<T>(T value, string message)
     {
-        if (value == null)
-        {
-            throw new DomainException(message);
-        }
-    }
-
-    public static void ValidateDefault(Guid value, string message)
-    {
-        if (value == Guid.Empty)
+        if (value is null || EqualityComparer<T>.Default.Equals(value, default(T)))
         {
             throw new DomainException(message);
         }

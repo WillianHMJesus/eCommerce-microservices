@@ -1,6 +1,4 @@
-﻿using EM.Catalog.Application.Categories.Models;
-using EM.Catalog.Application.Products.Models;
-using EM.Catalog.Domain.Entities;
+﻿using EM.Catalog.Domain.Entities;
 using EM.Catalog.Domain.Interfaces;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
@@ -42,7 +40,13 @@ public sealed class ReadRepository : IReadRepository
 
     public async Task<IEnumerable<Product>> GetProductsByCategoryIdAsync(Guid categoryId, CancellationToken cancellationToken)
     {
-        return await _productsCollection.Find(x => x.Category.Id == categoryId)
+        return await _productsCollection.Find(x => x.CategoryId == categoryId)
+            .ToListAsync(cancellationToken);
+    }
+
+    public async Task<IEnumerable<Product>> GetProductsByCategoryNameAsync(string name, CancellationToken cancellationToken)
+    {
+        return await _productsCollection.Find(x => x.Name == name)
             .ToListAsync(cancellationToken);
     }
 
@@ -65,6 +69,15 @@ public sealed class ReadRepository : IReadRepository
         return await _categoriesCollection.Find(_ => true)
             .Skip((page - 1) * pageSize)
             .Limit(pageSize)
+            .ToListAsync(cancellationToken);
+    }
+
+    public async Task<IEnumerable<Category>> GetCategoriesByCodeOrName(short code, string name, CancellationToken cancellationToken)
+    {
+        FilterDefinitionBuilder<Category> builder = Builders<Category>.Filter;
+        FilterDefinition<Category> filter = builder.Eq(x => x.Code, code) | builder.Eq(x => x.Name, name);
+
+        return await _categoriesCollection.Find(filter)
             .ToListAsync(cancellationToken);
     }
 

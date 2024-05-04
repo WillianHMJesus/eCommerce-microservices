@@ -1,4 +1,5 @@
 ﻿using AutoFixture;
+using AutoFixture.AutoMoq;
 using AutoMapper;
 using EM.Catalog.Application.Products.Events.ProductUpdated;
 using EM.Catalog.Domain.Entities;
@@ -10,16 +11,29 @@ namespace EM.Catalog.UnitTests.Application.Products.Events.ProductUpdated;
 
 public sealed class ProductUpdatedEventHandlerTest
 {
-    [Fact]
-    public async void Handle_ValidProductUpdatedEvent_ShouldInvokeReadRepositoryUpdateProductAsync()
+    private readonly Mock<IReadRepository> _repositoryMock;
+    private readonly ProductUpdatedEventHandler _productUpdatedEventHandler;
+    private readonly ProductUpdatedEvent _productUpdatedEvent;
+
+    public ProductUpdatedEventHandlerTest()
     {
-        Mock<IReadRepository> readRepositoryMock = new();
-        Mock<IMapper> mapperMock = new();
-        mapperMock.Setup(x => x.Map<Product>(It.IsAny<ProductUpdatedEvent>())).Returns(new Fixture().Create<Product>());
-        ProductUpdatedEventHandler productUpdatedEventHandler = new(readRepositoryMock.Object, mapperMock.Object);
+        IFixture fixture = new Fixture().Customize(new AutoMoqCustomization());
+        _repositoryMock = fixture.Freeze<Mock<IReadRepository>>();
+        Product product = fixture.Create<Product>();
 
-        await productUpdatedEventHandler.Handle(new Fixture().Create<ProductUpdatedEvent>(), It.IsAny<CancellationToken>());
+        fixture.Freeze<Mock<IMapper>>()
+            .Setup(x => x.Map<Product>(It.IsAny<ProductUpdatedEvent>()))
+            .Returns(product);
 
-        readRepositoryMock.Verify(x => x.UpdateProductAsync(It.IsAny<Product>(), It.IsAny<CancellationToken>()));
+        _productUpdatedEventHandler = fixture.Create<ProductUpdatedEventHandler>();
+        _productUpdatedEvent = fixture.Create<ProductUpdatedEvent>();
+    }
+
+    [Fact]
+    public async Task Handle_ValidProductUpdatedEvent_ShouldInvokeReadRepositoryUpdateProductAsync()
+    {
+        await _productUpdatedEventHandler.Handle(_productUpdatedEvent, CancellationToken.None);
+
+        _repositoryMock.Verify(x => x.UpdateProductAsync(It.IsAny<Product>(), It.IsAny<CancellationToken>()));
     }
 }

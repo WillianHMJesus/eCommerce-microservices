@@ -4,12 +4,13 @@ namespace EM.Catalog.Domain.Entities;
 
 public class Product : Entity
 {
-    public Product(string name, string description, decimal value, string image)
+    public Product(string name, string description, decimal value, string image, Guid categoryId)
     {
         Name = name;
         Description = description;
         Value = value;
         Image = image;
+        CategoryId = categoryId;
         Quantity = 0;
         Available = true;
 
@@ -22,6 +23,7 @@ public class Product : Entity
     public short Quantity { get; private set; }
     public string Image { get; init; } = ""!;
     public bool Available { get; private set; }
+    public Guid CategoryId { get; init; }
     public Category? Category { get; private set; }
 
     public override void Validate()
@@ -30,6 +32,7 @@ public class Product : Entity
         AssertionConcern.ValidateNullOrEmpty(Description, ErrorMessage.ProductDescriptionNullOrEmpty);
         AssertionConcern.ValidateLessThanEqualToMinimum(Value, 0, ErrorMessage.ProductValueLessThanEqualToZero);
         AssertionConcern.ValidateNullOrEmpty(Image, ErrorMessage.ProductImageNullOrEmpty);
+        AssertionConcern.ValidateNullOrDefault(CategoryId, ErrorMessage.ProductInvalidCategoryId);
     }
 
     public void MakeAvailable() => Available = true;
@@ -47,11 +50,5 @@ public class Product : Entity
     {
         AssertionConcern.ValidateLessThanEqualToMinimum(quantity, 0, ErrorMessage.ProductQuantityAddedLessThanOrEqualToZero);
         Quantity += quantity;
-    }
-
-    public void AssignCategory(Category category)
-    {
-        AssertionConcern.ValidateNull(category, ErrorMessage.ProductCategoryNull);
-        Category = category;
     }
 }

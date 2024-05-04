@@ -27,10 +27,9 @@ public sealed class ProductEntityTypeConfiguration : IEntityTypeConfiguration<Pr
             .HasColumnType("varchar")
             .HasMaxLength(50);
 
-        builder.Property<Guid>("CategoryId");
         builder.HasOne(x => x.Category)
             .WithMany()
-            .HasForeignKey("CategoryId")
+            .HasForeignKey(x => x.CategoryId)
             .IsRequired();
     }
 }

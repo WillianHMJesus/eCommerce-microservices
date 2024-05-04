@@ -1,12 +1,18 @@
 ﻿using EM.Catalog.Domain;
+using EM.Catalog.Domain.Entities;
+using EM.Catalog.Domain.Interfaces;
 using FluentValidation;
 
 namespace EM.Catalog.Application.Products.Commands.AddProduct;
 
 public sealed class AddProductCommandValidator : AbstractValidator<AddProductCommand>
 {
-    public AddProductCommandValidator()
+    private readonly IReadRepository _repository;
+
+    public AddProductCommandValidator(IReadRepository repository)
 	{
+        _repository = repository;
+
 		RuleFor(x => x.Name)
             .Must(x => !string.IsNullOrEmpty(x))
             .WithMessage(ErrorMessage.ProductNameNullOrEmpty);
@@ -30,5 +36,27 @@ public sealed class AddProductCommandValidator : AbstractValidator<AddProductCom
         RuleFor(x => x.CategoryId)
             .NotEqual(Guid.Empty)
             .WithMessage(ErrorMessage.ProductInvalidCategoryId);
+
+        RuleFor(x => x.Name)
+            .MustAsync(async (_, value, cancellationToken) => await ValidateDuplicityAsync(value, cancellationToken))
+            .WithMessage(ErrorMessage.ProductRegisterDuplicity);
+
+        RuleFor(x => x.CategoryId)
+            .MustAsync(async (_, value, cancellationToken) => await ValidateCategoryIdAsync(value, cancellationToken))
+            .WithMessage(ErrorMessage.ProductCategoryNotFound);
+    }
+
+    public async Task<bool> ValidateDuplicityAsync(string name, CancellationToken cancellationToken)
+    {
+        IEnumerable<Product> products = await _repository.GetProductsByCategoryNameAsync(name, cancellationToken);
+
+        return !products.Any();
+    }
+
+    public async Task<bool> ValidateCategoryIdAsync(Guid categoryId, CancellationToken cancellationToken)
+    {
+        Category? category = await _repository.GetCategoryByIdAsync(categoryId, cancellationToken);
+
+        return category is not null;
     }
 }

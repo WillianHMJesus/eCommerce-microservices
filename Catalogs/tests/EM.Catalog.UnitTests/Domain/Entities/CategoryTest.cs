@@ -2,6 +2,7 @@
 using EM.Catalog.Domain;
 using EM.Catalog.Domain.Entities;
 using EM.Shared.Core;
+using FluentAssertions;
 using Xunit;
 
 namespace EM.Catalog.UnitTests.Domain.Entities;
@@ -19,7 +20,7 @@ public sealed class CategoryTest
 
         Exception domainException = Record.Exception(() => category.Validate());
 
-        Assert.Null(domainException);
+        domainException.Should().BeNull();
     }
 
     [Fact]
@@ -31,8 +32,8 @@ public sealed class CategoryTest
 
         DomainException domainException = Assert.Throws<DomainException>(() => category.Validate());
 
-        Assert.NotNull(domainException);
-        Assert.Equal(ErrorMessage.CategoryCodeLessThanEqualToZero, domainException.Message);
+        domainException.Should().NotBeNull();
+        domainException.Message.Should().Be(ErrorMessage.CategoryCodeLessThanEqualToZero);
     }
 
     [Fact]
@@ -44,8 +45,8 @@ public sealed class CategoryTest
 
         DomainException domainException = Assert.Throws<DomainException>(() => category.Validate());
 
-        Assert.NotNull(domainException);
-        Assert.Equal(ErrorMessage.CategoryNameNullOrEmpty, domainException.Message);
+        domainException.Should().NotBeNull();
+        domainException.Message.Should().Be(ErrorMessage.CategoryNameNullOrEmpty);
     }
 
     [Fact]
@@ -57,8 +58,8 @@ public sealed class CategoryTest
 
         DomainException domainException = Assert.Throws<DomainException>(() => category.Validate());
 
-        Assert.NotNull(domainException);
-        Assert.Equal(ErrorMessage.CategoryNameNullOrEmpty, domainException.Message);
+        domainException.Should().NotBeNull();
+        domainException.Message.Should().Be(ErrorMessage.CategoryNameNullOrEmpty);
     }
 
     [Fact]
@@ -70,8 +71,8 @@ public sealed class CategoryTest
 
         DomainException domainException = Assert.Throws<DomainException>(() => category.Validate());
 
-        Assert.NotNull(domainException);
-        Assert.Equal(ErrorMessage.CategoryDescriptionNullOrEmpty, domainException.Message);
+        domainException.Should().NotBeNull();
+        domainException.Message.Should().Be(ErrorMessage.CategoryDescriptionNullOrEmpty);
     }
 
     [Fact]
@@ -83,7 +84,7 @@ public sealed class CategoryTest
 
         DomainException domainException = Assert.Throws<DomainException>(() => category.Validate());
 
-        Assert.NotNull(domainException);
-        Assert.Equal(ErrorMessage.CategoryDescriptionNullOrEmpty, domainException.Message);
+        domainException.Should().NotBeNull();
+        domainException.Message.Should().Be(ErrorMessage.CategoryDescriptionNullOrEmpty);
     }
 }

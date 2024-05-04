@@ -15,6 +15,8 @@ public sealed record ErrorMessage
     public const string ProductInvalidId = "The product id cannot be invalid.";
     public const string ProductInvalidCategoryId = "The product category id cannot be invalid.";
     public const string ProductCategoryNotFound = "The product category not found.";
+    public const string ProductAnErrorOccorred = "An error ocorred when registering or updating the product.";
+    public const string ProductRegisterDuplicity = "It is not possible to register or updating a duplicate product.";
     #endregion
 
     #region Category
@@ -22,6 +24,7 @@ public sealed record ErrorMessage
     public const string CategoryNameNullOrEmpty = "The category name cannot be null or empty.";
     public const string CategoryDescriptionNullOrEmpty = "The category description cannot be null or empty.";
     public const string CategoryInvalidId = "The category id cannot be invalid.";
-    public const string CategoryAnErrorOccorred = "An error ocorred when registering the category.";
+    public const string CategoryAnErrorOccorred = "An error ocorred when registering or updating the category.";
+    public const string CategoryRegisterDuplicity = "It is not possible to register or updating a duplicate category.";
     #endregion
 }

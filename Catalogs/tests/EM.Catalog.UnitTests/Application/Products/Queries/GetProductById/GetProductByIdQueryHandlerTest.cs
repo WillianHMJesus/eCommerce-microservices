@@ -1,7 +1,7 @@
 ﻿using AutoFixture;
-using AutoMapper;
-using EM.Catalog.Application.Products.Models;
+using AutoFixture.AutoMoq;
 using EM.Catalog.Application.Products.Queries.GetProductById;
+using EM.Catalog.Domain.Entities;
 using EM.Catalog.Domain.Interfaces;
 using Moq;
 using Xunit;
@@ -10,15 +10,28 @@ namespace EM.Catalog.UnitTests.Application.Products.Queries.GetProductById;
 
 public sealed class GetProductByIdQueryHandlerTest
 {
-    [Fact]
-    public async void Handle_ValidGetProductByIdQuery_ShouldInvokeReadRepositoryGetProductByIdAsync()
+    private readonly Mock<IReadRepository> _repositoryMock;
+    private readonly GetProductByIdQueryHandler _getProductByIdQueryHandler;
+    private readonly GetProductByIdQuery _getProductByIdQuery;
+
+    public GetProductByIdQueryHandlerTest()
     {
-        Mock<IReadRepository> readRepositoryMock = new();
-        Mock<IMapper> mapperMock = new();
-        GetProductByIdQueryHandler getProductByIdQueryHandler = new(readRepositoryMock.Object, mapperMock.Object);
+        IFixture fixture = new Fixture().Customize(new AutoMoqCustomization());
+        _repositoryMock = fixture.Freeze<Mock<IReadRepository>>();
+        _getProductByIdQueryHandler = fixture.Create<GetProductByIdQueryHandler>();
+        _getProductByIdQuery = fixture.Create<GetProductByIdQuery>();
+        Product? product = fixture.Create<Product?>();
 
-        ProductDTO? productDTO = await getProductByIdQueryHandler.Handle(new Fixture().Create<GetProductByIdQuery>(), It.IsAny<CancellationToken>());
+        _repositoryMock
+            .Setup(x => x.GetProductByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.FromResult(product));
+    }
 
-        readRepositoryMock.Verify(x => x.GetProductByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()), Times.Once);
+    [Fact]
+    public async Task Handle_ValidGetProductByIdQuery_ShouldInvokeReadRepositoryGetProductByIdAsync()
+    {
+        await _getProductByIdQueryHandler.Handle(_getProductByIdQuery, CancellationToken.None);
+
+        _repositoryMock.Verify(x => x.GetProductByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 }

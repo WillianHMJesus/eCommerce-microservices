@@ -1,9 +1,11 @@
 ﻿using EM.Catalog.Application.Results;
 using FluentValidation;
 using MediatR;
+using System.Diagnostics.CodeAnalysis;
 
 namespace EM.Catalog.Application;
 
+[ExcludeFromCodeCoverage]
 public sealed class ValidationBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
     where TRequest : IRequest<TResponse>
     where TResponse : Result
@@ -20,7 +22,7 @@ public sealed class ValidationBehavior<TRequest, TResponse> : IPipelineBehavior<
             return await next();
         }
 
-        List<Error> responseErrors = _validators
+        List<Error> errors = _validators
             .Select(validator => validator.Validate(request))
             .SelectMany(validationResult => validationResult.Errors)
             .Where(validateFailure => validateFailure is not null)
@@ -30,9 +32,9 @@ public sealed class ValidationBehavior<TRequest, TResponse> : IPipelineBehavior<
             .Distinct()
             .ToList();
 
-        if (responseErrors.Any())
+        if (errors.Any())
         {
-            return (TResponse)Result.CreateResponseWithErrors(responseErrors);
+            return (TResponse)Result.CreateResponseWithErrors(errors);
         }
 
         return await next();

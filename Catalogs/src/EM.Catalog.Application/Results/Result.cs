@@ -15,14 +15,4 @@ public class Result
     {
         return new Result { Errors = errors };
     }
-
-    public static Result CreateResponseWithErrors(string key, string message)
-    {
-        Error error = new(key, message);
-
-        return new Result
-        {
-            Errors = new List<Error> { error }
-        };
-    }
 }

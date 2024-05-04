@@ -1,4 +1,5 @@
 ﻿using AutoFixture;
+using AutoFixture.AutoMoq;
 using AutoMapper;
 using EM.Catalog.Application.Products.Events.ProductAdded;
 using EM.Catalog.Domain.Entities;
@@ -10,16 +11,29 @@ namespace EM.Catalog.UnitTests.Application.Products.Events.ProductAdded;
 
 public sealed class ProductAddedEventHandlerTest
 {
-    [Fact]
-    public async void Handle_ValidProductAddedEvent_ShouldInvokeReadRepositoryAddProductAsync()
+    private readonly Mock<IReadRepository> _repositoryMock;
+    private readonly ProductAddedEventHandler _productAddedEventHandler;
+    private readonly ProductAddedEvent _productAddedEvent;
+
+    public ProductAddedEventHandlerTest()
     {
-        Mock<IReadRepository> readRepositoryMock = new();
-        Mock<IMapper> mapperMock = new();
-        mapperMock.Setup(x => x.Map<Product>(It.IsAny<ProductAddedEvent>())).Returns(new Fixture().Create<Product>());
-        ProductAddedEventHandler productAddedEventHandler = new(readRepositoryMock.Object, mapperMock.Object);
+        IFixture fixture = new Fixture().Customize(new AutoMoqCustomization());
+        _repositoryMock = fixture.Freeze<Mock<IReadRepository>>();
+        Product product = fixture.Create<Product>();
 
-        await productAddedEventHandler.Handle(new Fixture().Create<ProductAddedEvent>(), It.IsAny<CancellationToken>());
+        fixture.Freeze<Mock<IMapper>>()
+            .Setup(x => x.Map<Product>(It.IsAny<ProductAddedEvent>()))
+            .Returns(product);
 
-        readRepositoryMock.Verify(x => x.AddProductAsync(It.IsAny<Product>(), It.IsAny<CancellationToken>()));
+        _productAddedEventHandler = fixture.Create<ProductAddedEventHandler>();
+        _productAddedEvent = fixture.Create<ProductAddedEvent>();
+    }
+
+    [Fact]
+    public async Task Handle_ValidProductAddedEvent_ShouldInvokeReadRepositoryAddProductAsync()
+    {
+        await _productAddedEventHandler.Handle(_productAddedEvent, CancellationToken.None);
+
+        _repositoryMock.Verify(x => x.AddProductAsync(It.IsAny<Product>(), It.IsAny<CancellationToken>()));
     }
 }

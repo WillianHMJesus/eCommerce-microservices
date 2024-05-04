@@ -26,6 +26,7 @@ public sealed class ProductMapping : Profile
             .ForCtorParam("description", x => x.MapFrom(src => src.Description))
             .ForCtorParam("value", x => x.MapFrom(src => src.Value))
             .ForCtorParam("image", x => x.MapFrom(src => src.Image))
+            .ForCtorParam("categoryId", x => x.MapFrom(src => src.CategoryId))
             .ForMember(x => x.Id, opt => opt.Ignore())
             .ForMember(x => x.Available, opt => opt.Ignore())
             .ForMember(x => x.Category, opt => opt.Ignore());
@@ -35,6 +36,7 @@ public sealed class ProductMapping : Profile
             .ForCtorParam("description", x => x.MapFrom(src => src.Description))
             .ForCtorParam("value", x => x.MapFrom(src => src.Value))
             .ForCtorParam("image", x => x.MapFrom(src => src.Image))
+            .ForCtorParam("categoryId", x => x.MapFrom(src => src.CategoryId))
             .ForMember(x => x.Category, opt => opt.Ignore());
     }
 }

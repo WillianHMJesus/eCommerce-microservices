@@ -1,6 +1,5 @@
 ﻿using AutoFixture;
-using AutoMapper;
-using EM.Catalog.Application.Products.Models;
+using AutoFixture.AutoMoq;
 using EM.Catalog.Application.Products.Queries.GetAllProducts;
 using EM.Catalog.Domain.Interfaces;
 using Moq;
@@ -10,15 +9,23 @@ namespace EM.Catalog.UnitTests.Application.Products.Queries.GetAllProducts;
 
 public sealed class GetAllProductsQueryHandlerTest
 {
-    [Fact]
-    public async void Handle_ValidGetAllProductsQuery_ShouldInvokeReadRepositoryGetAllProductsAsync()
+    private readonly Mock<IReadRepository> _repositoryMock;
+    private readonly GetAllProductsQueryHandler _getAllProductsQueryHandler;
+    private readonly GetAllProductsQuery _getAllProductsQuery;
+
+    public GetAllProductsQueryHandlerTest()
     {
-        Mock<IReadRepository> readRepositoryMock = new();
-        Mock<IMapper> mapperMock = new();
-        GetAllProductsQueryHandler getAllProductsQueryHandler = new(readRepositoryMock.Object, mapperMock.Object);
+        IFixture fixture = new Fixture().Customize(new AutoMoqCustomization());
+        _repositoryMock = fixture.Freeze<Mock<IReadRepository>>();
+        _getAllProductsQueryHandler = fixture.Create<GetAllProductsQueryHandler>();
+        _getAllProductsQuery = fixture.Create<GetAllProductsQuery>();
+    }
 
-        IEnumerable<ProductDTO> productDTOs = await getAllProductsQueryHandler.Handle(new Fixture().Create<GetAllProductsQuery>(), It.IsAny<CancellationToken>());
+    [Fact]
+    public async Task Handle_ValidGetAllProductsQuery_ShouldInvokeReadRepositoryGetAllProductsAsync()
+    {
+        await _getAllProductsQueryHandler.Handle(_getAllProductsQuery, CancellationToken.None);
 
-        readRepositoryMock.Verify(x => x.GetAllProductsAsync(It.IsAny<short>(), It.IsAny<short>(), It.IsAny<CancellationToken>()), Times.Once);
+        _repositoryMock.Verify(x => x.GetAllProductsAsync(It.IsAny<short>(), It.IsAny<short>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 }
