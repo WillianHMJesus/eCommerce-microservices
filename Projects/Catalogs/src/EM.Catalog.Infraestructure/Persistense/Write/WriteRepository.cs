@@ -13,11 +13,13 @@ public sealed class WriteRepository : IWriteRepository
     public async Task AddProductAsync(Product product, CancellationToken cancellationToken)
     {
         await _writeContext.Products.AddAsync(product, cancellationToken);
+        _writeContext.Entry(product).Reference(x => x.Category).Load();
     }
 
     public void UpdateProduct(Product product)
     {
         _writeContext.Products.Update(product);
+        _writeContext.Entry(product).Reference(x => x.Category).Load();
     }
 
     public async Task AddCategoryAsync(Category category, CancellationToken cancellationToken)

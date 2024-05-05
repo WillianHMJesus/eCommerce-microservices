@@ -19,7 +19,6 @@ public sealed class ProductMapping : Profile
         CreateMap<Product, ProductUpdatedEvent>().ReverseMap();
         CreateMap<Product?, ProductDTO?>();
         CreateMap<Category?, CategoryDTO?>();
-        CreateMap<IEnumerable<Product>, IEnumerable<ProductDTO>>();
 
         CreateMap<AddProductCommand, Product>()
             .ForCtorParam("name", x => x.MapFrom(src => src.Name))

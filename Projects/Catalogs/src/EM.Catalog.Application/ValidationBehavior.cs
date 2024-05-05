@@ -1,5 +1,6 @@
 ﻿using EM.Catalog.Application.Results;
 using FluentValidation;
+using FluentValidation.Results;
 using MediatR;
 using System.Diagnostics.CodeAnalysis;
 
@@ -22,8 +23,9 @@ public sealed class ValidationBehavior<TRequest, TResponse> : IPipelineBehavior<
             return await next();
         }
 
-        List<Error> errors = _validators
-            .Select(validator => validator.Validate(request))
+        ValidationResult[] validationResult = await Task.WhenAll(_validators.Select(async x => await x.ValidateAsync(request, cancellationToken)));
+        
+        List<Error> errors = validationResult
             .SelectMany(validationResult => validationResult.Errors)
             .Where(validateFailure => validateFailure is not null)
             .Select(failure => new Error(

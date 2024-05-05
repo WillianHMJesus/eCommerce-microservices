@@ -21,10 +21,6 @@ public sealed class UpdateProductCommandValidator : AbstractValidator<UpdateProd
             .Must(x => !string.IsNullOrEmpty(x))
             .WithMessage(ErrorMessage.ProductNameNullOrEmpty);
 
-        RuleFor(x => x.Name)
-            .MustAsync(async (_, value, cancellationToken) => await ValidateDuplicityAsync(value, cancellationToken))
-            .WithMessage(ErrorMessage.ProductRegisterDuplicity);
-
         RuleFor(x => x.Description)
             .Must(x => !string.IsNullOrEmpty(x))
             .WithMessage(ErrorMessage.ProductDescriptionNullOrEmpty);
@@ -45,16 +41,20 @@ public sealed class UpdateProductCommandValidator : AbstractValidator<UpdateProd
             .NotEqual(Guid.Empty)
             .WithMessage(ErrorMessage.ProductInvalidCategoryId);
 
+        RuleFor(x => x)
+            .MustAsync(async (_, value, cancellationToken) => await ValidateDuplicityAsync(value, cancellationToken))
+            .WithMessage(ErrorMessage.ProductRegisterDuplicity);
+
         RuleFor(x => x.CategoryId)
             .MustAsync(async (_, value, cancellationToken) => await ValidateCategoryIdAsync(value, cancellationToken))
             .WithMessage(ErrorMessage.ProductCategoryNotFound);
     }
 
-    public async Task<bool> ValidateDuplicityAsync(string name, CancellationToken cancellationToken)
+    public async Task<bool> ValidateDuplicityAsync(UpdateProductCommand updateProductCommand, CancellationToken cancellationToken)
     {
-        IEnumerable<Product> products = await _repository.GetProductsByCategoryNameAsync(name, cancellationToken);
+        IEnumerable<Product> products = await _repository.GetProductsByCategoryNameAsync(updateProductCommand.Name, cancellationToken);
 
-        return !products.Any();
+        return !products.Any(x => x.Id != updateProductCommand.Id);
     }
 
     public async Task<bool> ValidateCategoryIdAsync(Guid categoryId, CancellationToken cancellationToken)

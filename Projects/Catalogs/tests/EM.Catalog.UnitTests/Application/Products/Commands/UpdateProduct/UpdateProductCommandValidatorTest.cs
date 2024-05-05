@@ -187,6 +187,24 @@ public sealed class UpdateProductCommandValidatorTest
     }
 
     [Fact]
+    public async Task Constructor_NotDuplicityUpdateProductCommand_ShouldReturnValidResult()
+    {
+        IEnumerable<Product> products = new List<Product>() { _fixture.Create<Product>() };
+        UpdateProductCommand updateProductCommand = _fixture.Build<UpdateProductCommand>()
+            .With(x => x.Id, products.First().Id)
+            .Create();
+
+        _repositoryMock
+            .Setup(x => x.GetProductsByCategoryNameAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+        .Returns(Task.FromResult(products));
+
+        ValidationResult result = await _validator.ValidateAsync(updateProductCommand);
+
+        result.IsValid.Should().BeTrue();
+        result.Errors.Should().BeEmpty();
+    }
+
+    [Fact]
     public async Task Constructor_NotFoundUpdateProductCommandCategoryId_ShouldReturnInvalidResult()
     {
         Category? category = null;

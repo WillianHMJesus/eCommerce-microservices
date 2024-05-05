@@ -16,8 +16,7 @@ public sealed class CategoryMapping : Profile
         CreateMap<UpdateCategoryRequest, UpdateCategoryCommand>();
         CreateMap<Category, CategoryAddedEvent>().ReverseMap();
         CreateMap<Category, CategoryUpdatedEvent>().ReverseMap();
-        CreateMap<Category?, CategoryDTO?>();
-        CreateMap<IEnumerable<Category>, IEnumerable<CategoryDTO>>();
+        CreateMap<Category, CategoryDTO>();
 
         CreateMap<AddCategoryCommand, Category>()
             .ForCtorParam("code", x => x.MapFrom(src => src.Code))
