@@ -1,4 +1,4 @@
-﻿namespace EM.Shared.Core;
+﻿namespace EM.Common.Core.Domain;
 
 public sealed class AssertionConcern
 {
@@ -10,9 +10,9 @@ public sealed class AssertionConcern
         }
     }
 
-    public static void ValidateLessThanEqualToMinimum(long valor, long minimum, string message)
+    public static void ValidateNullOrDefault<T>(T value, string message)
     {
-        if (valor <= minimum)
+        if (value is null || EqualityComparer<T>.Default.Equals(value, default(T)))
         {
             throw new DomainException(message);
         }
@@ -34,9 +34,9 @@ public sealed class AssertionConcern
         }
     }
 
-    public static void ValidateNullOrDefault<T>(T value, string message)
+    public static void ValidateLessThanEqualToMinimum(long valor, long minimum, string message)
     {
-        if (value is null || EqualityComparer<T>.Default.Equals(value, default(T)))
+        if (valor <= minimum)
         {
             throw new DomainException(message);
         }

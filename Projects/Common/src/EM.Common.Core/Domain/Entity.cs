@@ -1,4 +1,4 @@
-﻿namespace EM.Shared.Core;
+﻿namespace EM.Common.Core.Domain;
 
 public abstract class Entity
 {

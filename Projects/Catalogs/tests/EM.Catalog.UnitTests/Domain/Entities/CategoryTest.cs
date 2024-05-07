@@ -1,7 +1,7 @@
 ﻿using AutoFixture;
 using EM.Catalog.Domain;
 using EM.Catalog.Domain.Entities;
-using EM.Shared.Core;
+using EM.Common.Core.Domain;
 using FluentAssertions;
 using Xunit;
 

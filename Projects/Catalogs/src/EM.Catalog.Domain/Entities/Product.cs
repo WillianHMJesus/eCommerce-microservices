@@ -1,4 +1,4 @@
-﻿using EM.Shared.Core;
+﻿using EM.Common.Core.Domain;
 
 namespace EM.Catalog.Domain.Entities;
 
