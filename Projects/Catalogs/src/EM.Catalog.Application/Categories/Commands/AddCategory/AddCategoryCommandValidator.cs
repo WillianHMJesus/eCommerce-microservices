@@ -1,6 +1,6 @@
-﻿using EM.Catalog.Domain;
-using EM.Catalog.Domain.Entities;
+﻿using EM.Catalog.Domain.Entities;
 using EM.Catalog.Domain.Interfaces;
+using EM.Common.Core.ResourceManagers;
 using FluentValidation;
 
 namespace EM.Catalog.Application.Categories.Commands.AddCategory;
@@ -15,19 +15,19 @@ public sealed class AddCategoryCommandValidator : AbstractValidator<AddCategoryC
 
         RuleFor(x => x.Code)
             .GreaterThan(default(short))
-            .WithMessage(ErrorMessage.CategoryCodeLessThanEqualToZero);
+            .WithMessage(Key.CategoryCodeLessThanEqualToZero);
 
         RuleFor(x => x.Name)
             .Must(x => !string.IsNullOrEmpty(x))
-            .WithMessage(ErrorMessage.CategoryNameNullOrEmpty);
+            .WithMessage(Key.CategoryNameNullOrEmpty);
 
         RuleFor(x => x.Description)
            .Must(x => !string.IsNullOrEmpty(x))
-           .WithMessage(ErrorMessage.CategoryDescriptionNullOrEmpty);
+           .WithMessage(Key.CategoryDescriptionNullOrEmpty);
 
         RuleFor(x => x)
             .MustAsync(async (_, value, cancellationToken) => await ValidateDuplicityAsync(value, cancellationToken))
-            .WithMessage(ErrorMessage.CategoryRegisterDuplicity);
+            .WithMessage(Key.CategoryRegisterDuplicity);
     }
 
     public async Task<bool> ValidateDuplicityAsync(AddCategoryCommand command, CancellationToken cancellationToken)

@@ -7,7 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="EM.Common.Core" Version="1.0.0" />
+    <PackageReference Include="EM.Common.Core" Version="1.2.1" />
   </ItemGroup>
 
 </Project>

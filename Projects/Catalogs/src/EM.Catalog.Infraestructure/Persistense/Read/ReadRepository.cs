@@ -10,13 +10,13 @@ public sealed class ReadRepository : IReadRepository
     private readonly IMongoCollection<Product> _productsCollection;
     private readonly IMongoCollection<Category> _categoriesCollection;
 
-    public ReadRepository(IOptions<CatalogDatabaseSettings> catalogDatabaseSettings)
+    public ReadRepository(IOptions<CatalogDatabaseSettings> options)
     {
-        MongoClient client = new(catalogDatabaseSettings.Value.ConnectionString);
-        IMongoDatabase database = client.GetDatabase(catalogDatabaseSettings.Value.DatabaseName);
+        MongoClient client = new(options.Value.ConnectionString);
+        IMongoDatabase database = client.GetDatabase(options.Value.DatabaseName);
 
-        _productsCollection = database.GetCollection<Product>(catalogDatabaseSettings.Value.ProductsCollectionName);
-        _categoriesCollection = database.GetCollection<Category>(catalogDatabaseSettings.Value.CategoriesCollectionName);
+        _productsCollection = database.GetCollection<Product>(options.Value.ProductsCollectionName);
+        _categoriesCollection = database.GetCollection<Category>(options.Value.CategoriesCollectionName);
     }
 
     public async Task AddProductAsync(Product product, CancellationToken cancellationToken)
@@ -34,20 +34,17 @@ public sealed class ReadRepository : IReadRepository
 
     public async Task<Product?> GetProductByIdAsync(Guid id, CancellationToken cancellationToken)
     {
-        return await _productsCollection.Find(x => x.Id == id)
-            .FirstOrDefaultAsync(cancellationToken);
+        return await _productsCollection.Find(x => x.Id == id).FirstOrDefaultAsync(cancellationToken);
     }
 
     public async Task<IEnumerable<Product>> GetProductsByCategoryIdAsync(Guid categoryId, CancellationToken cancellationToken)
     {
-        return await _productsCollection.Find(x => x.CategoryId == categoryId)
-            .ToListAsync(cancellationToken);
+        return await _productsCollection.Find(x => x.CategoryId == categoryId).ToListAsync(cancellationToken);
     }
 
-    public async Task<IEnumerable<Product>> GetProductsByCategoryNameAsync(string name, CancellationToken cancellationToken)
+    public async Task<IEnumerable<Product>> GetProductsByNameAsync(string name, CancellationToken cancellationToken)
     {
-        return await _productsCollection.Find(x => x.Name == name)
-            .ToListAsync(cancellationToken);
+        return await _productsCollection.Find(x => x.Name == name).ToListAsync(cancellationToken);
     }
 
     public async Task UpdateProductAsync(Product product, CancellationToken cancellationToken)
@@ -77,14 +74,12 @@ public sealed class ReadRepository : IReadRepository
         FilterDefinitionBuilder<Category> builder = Builders<Category>.Filter;
         FilterDefinition<Category> filter = builder.Eq(x => x.Code, code) | builder.Eq(x => x.Name, name);
 
-        return await _categoriesCollection.Find(filter)
-            .ToListAsync(cancellationToken);
+        return await _categoriesCollection.Find(filter).ToListAsync(cancellationToken);
     }
 
     public async Task<Category?> GetCategoryByIdAsync(Guid id, CancellationToken cancellationToken)
     {
-        return await _categoriesCollection.Find(x => x.Id == id)
-            .FirstOrDefaultAsync(cancellationToken);
+        return await _categoriesCollection.Find(x => x.Id == id).FirstOrDefaultAsync(cancellationToken);
     }
 
     public async Task UpdateCategoryAsync(Category category, CancellationToken cancellationToken)

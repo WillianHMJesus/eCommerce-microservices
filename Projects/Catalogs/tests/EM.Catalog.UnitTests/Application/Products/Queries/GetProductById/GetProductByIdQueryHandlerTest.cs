@@ -1,8 +1,7 @@
-﻿using AutoFixture;
-using AutoFixture.AutoMoq;
+﻿using AutoFixture.Xunit2;
 using EM.Catalog.Application.Products.Queries.GetProductById;
-using EM.Catalog.Domain.Entities;
 using EM.Catalog.Domain.Interfaces;
+using EM.Catalog.UnitTests.CustomAutoData;
 using Moq;
 using Xunit;
 
@@ -10,28 +9,14 @@ namespace EM.Catalog.UnitTests.Application.Products.Queries.GetProductById;
 
 public sealed class GetProductByIdQueryHandlerTest
 {
-    private readonly Mock<IReadRepository> _repositoryMock;
-    private readonly GetProductByIdQueryHandler _getProductByIdQueryHandler;
-    private readonly GetProductByIdQuery _getProductByIdQuery;
-
-    public GetProductByIdQueryHandlerTest()
+    [Theory, AutoProductData]
+    public async Task Handle_ValidGetProductByIdQuery_ShouldInvokeReadRepositoryGetProductByIdAsync(
+        [Frozen] Mock<IReadRepository> repositoryMock,
+        GetProductByIdQueryHandler sut,
+        GetProductByIdQuery query)
     {
-        IFixture fixture = new Fixture().Customize(new AutoMoqCustomization());
-        _repositoryMock = fixture.Freeze<Mock<IReadRepository>>();
-        _getProductByIdQueryHandler = fixture.Create<GetProductByIdQueryHandler>();
-        _getProductByIdQuery = fixture.Create<GetProductByIdQuery>();
-        Product? product = fixture.Create<Product?>();
+        await sut.Handle(query, CancellationToken.None);
 
-        _repositoryMock
-            .Setup(x => x.GetProductByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
-            .Returns(Task.FromResult(product));
-    }
-
-    [Fact]
-    public async Task Handle_ValidGetProductByIdQuery_ShouldInvokeReadRepositoryGetProductByIdAsync()
-    {
-        await _getProductByIdQueryHandler.Handle(_getProductByIdQuery, CancellationToken.None);
-
-        _repositoryMock.Verify(x => x.GetProductByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()), Times.Once);
+        repositoryMock.Verify(x => x.GetProductByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 }

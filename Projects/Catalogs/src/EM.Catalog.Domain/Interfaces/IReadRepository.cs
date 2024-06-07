@@ -8,7 +8,7 @@ public interface IReadRepository
     Task<IEnumerable<Product>> GetAllProductsAsync(short page, short pageSize, CancellationToken cancellationToken);
     Task<Product?> GetProductByIdAsync(Guid id, CancellationToken cancellationToken);
     Task<IEnumerable<Product>> GetProductsByCategoryIdAsync(Guid categoryId, CancellationToken cancellationToken);
-    Task<IEnumerable<Product>> GetProductsByCategoryNameAsync(string name, CancellationToken cancellationToken);
+    Task<IEnumerable<Product>> GetProductsByNameAsync(string name, CancellationToken cancellationToken);
     Task UpdateProductAsync(Product product, CancellationToken cancellationToken);
 
     Task AddCategoryAsync(Category category, CancellationToken cancellationToken);

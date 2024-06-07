@@ -2,11 +2,11 @@
 using EM.Catalog.Application.Categories.Commands.UpdateCategory;
 using EM.Catalog.Application.Categories.Queries.GetAllCategories;
 using EM.Catalog.Application.Categories.Queries.GetCategoryById;
-using EM.Catalog.Application.Results;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using EM.Catalog.Application.Categories.Models;
 using AutoMapper;
+using EM.Common.Core.ResourceManagers;
 
 namespace EM.Catalog.API.Controllers;
 

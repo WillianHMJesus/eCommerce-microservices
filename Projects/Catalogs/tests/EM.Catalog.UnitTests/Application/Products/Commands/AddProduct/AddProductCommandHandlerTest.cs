@@ -1,13 +1,10 @@
-﻿using AutoFixture;
-using AutoFixture.AutoMoq;
-using AutoMapper;
+﻿using AutoFixture.Xunit2;
 using EM.Catalog.Application.Products.Commands.AddProduct;
 using EM.Catalog.Application.Products.Events.ProductAdded;
-using EM.Catalog.Application.Results;
-using EM.Catalog.Domain;
 using EM.Catalog.Domain.Entities;
 using EM.Catalog.Domain.Interfaces;
-using EM.Common.Core.Domain;
+using EM.Catalog.UnitTests.CustomAutoData;
+using EM.Common.Core.ResourceManagers;
 using FluentAssertions;
 using MediatR;
 using Moq;
@@ -17,56 +14,46 @@ namespace EM.Catalog.UnitTests.Application.Products.Commands.AddProduct;
 
 public sealed class AddProductCommandHandlerTest
 {
-    private readonly Mock<IWriteRepository> _writeRepositoryMock;
-    private readonly Mock<IUnitOfWork> _unitOfWorkMock;
-    private readonly Mock<IMediator> _mediatorMock;
-    private readonly AddProductCommandHandler _addProductCommandHandler;
-    private readonly AddProductCommand _addProductCommand;
-    private readonly Product _product;
-
-    public AddProductCommandHandlerTest()
+    [Theory, AutoProductData]
+    public async Task Handle_ValidCommit_ShouldReturnWithSuccess(
+        [Frozen] Mock<IWriteRepository> repositoryMock,
+        [Frozen] Mock<IUnitOfWork> unitOfWorkMock,
+        [Frozen] Mock<IMediator> mediatorMock,
+        AddProductCommandHandler sut,
+        AddProductCommand command,
+        Product product)
     {
-        IFixture fixture = new Fixture().Customize(new AutoMoqCustomization());
-        _writeRepositoryMock = fixture.Freeze<Mock<IWriteRepository>>();
-        _unitOfWorkMock = fixture.Freeze<Mock<IUnitOfWork>>();
-        _mediatorMock = fixture.Freeze<Mock<IMediator>>();
-        _product = fixture.Create<Product>();
-
-        fixture.Freeze<Mock<IMapper>>()
-            .Setup(x => x.Map<Product>(It.IsAny<AddProductCommand>()))
-            .Returns(_product);
-
-        _addProductCommandHandler = fixture.Create<AddProductCommandHandler>();
-        _addProductCommand = fixture.Create<AddProductCommand>();
-    }
-
-    [Fact]
-    public async Task Handle_ValidCommit_ShouldReturnWithSuccess()
-    {
-        _unitOfWorkMock
+        unitOfWorkMock
             .Setup(x => x.CommitAsync(It.IsAny<CancellationToken>()))
-            .Returns(Task.FromResult(true));
+            .ReturnsAsync(true);
 
-        Result result = await _addProductCommandHandler.Handle(_addProductCommand, CancellationToken.None);
+        Result result = await sut.Handle(command, CancellationToken.None);
 
-        _writeRepositoryMock.Verify(x => x.AddProductAsync(It.IsAny<Product>(), It.IsAny<CancellationToken>()), Times.Once);
-        _unitOfWorkMock.Verify(x => x.CommitAsync(It.IsAny<CancellationToken>()));
-        _mediatorMock.Verify(x => x.Publish(It.IsAny<ProductAddedEvent>(), It.IsAny<CancellationToken>()), Times.Once);
+        repositoryMock.Verify(x => x.AddProductAsync(It.IsAny<Product>(), It.IsAny<CancellationToken>()), Times.Once);
+        unitOfWorkMock.Verify(x => x.CommitAsync(It.IsAny<CancellationToken>()));
+        mediatorMock.Verify(x => x.Publish(It.IsAny<ProductAddedEvent>(), It.IsAny<CancellationToken>()), Times.Once);
         result.Success.Should().BeTrue();
-        result.Data.Should().Be(_product.Id);
+        result.Data.Should().Be(product.Id);
     }
 
-    [Fact]
-    public async Task Handle_ProductCategoryNotFound_ShouldReturnWithFailed()
+    [Theory, AutoProductData]
+    public async Task Handle_ProductCategoryNotFound_ShouldReturnWithFailed(
+        [Frozen] Mock<IWriteRepository> repositoryMock,
+        [Frozen] Mock<IUnitOfWork> unitOfWorkMock,
+        [Frozen] Mock<IMediator> mediatorMock,
+        AddProductCommandHandler sut,
+        AddProductCommand command)
     {
-        _unitOfWorkMock
+        unitOfWorkMock
             .Setup(x => x.CommitAsync(It.IsAny<CancellationToken>()))
-            .Returns(Task.FromResult(false));
+            .ReturnsAsync(false);
 
-        DomainException domainException = await Assert.ThrowsAsync<DomainException>(
-            async () => await _addProductCommandHandler.Handle(_addProductCommand, CancellationToken.None));
+        Result result = await sut.Handle(command, CancellationToken.None);
 
-        domainException.Should().NotBeNull();
-        domainException.Message.Should().Be(ErrorMessage.ProductAnErrorOccorred);
+        repositoryMock.Verify(x => x.AddProductAsync(It.IsAny<Product>(), It.IsAny<CancellationToken>()), Times.Once);
+        unitOfWorkMock.Verify(x => x.CommitAsync(It.IsAny<CancellationToken>()));
+        mediatorMock.Verify(x => x.Publish(It.IsAny<ProductAddedEvent>(), It.IsAny<CancellationToken>()), Times.Never);
+        result.Success.Should().BeFalse();
+        result.Errors.Should().Contain(x => x.Key == Key.ProductAnErrorOccorred);
     }
 }

@@ -1,4 +1,5 @@
 ﻿using EM.Common.Core.Domain;
+using EM.Common.Core.ResourceManagers;
 
 namespace EM.Catalog.Domain.Entities;
 
@@ -28,11 +29,11 @@ public class Product : Entity
 
     public override void Validate()
     {
-        AssertionConcern.ValidateNullOrEmpty(Name, ErrorMessage.ProductNameNullOrEmpty);
-        AssertionConcern.ValidateNullOrEmpty(Description, ErrorMessage.ProductDescriptionNullOrEmpty);
-        AssertionConcern.ValidateLessThanEqualToMinimum(Value, 0, ErrorMessage.ProductValueLessThanEqualToZero);
-        AssertionConcern.ValidateNullOrEmpty(Image, ErrorMessage.ProductImageNullOrEmpty);
-        AssertionConcern.ValidateNullOrDefault(CategoryId, ErrorMessage.ProductInvalidCategoryId);
+        AssertionConcern.ValidateNullOrEmpty(Name, Key.ProductNameNullOrEmpty);
+        AssertionConcern.ValidateNullOrEmpty(Description, Key.ProductDescriptionNullOrEmpty);
+        AssertionConcern.ValidateLessThanEqualToMinimum(Value, 0, Key.ProductValueLessThanEqualToZero);
+        AssertionConcern.ValidateNullOrEmpty(Image, Key.ProductImageNullOrEmpty);
+        AssertionConcern.ValidateNullOrDefault(CategoryId, Key.ProductInvalidCategoryId);
     }
 
     public void MakeAvailable() => Available = true;
@@ -41,14 +42,14 @@ public class Product : Entity
 
     public void RemoveQuantity(short quantity)
     {
-        AssertionConcern.ValidateLessThanEqualToMinimum(quantity, 0, ErrorMessage.ProductQuantityDebitedLessThanOrEqualToZero);
-        AssertionConcern.ValidateLessThanMinimum(Quantity, quantity, ErrorMessage.ProductQuantityDebitedLargerThanAvailable);
+        AssertionConcern.ValidateLessThanEqualToMinimum(quantity, 0, Key.ProductQuantityDebitedLessThanOrEqualToZero);
+        AssertionConcern.ValidateLessThanMinimum(Quantity, quantity, Key.ProductQuantityDebitedLargerThanAvailable);
         Quantity -= quantity;
     }
 
     public void AddQuantity(short quantity)
     {
-        AssertionConcern.ValidateLessThanEqualToMinimum(quantity, 0, ErrorMessage.ProductQuantityAddedLessThanOrEqualToZero);
+        AssertionConcern.ValidateLessThanEqualToMinimum(quantity, 0, Key.ProductQuantityAddedLessThanOrEqualToZero);
         Quantity += quantity;
     }
 }

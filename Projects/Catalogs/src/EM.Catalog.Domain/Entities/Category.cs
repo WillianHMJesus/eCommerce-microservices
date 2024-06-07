@@ -1,4 +1,5 @@
 ﻿using EM.Common.Core.Domain;
+using EM.Common.Core.ResourceManagers;
 
 namespace EM.Catalog.Domain.Entities;
 
@@ -19,8 +20,8 @@ public class Category : Entity
 
     public override void Validate()
     {
-        AssertionConcern.ValidateLessThanEqualToMinimum(Code, 0, ErrorMessage.CategoryCodeLessThanEqualToZero);
-        AssertionConcern.ValidateNullOrEmpty(Name, ErrorMessage.CategoryNameNullOrEmpty);
-        AssertionConcern.ValidateNullOrEmpty(Description, ErrorMessage.CategoryDescriptionNullOrEmpty);
+        AssertionConcern.ValidateLessThanEqualToMinimum(Code, 0, Key.CategoryCodeLessThanEqualToZero);
+        AssertionConcern.ValidateNullOrEmpty(Name, Key.CategoryNameNullOrEmpty);
+        AssertionConcern.ValidateNullOrEmpty(Description, Key.CategoryDescriptionNullOrEmpty);
     }
 }

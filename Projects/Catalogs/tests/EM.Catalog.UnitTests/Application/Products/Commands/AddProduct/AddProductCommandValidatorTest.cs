@@ -1,9 +1,10 @@
 ﻿using AutoFixture;
-using AutoFixture.AutoMoq;
+using AutoFixture.Xunit2;
 using EM.Catalog.Application.Products.Commands.AddProduct;
-using EM.Catalog.Domain;
 using EM.Catalog.Domain.Entities;
 using EM.Catalog.Domain.Interfaces;
+using EM.Catalog.UnitTests.CustomAutoData;
+using EM.Common.Core.ResourceManagers;
 using FluentAssertions;
 using FluentValidation.Results;
 using Moq;
@@ -14,176 +15,181 @@ namespace EM.Catalog.UnitTests.Application.Products.Commands.AddProduct;
 public sealed class AddProductCommandValidatorTest
 {
     private readonly IFixture _fixture;
-    private readonly Mock<IReadRepository> _repositoryMock;
-    private readonly AddProductCommandValidator _validator;
-    private readonly AddProductCommand _addProductCommand;
 
-    public AddProductCommandValidatorTest()
+    public AddProductCommandValidatorTest() => _fixture = new Fixture();
+
+    [Theory, AutoProductData]
+    public async Task Constructor_ValidAddProductCommand_ShouldReturnValidResult(
+        [Frozen] Mock<IReadRepository> repositoryMock,
+        AddProductCommandValidator sut,
+        AddProductCommand command)
     {
-        _fixture = new Fixture().Customize(new AutoMoqCustomization());
-        _repositoryMock = _fixture.Freeze<Mock<IReadRepository>>();
-        _validator = _fixture.Create<AddProductCommandValidator>();
-        _addProductCommand = _fixture.Create<AddProductCommand>();
-        Category? category = _fixture.Create<Category?>();
+        repositoryMock
+            .Setup(x => x.GetProductsByNameAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<Product>());
 
-        _repositoryMock
-            .Setup(x => x.GetCategoryByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
-            .Returns(Task.FromResult(category));
-    }
-
-    [Fact]
-    public async Task Constructor_ValidAddProductCommand_ShouldReturnValidResult()
-    {
-        ValidationResult result = await _validator.ValidateAsync(_addProductCommand);
+        ValidationResult result = await sut.ValidateAsync(command);
 
         result.IsValid.Should().BeTrue();
         result.Errors.Should().BeEmpty();
     }
 
-    [Fact]
-    public async Task Constructor_EmptyAddProductCommandName_ShouldReturnInvalidResult()
+    [Theory, AutoProductData]
+    public async Task Constructor_EmptyAddProductCommandName_ShouldReturnInvalidResult(
+        AddProductCommandValidator sut)
     {
-        AddProductCommand addProductCommand = _fixture.Build<AddProductCommand>()
+        AddProductCommand command = _fixture.Build<AddProductCommand>()
             .With(x => x.Name, "")
             .Create();
 
-        ValidationResult result = await _validator.ValidateAsync(addProductCommand);
+        ValidationResult result = await sut.ValidateAsync(command);
 
         result.IsValid.Should().BeFalse();
-        result.Errors.Should().Contain(x => x.ErrorMessage == ErrorMessage.ProductNameNullOrEmpty);
+        result.Errors.Should().Contain(x => x.ErrorMessage == Key.ProductNameNullOrEmpty);
     }
 
-    [Fact]
-    public async Task Constructor_NullAddProductCommandName_ShouldReturnInvalidResult()
+    [Theory, AutoProductData]
+    public async Task Constructor_NullAddProductCommandName_ShouldReturnInvalidResult(
+        AddProductCommandValidator sut)
     {
-        AddProductCommand addProductCommand = _fixture.Build<AddProductCommand>()
+        AddProductCommand command = _fixture.Build<AddProductCommand>()
             .With(x => x.Name, null as string)
             .Create();
 
-        ValidationResult result = await _validator.ValidateAsync(addProductCommand);
+        ValidationResult result = await sut.ValidateAsync(command);
 
         result.IsValid.Should().BeFalse();
-        result.Errors.Should().Contain(x => x.ErrorMessage == ErrorMessage.ProductNameNullOrEmpty);
+        result.Errors.Should().Contain(x => x.ErrorMessage == Key.ProductNameNullOrEmpty);
     }
 
-    [Fact]
-    public async Task Constructor_EmptyAddProductCommandDescription_ShouldReturnInvalidResult()
+    [Theory, AutoProductData]
+    public async Task Constructor_EmptyAddProductCommandDescription_ShouldReturnInvalidResult(
+        AddProductCommandValidator sut)
     {
-        AddProductCommand addProductCommand = _fixture.Build<AddProductCommand>()
+        AddProductCommand command = _fixture.Build<AddProductCommand>()
             .With(x => x.Description, "")
             .Create();
 
-        ValidationResult result = await _validator.ValidateAsync(addProductCommand);
+        ValidationResult result = await sut.ValidateAsync(command);
 
         result.IsValid.Should().BeFalse();
-        result.Errors.Should().Contain(x => x.ErrorMessage == ErrorMessage.ProductDescriptionNullOrEmpty);
+        result.Errors.Should().Contain(x => x.ErrorMessage == Key.ProductDescriptionNullOrEmpty);
     }
 
-    [Fact]
-    public async Task Constructor_NullAddProductCommandDescription_ShouldReturnInvalidResult()
+    [Theory, AutoProductData]
+    public async Task Constructor_NullAddProductCommandDescription_ShouldReturnInvalidResult(
+        AddProductCommandValidator sut)
     {
-        AddProductCommand addProductCommand = _fixture.Build<AddProductCommand>()
+        AddProductCommand command = _fixture.Build<AddProductCommand>()
             .With(x => x.Description, null as string)
             .Create();
 
-        ValidationResult result = await _validator.ValidateAsync(addProductCommand);
+        ValidationResult result = await sut.ValidateAsync(command);
 
         result.IsValid.Should().BeFalse();
-        result.Errors.Should().Contain(x => x.ErrorMessage == ErrorMessage.ProductDescriptionNullOrEmpty);
+        result.Errors.Should().Contain(x => x.ErrorMessage == Key.ProductDescriptionNullOrEmpty);
     }
 
-    [Fact]
-    public async Task Constructor_ZeroAddProductCommandValue_ShouldReturnInvalidResult()
+    [Theory, AutoProductData]
+    public async Task Constructor_ZeroAddProductCommandValue_ShouldReturnInvalidResult(
+        AddProductCommandValidator sut)
     {
-        AddProductCommand addProductCommand = _fixture.Build<AddProductCommand>()
+        AddProductCommand command = _fixture.Build<AddProductCommand>()
             .With(x => x.Value, 0)
             .Create();
 
-        ValidationResult result = await _validator.ValidateAsync(addProductCommand);
+        ValidationResult result = await sut.ValidateAsync(command);
 
         result.IsValid.Should().BeFalse();
-        result.Errors.Should().Contain(x => x.ErrorMessage == ErrorMessage.ProductValueLessThanEqualToZero);
+        result.Errors.Should().Contain(x => x.ErrorMessage == Key.ProductValueLessThanEqualToZero);
     }
 
-    [Fact]
-    public async Task Constructor_ZeroAddProductCommandQuantity_ShouldReturnInvalidResult()
+    [Theory, AutoProductData]
+    public async Task Constructor_ZeroAddProductCommandQuantity_ShouldReturnInvalidResult(
+        AddProductCommandValidator sut)
     {
-        AddProductCommand addProductCommand = _fixture.Build<AddProductCommand>()
+        AddProductCommand command = _fixture.Build<AddProductCommand>()
             .With(x => x.Quantity, 0)
             .Create();
 
-        ValidationResult result = await _validator.ValidateAsync(addProductCommand);
+        ValidationResult result = await sut.ValidateAsync(command);
 
         result.IsValid.Should().BeFalse();
-        result.Errors.Should().Contain(x => x.ErrorMessage == ErrorMessage.ProductQuantityLessThanEqualToZero);
+        result.Errors.Should().Contain(x => x.ErrorMessage == Key.ProductQuantityLessThanEqualToZero);
     }
 
-    [Fact]
-    public async Task Constructor_EmptyAddProductCommandImage_ShouldReturnInvalidResult()
+    [Theory, AutoProductData]
+    public async Task Constructor_EmptyAddProductCommandImage_ShouldReturnInvalidResult(
+        AddProductCommandValidator sut)
     {
-        AddProductCommand addProductCommand = _fixture.Build<AddProductCommand>()
+        AddProductCommand command = _fixture.Build<AddProductCommand>()
             .With(x => x.Image, "")
             .Create();
 
-        ValidationResult result = await _validator.ValidateAsync(addProductCommand);
+        ValidationResult result = await sut.ValidateAsync(command);
 
         result.IsValid.Should().BeFalse();
-        result.Errors.Should().Contain(x => x.ErrorMessage == ErrorMessage.ProductImageNullOrEmpty);
+        result.Errors.Should().Contain(x => x.ErrorMessage == Key.ProductImageNullOrEmpty);
     }
 
-    [Fact]
-    public async Task Constructor_NullAddProductCommandImage_ShouldReturnInvalidResult()
+    [Theory, AutoProductData]
+    public async Task Constructor_NullAddProductCommandImage_ShouldReturnInvalidResult(
+        AddProductCommandValidator sut)
     {
-        AddProductCommand addProductCommand = _fixture.Build<AddProductCommand>()
+        AddProductCommand command = _fixture.Build<AddProductCommand>()
             .With(x => x.Image, null as string)
             .Create();
 
-        ValidationResult result = await _validator.ValidateAsync(addProductCommand);
+        ValidationResult result = await sut.ValidateAsync(command);
 
         result.IsValid.Should().BeFalse();
-        result.Errors.Should().Contain(x => x.ErrorMessage == ErrorMessage.ProductImageNullOrEmpty);
+        result.Errors.Should().Contain(x => x.ErrorMessage == Key.ProductImageNullOrEmpty);
     }
 
-    [Fact]
-    public async Task Constructor_EmptyAddProductCommandCategoryId_ShouldReturnInvalidResult()
+    [Theory, AutoProductData]
+    public async Task Constructor_EmptyAddProductCommandCategoryId_ShouldReturnInvalidResult(
+        AddProductCommandValidator sut)
     {
-        AddProductCommand addProductCommand = _fixture.Build<AddProductCommand>()
+        AddProductCommand command = _fixture.Build<AddProductCommand>()
             .With(x => x.CategoryId, Guid.Empty)
             .Create();
 
-        ValidationResult result = await _validator.ValidateAsync(addProductCommand);
+        ValidationResult result = await sut.ValidateAsync(command);
 
         result.IsValid.Should().BeFalse();
-        result.Errors.Should().Contain(x => x.ErrorMessage == ErrorMessage.ProductInvalidCategoryId);
+        result.Errors.Should().Contain(x => x.ErrorMessage == Key.ProductInvalidCategoryId);
     }
 
-    [Fact]
-    public async Task Constructor_DuplicityAddProductCommand_ShouldReturnInvalidResult()
+    [Theory, AutoProductData]
+    public async Task Constructor_DuplicityAddProductCommand_ShouldReturnInvalidResult(
+        AddProductCommandValidator sut,
+        AddProductCommand command)
     {
-        IEnumerable<Product> products = new List<Product>() { _fixture.Create<Product>() };
-
-        _repositoryMock
-            .Setup(x => x.GetProductsByCategoryNameAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
-            .Returns(Task.FromResult(products));
-
-        ValidationResult result = await _validator.ValidateAsync(_addProductCommand);
+        ValidationResult result = await sut.ValidateAsync(command);
 
         result.IsValid.Should().BeFalse();
-        result.Errors.Should().Contain(x => x.ErrorMessage == ErrorMessage.ProductRegisterDuplicity);
+        result.Errors.Should().Contain(x => x.ErrorMessage == Key.ProductRegisterDuplicity);
     }
 
-    [Fact]
-    public async Task Constructor_NotFoundAddProductCommandCategoryId_ShouldReturnInvalidResult()
+    [Theory, AutoProductData]
+    public async Task Constructor_NotFoundAddProductCommandCategoryId_ShouldReturnInvalidResult(
+        [Frozen] Mock<IReadRepository> repositoryMock,
+        AddProductCommandValidator sut,
+        AddProductCommand command)
     {
         Category? category = null;
 
-        _repositoryMock
-            .Setup(x => x.GetCategoryByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
-            .Returns(Task.FromResult(category));
+        repositoryMock
+            .Setup(x => x.GetProductsByNameAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<Product>());
 
-        ValidationResult result = await _validator.ValidateAsync(_addProductCommand);
+        repositoryMock
+            .Setup(x => x.GetCategoryByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(category);
+
+        ValidationResult result = await sut.ValidateAsync(command);
 
         result.IsValid.Should().BeFalse();
-        result.Errors.Should().Contain(x => x.ErrorMessage == ErrorMessage.ProductCategoryNotFound);
+        result.Errors.Should().Contain(x => x.ErrorMessage == Key.ProductCategoryNotFound);
     }
 }

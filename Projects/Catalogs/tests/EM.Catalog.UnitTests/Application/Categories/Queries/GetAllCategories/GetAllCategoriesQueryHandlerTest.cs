@@ -1,7 +1,7 @@
-﻿using AutoFixture;
-using AutoFixture.AutoMoq;
+﻿using AutoFixture.Xunit2;
 using EM.Catalog.Application.Categories.Queries.GetAllCategories;
 using EM.Catalog.Domain.Interfaces;
+using EM.Catalog.UnitTests.CustomAutoData;
 using Moq;
 using Xunit;
 
@@ -9,23 +9,14 @@ namespace EM.Catalog.UnitTests.Application.Categories.Queries.GetAllCategories;
 
 public sealed class GetAllCategoriesQueryHandlerTest
 {
-    private readonly Mock<IReadRepository> _repositoryMock;
-    private readonly GetAllCategoriesQueryHandler _getAllCategoriesQueryHandler;
-    private readonly GetAllCategoriesQuery _getAllCategoriesQuery;
-
-    public GetAllCategoriesQueryHandlerTest()
+    [Theory, AutoCategoryData]
+    public async Task Handle_ValidGetAllCategoriesQuery_ShouldInvokeReadRepositoryGetAllCategoriesAsync(
+        [Frozen] Mock<IReadRepository> repositoryMock,
+        GetAllCategoriesQueryHandler sut,
+        GetAllCategoriesQuery query)
     {
-        IFixture fixture = new Fixture().Customize(new AutoMoqCustomization());
-        _repositoryMock = fixture.Freeze<Mock<IReadRepository>>();
-        _getAllCategoriesQueryHandler = fixture.Create<GetAllCategoriesQueryHandler>();
-        _getAllCategoriesQuery = fixture.Create<GetAllCategoriesQuery>();
-    }
+        await sut.Handle(query, CancellationToken.None);
 
-    [Fact]
-    public async Task Handle_ValidGetAllCategoriesQuery_ShouldInvokeReadRepositoryGetAllCategoriesAsync()
-    {
-        await _getAllCategoriesQueryHandler.Handle(_getAllCategoriesQuery, CancellationToken.None);
-
-        _repositoryMock.Verify(x => x.GetAllCategoriesAsync(It.IsAny<short>(), It.IsAny<short>(), It.IsAny<CancellationToken>()), Times.Once);
+        repositoryMock.Verify(x => x.GetAllCategoriesAsync(It.IsAny<short>(), It.IsAny<short>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 }

@@ -1,7 +1,7 @@
-﻿using AutoFixture;
-using AutoFixture.AutoMoq;
+﻿using AutoFixture.Xunit2;
 using EM.Catalog.Application.Products.Queries.GetProductsByCategoryId;
 using EM.Catalog.Domain.Interfaces;
+using EM.Catalog.UnitTests.CustomAutoData;
 using Moq;
 using Xunit;
 
@@ -9,23 +9,14 @@ namespace EM.Catalog.UnitTests.Application.Products.Queries.GetProductsByCategor
 
 public sealed class GetProductsByCategoryIdQueryHandlerTest
 {
-    private readonly Mock<IReadRepository> _repositoryMock;
-    private readonly GetProductsByCategoryIdQueryHandler _getProductsByCategoryIdQueryHandler;
-    private readonly GetProductsByCategoryIdQuery _getProductsByCategoryIdQuery;
-
-    public GetProductsByCategoryIdQueryHandlerTest()
+    [Theory, AutoProductData]
+    public async Task Handle_ValidGetProductsByCategoryIdQuery_ShouldInvokeReadRepositoryGetProductsByCategoryIdAsync(
+        [Frozen] Mock<IReadRepository> repositoryMock,
+        GetProductsByCategoryIdQueryHandler sut,
+        GetProductsByCategoryIdQuery query)
     {
-        IFixture fixture = new Fixture().Customize(new AutoMoqCustomization());
-        _repositoryMock = fixture.Freeze<Mock<IReadRepository>>();
-        _getProductsByCategoryIdQueryHandler = fixture.Create<GetProductsByCategoryIdQueryHandler>();
-        _getProductsByCategoryIdQuery = fixture.Create<GetProductsByCategoryIdQuery>();
-    }
+        await sut.Handle(query, CancellationToken.None);
 
-    [Fact]
-    public async Task Handle_ValidGetProductsByCategoryIdQuery_ShouldInvokeReadRepositoryGetProductsByCategoryIdAsync()
-    {
-        await _getProductsByCategoryIdQueryHandler.Handle(_getProductsByCategoryIdQuery, CancellationToken.None);
-
-        _repositoryMock.Verify(x => x.GetProductsByCategoryIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()), Times.Once);
+        repositoryMock.Verify(x => x.GetProductsByCategoryIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 }

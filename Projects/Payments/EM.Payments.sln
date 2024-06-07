@@ -11,11 +11,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EM.Payments.Worker", "src\E
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EM.Payments.Application", "src\EM.Payments.Application\EM.Payments.Application.csproj", "{C7F08303-AD76-4688-A1EC-205923C773ED}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EM.Shared.Core", "..\Shared\src\EM.Shared.Core\EM.Shared.Core.csproj", "{7702D8AA-5EE0-4FD4-AFAD-63D0DFE2ABC8}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EM.Payments.Domain", "src\EM.Payments.Domain\EM.Payments.Domain.csproj", "{B56BA662-9D67-4C7F-A5F5-15D6B9CA2CE2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EM.Payments.Infraestructure", "src\EM.Payments.Infraestructure\EM.Payments.Infraestructure.csproj", "{11846801-6CED-4483-A5B0-25E0EF302145}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EM.Payments.Infraestructure", "src\EM.Payments.Infraestructure\EM.Payments.Infraestructure.csproj", "{11846801-6CED-4483-A5B0-25E0EF302145}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -31,10 +29,6 @@ Global
 		{C7F08303-AD76-4688-A1EC-205923C773ED}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C7F08303-AD76-4688-A1EC-205923C773ED}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C7F08303-AD76-4688-A1EC-205923C773ED}.Release|Any CPU.Build.0 = Release|Any CPU
-		{7702D8AA-5EE0-4FD4-AFAD-63D0DFE2ABC8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{7702D8AA-5EE0-4FD4-AFAD-63D0DFE2ABC8}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{7702D8AA-5EE0-4FD4-AFAD-63D0DFE2ABC8}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{7702D8AA-5EE0-4FD4-AFAD-63D0DFE2ABC8}.Release|Any CPU.Build.0 = Release|Any CPU
 		{B56BA662-9D67-4C7F-A5F5-15D6B9CA2CE2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{B56BA662-9D67-4C7F-A5F5-15D6B9CA2CE2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B56BA662-9D67-4C7F-A5F5-15D6B9CA2CE2}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -50,7 +44,6 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{ACDB7D6A-62D6-42BA-9513-D00742698276} = {430E3693-71FB-486B-8026-E877CD588CC4}
 		{C7F08303-AD76-4688-A1EC-205923C773ED} = {B0F73506-74B4-4559-B343-03F87EFF0266}
-		{7702D8AA-5EE0-4FD4-AFAD-63D0DFE2ABC8} = {B0F73506-74B4-4559-B343-03F87EFF0266}
 		{B56BA662-9D67-4C7F-A5F5-15D6B9CA2CE2} = {B0F73506-74B4-4559-B343-03F87EFF0266}
 		{11846801-6CED-4483-A5B0-25E0EF302145} = {430E3693-71FB-486B-8026-E877CD588CC4}
 	EndGlobalSection

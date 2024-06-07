@@ -1,4 +1,4 @@
-﻿using EM.Catalog.Application.Results;
+﻿using EM.Common.Core.ResourceManagers;
 using FluentValidation;
 using FluentValidation.Results;
 using MediatR;
@@ -12,9 +12,15 @@ public sealed class ValidationBehavior<TRequest, TResponse> : IPipelineBehavior<
     where TResponse : Result
 {
     private readonly IEnumerable<IValidator<TRequest>> _validators;
+    private readonly IResourceManager _resourceManager;
 
-    public ValidationBehavior(IEnumerable<IValidator<TRequest>> validators)
-        => _validators = validators;
+    public ValidationBehavior(
+        IEnumerable<IValidator<TRequest>> validators,
+        IResourceManager resourceManager)
+    { 
+        _validators = validators;
+        _resourceManager = resourceManager;
+    }
 
     public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
     {
@@ -25,18 +31,16 @@ public sealed class ValidationBehavior<TRequest, TResponse> : IPipelineBehavior<
 
         ValidationResult[] validationResult = await Task.WhenAll(_validators.Select(async x => await x.ValidateAsync(request, cancellationToken)));
         
-        List<Error> errors = validationResult
+        string[] keys = validationResult
             .SelectMany(validationResult => validationResult.Errors)
             .Where(validateFailure => validateFailure is not null)
-            .Select(failure => new Error(
-                failure.PropertyName,
-                failure.ErrorMessage))
+            .Select(failure => failure.ErrorMessage)
             .Distinct()
-            .ToList();
+            .ToArray();
 
-        if (errors.Any())
+        if (keys.Any())
         {
-            return (TResponse)Result.CreateResponseWithErrors(errors);
+            return (TResponse)await _resourceManager.GetErrorsByKeysAsync(keys, cancellationToken);
         }
 
         return await next();

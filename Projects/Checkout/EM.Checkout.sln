@@ -21,8 +21,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Unit", "Unit", "{DB87864A-9
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EM.Checkout.UnitTests", "tests\EM.Checkout.UnitTests\EM.Checkout.UnitTests.csproj", "{CFD4654E-C22D-4A36-938C-82AFADE041A3}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EM.Shared.Core", "..\Shared\src\EM.Shared.Core\EM.Shared.Core.csproj", "{81489865-BD62-4D62-93A6-814F7DC2D18D}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -49,10 +47,6 @@ Global
 		{CFD4654E-C22D-4A36-938C-82AFADE041A3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CFD4654E-C22D-4A36-938C-82AFADE041A3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CFD4654E-C22D-4A36-938C-82AFADE041A3}.Release|Any CPU.Build.0 = Release|Any CPU
-		{81489865-BD62-4D62-93A6-814F7DC2D18D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{81489865-BD62-4D62-93A6-814F7DC2D18D}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{81489865-BD62-4D62-93A6-814F7DC2D18D}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{81489865-BD62-4D62-93A6-814F7DC2D18D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -64,7 +58,6 @@ Global
 		{FDC851FF-FD5C-4B61-A27F-0579A10EF996} = {7E1B7386-2386-422E-BBC7-F7EAB0C161E4}
 		{DB87864A-9451-4502-B35E-DAEAE7AFB689} = {A11CF70C-80D0-489B-B3CA-DFD5AD7737E4}
 		{CFD4654E-C22D-4A36-938C-82AFADE041A3} = {DB87864A-9451-4502-B35E-DAEAE7AFB689}
-		{81489865-BD62-4D62-93A6-814F7DC2D18D} = {C2B1E16A-ACDB-437F-B414-7E4A33B6C678}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {573E08E4-BC35-4D8C-9D07-4B799D8EE043}

@@ -1,7 +1,9 @@
 ﻿using AutoFixture;
+using AutoFixture.Xunit2;
 using EM.Catalog.Domain;
 using EM.Catalog.Domain.Entities;
 using EM.Common.Core.Domain;
+using EM.Common.Core.ResourceManagers;
 using FluentAssertions;
 using Xunit;
 
@@ -13,11 +15,9 @@ public sealed class ProductTest
 
     public ProductTest() => _fixture = new();
 
-    [Fact]
-    public void Validate_ValidProduct_ShouldNotReturnDomainException()
+    [Theory, AutoData]
+    public void Validate_ValidProduct_ShouldNotReturnDomainException(Product product)
     {
-        Product product = _fixture.Create<Product>();
-
         Exception domainException = Record.Exception(() => product.Validate());
 
         domainException.Should().BeNull();
@@ -33,7 +33,7 @@ public sealed class ProductTest
         DomainException domainException = Assert.Throws<DomainException>(() => product.Validate());
 
         domainException.Should().NotBeNull();
-        domainException.Message.Should().Be(ErrorMessage.ProductNameNullOrEmpty);
+        domainException.Message.Should().Be(Key.ProductNameNullOrEmpty);
     }
 
     [Fact]
@@ -46,7 +46,7 @@ public sealed class ProductTest
         DomainException domainException = Assert.Throws<DomainException>(() => product.Validate());
 
         domainException.Should().NotBeNull();
-        domainException.Message.Should().Be(ErrorMessage.ProductNameNullOrEmpty);
+        domainException.Message.Should().Be(Key.ProductNameNullOrEmpty);
     }
 
     [Fact]
@@ -59,7 +59,7 @@ public sealed class ProductTest
         DomainException domainException = Assert.Throws<DomainException>(() => product.Validate());
 
         domainException.Should().NotBeNull();
-        domainException.Message.Should().Be(ErrorMessage.ProductDescriptionNullOrEmpty);
+        domainException.Message.Should().Be(Key.ProductDescriptionNullOrEmpty);
     }
 
     [Fact]
@@ -72,7 +72,7 @@ public sealed class ProductTest
         DomainException domainException = Assert.Throws<DomainException>(() => product.Validate());
 
         domainException.Should().NotBeNull();
-        domainException.Message.Should().Be(ErrorMessage.ProductDescriptionNullOrEmpty);
+        domainException.Message.Should().Be(Key.ProductDescriptionNullOrEmpty);
     }
 
     [Fact]
@@ -85,7 +85,7 @@ public sealed class ProductTest
         DomainException domainException = Assert.Throws<DomainException>(() => product.Validate());
 
         domainException.Should().NotBeNull();
-        domainException.Message.Should().Be(ErrorMessage.ProductValueLessThanEqualToZero);
+        domainException.Message.Should().Be(Key.ProductValueLessThanEqualToZero);
     }
 
     [Fact]
@@ -98,7 +98,7 @@ public sealed class ProductTest
         DomainException domainException = Assert.Throws<DomainException>(() => product.Validate());
 
         domainException.Should().NotBeNull();
-        domainException.Message.Should().Be(ErrorMessage.ProductImageNullOrEmpty);
+        domainException.Message.Should().Be(Key.ProductImageNullOrEmpty);
     }
 
     [Fact]
@@ -111,7 +111,7 @@ public sealed class ProductTest
         DomainException domainException = Assert.Throws<DomainException>(() => product.Validate());
 
         domainException.Should().NotBeNull();
-        domainException.Message.Should().Be(ErrorMessage.ProductImageNullOrEmpty);
+        domainException.Message.Should().Be(Key.ProductImageNullOrEmpty);
     }
 
     [Fact]
@@ -124,82 +124,69 @@ public sealed class ProductTest
         DomainException domainException = Assert.Throws<DomainException>(() => product.Validate());
 
         domainException.Should().NotBeNull();
-        domainException.Message.Should().Be(ErrorMessage.ProductInvalidCategoryId);
+        domainException.Message.Should().Be(Key.ProductInvalidCategoryId);
     }
 
-    [Fact]
-    public void MakeAvailable_InvalidProduct_ShouldMakeAvailableProduct()
+    [Theory, AutoData]
+    public void MakeAvailable_InvalidProduct_ShouldMakeAvailableProduct(Product product)
     {
-        Product product = _fixture.Create<Product>();
-
         product.MakeAvailable();
 
         product.Available.Should().BeTrue();
     }
 
-    [Fact]
-    public void MakeUnavailable_ValidProduct_ShouldMakeUnavailableProduct()
+    [Theory, AutoData]
+    public void MakeUnavailable_ValidProduct_ShouldMakeUnavailableProduct(Product product)
     {
-        Product product = _fixture.Create<Product>();
-
         product.MakeUnavailable();
 
         product.Available.Should().BeFalse();
     }
 
-    [Fact]
-    public void AddQuantity_ValidQuantity_ShouldAddProductQuantity()
+    [Theory, AutoData]
+    public void AddQuantity_ValidQuantity_ShouldAddProductQuantity(Product product, short quantityAdded)
     {
-        Product product = _fixture.Create<Product>();
-        short quantityAdded = _fixture.Create<short>();
-
         product.AddQuantity(quantityAdded);
 
         product.Quantity.Should().Be(quantityAdded);
     }
 
-    [Fact]
-    public void AddQuantity_QuantityAddZero_ShouldReturnDomainException()
+    [Theory, AutoData]
+    public void AddQuantity_QuantityAddZero_ShouldReturnDomainException(Product product)
     {
-        Product product = _fixture.Create<Product>();
-
         DomainException domainException = Assert.Throws<DomainException>(() => product.AddQuantity(0));
 
         domainException.Should().NotBeNull();
-        domainException.Message.Should().Be(ErrorMessage.ProductQuantityAddedLessThanOrEqualToZero);
+        domainException.Message.Should().Be(Key.ProductQuantityAddedLessThanOrEqualToZero);
     }
 
-    [Fact]
-    public void RemoveQuantity_ValidQuantity_ShouldRemoveProductQuantity()
+    [Theory, AutoData]
+    public void RemoveQuantity_ValidQuantity_ShouldRemoveProductQuantity(Product product, short quantityAdded)
     {
-        Product product = _fixture.Create<Product>();
-        product.AddQuantity(_fixture.Create<short>());
+        product.AddQuantity(quantityAdded);
 
         product.RemoveQuantity(product.Quantity);
 
         product.Quantity.Should().Be(0);
     }
 
-    [Fact]
-    public void RemoveQuantity_QuantityDebitedZero_ShouldReturnDomainException()
+    [Theory, AutoData]
+    public void RemoveQuantity_QuantityDebitedZero_ShouldReturnDomainException(Product product)
     {
-        Product product = _fixture.Create<Product>();
-
         DomainException domainException = Assert.Throws<DomainException>(() => product.RemoveQuantity(0));
 
         domainException.Should().NotBeNull();
-        domainException.Message.Should().Be(ErrorMessage.ProductQuantityDebitedLessThanOrEqualToZero);
+        domainException.Message.Should().Be(Key.ProductQuantityDebitedLessThanOrEqualToZero);
     }
 
-    [Fact]
-    public void RemoveQuantity_ProductQuantityZero_ShouldReturnDomainException()
+    [Theory, AutoData]
+    public void RemoveQuantity_ProductQuantityZero_ShouldReturnDomainException(Product product)
     {
-        Product product = _fixture.Create<Product>();
         short debitQuantity = (short)(product.Quantity + 1);
 
         DomainException domainException = Assert.Throws<DomainException>(() => product.RemoveQuantity(debitQuantity));
 
         domainException.Should().NotBeNull();
-        domainException.Message.Should().Be(ErrorMessage.ProductQuantityDebitedLargerThanAvailable);
+        domainException.Message.Should().Be(Key.ProductQuantityDebitedLargerThanAvailable);
     }
 }

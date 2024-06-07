@@ -1,13 +1,10 @@
-﻿using AutoFixture;
-using AutoFixture.AutoMoq;
-using AutoMapper;
+﻿using AutoFixture.Xunit2;
 using EM.Catalog.Application.Categories.Commands.AddCategory;
 using EM.Catalog.Application.Categories.Events.CategoryAdded;
-using EM.Catalog.Application.Results;
-using EM.Catalog.Domain;
 using EM.Catalog.Domain.Entities;
 using EM.Catalog.Domain.Interfaces;
-using EM.Common.Core.Domain;
+using EM.Catalog.UnitTests.CustomAutoData;
+using EM.Common.Core.ResourceManagers;
 using FluentAssertions;
 using MediatR;
 using Moq;
@@ -17,56 +14,46 @@ namespace EM.Catalog.UnitTests.Application.Categories.Commands.AddCategory;
 
 public sealed class AddCategoryCommandHandlerTest
 {
-    private readonly Mock<IWriteRepository> _repositoryMock;
-    private readonly Mock<IUnitOfWork> _unitOfWorkMock;
-    private readonly Mock<IMediator> _mediatorMock;
-    private readonly AddCategoryCommandHandler _addCategoryCommandHandler;
-    private readonly AddCategoryCommand _addCategoryCommand;
-    private readonly Category _category;
-
-    public AddCategoryCommandHandlerTest()
+    [Theory, AutoCategoryData]
+    public async Task Handle_ValidCommit_ShouldReturnWithSuccess(
+        [Frozen] Mock<IWriteRepository> repositoryMock,
+        [Frozen] Mock<IUnitOfWork> unitOfWorkMock,
+        [Frozen] Mock<IMediator> mediatorMock,
+        AddCategoryCommandHandler sut,
+        AddCategoryCommand command,
+        Category category)
     {
-        IFixture fixture = new Fixture().Customize(new AutoMoqCustomization());
-        _repositoryMock = fixture.Freeze<Mock<IWriteRepository>>();
-        _unitOfWorkMock = fixture.Freeze<Mock<IUnitOfWork>>();
-        _mediatorMock = fixture.Freeze<Mock<IMediator>>();
-        _category = fixture.Create<Category>();
-
-        fixture.Freeze<Mock<IMapper>>()
-            .Setup(x => x.Map<Category>(It.IsAny<AddCategoryCommand>()))
-            .Returns(_category);
-
-        _addCategoryCommandHandler = fixture.Create<AddCategoryCommandHandler>();
-        _addCategoryCommand = new Fixture().Create<AddCategoryCommand>();
-    }
-
-    [Fact]
-    public async Task Handle_ValidCommit_ShouldReturnWithSuccess()
-    {
-        _unitOfWorkMock
+        unitOfWorkMock
             .Setup(x => x.CommitAsync(It.IsAny<CancellationToken>()))
-            .Returns(Task.FromResult(true));
+            .ReturnsAsync(true);
 
-        Result result = await _addCategoryCommandHandler.Handle(_addCategoryCommand, CancellationToken.None);
+        Result result = await sut.Handle(command, CancellationToken.None);
 
-        _repositoryMock.Verify(x => x.AddCategoryAsync(It.IsAny<Category>(), It.IsAny<CancellationToken>()), Times.Once);
-        _unitOfWorkMock.Verify(x => x.CommitAsync(It.IsAny<CancellationToken>()));
-        _mediatorMock.Verify(x => x.Publish(It.IsAny<CategoryAddedEvent>(), It.IsAny<CancellationToken>()), Times.Once);
+        repositoryMock.Verify(x => x.AddCategoryAsync(It.IsAny<Category>(), It.IsAny<CancellationToken>()), Times.Once);
+        unitOfWorkMock.Verify(x => x.CommitAsync(It.IsAny<CancellationToken>()), Times.Once);
+        mediatorMock.Verify(x => x.Publish(It.IsAny<CategoryAddedEvent>(), It.IsAny<CancellationToken>()), Times.Once);
         result.Success.Should().BeTrue();
-        result.Data.Should().Be(_category.Id);
+        result.Data.Should().Be(category.Id);
     }
 
-    [Fact]
-    public async Task Handle_InvalidCommit_ShouldThrowDomainException()
+    [Theory, AutoCategoryData]
+    public async Task Handle_InvalidCommit_ShouldThrowDomainException(
+        [Frozen] Mock<IWriteRepository> repositoryMock,
+        [Frozen] Mock<IUnitOfWork> unitOfWorkMock,
+        [Frozen] Mock<IMediator> mediatorMock,
+        AddCategoryCommandHandler sut,
+        AddCategoryCommand command)
     {
-        _unitOfWorkMock
+        unitOfWorkMock
             .Setup(x => x.CommitAsync(It.IsAny<CancellationToken>()))
-            .Returns(Task.FromResult(false));
+            .ReturnsAsync(false);
 
-        DomainException domainException = await Assert.ThrowsAsync<DomainException>(
-            async () => await _addCategoryCommandHandler.Handle(_addCategoryCommand, CancellationToken.None));
+        Result result = await sut.Handle(command, CancellationToken.None);
 
-        domainException.Should().NotBeNull();
-        domainException.Message.Should().Be(ErrorMessage.CategoryAnErrorOccorred);
+        repositoryMock.Verify(x => x.AddCategoryAsync(It.IsAny<Category>(), It.IsAny<CancellationToken>()), Times.Once);
+        unitOfWorkMock.Verify(x => x.CommitAsync(It.IsAny<CancellationToken>()), Times.Once);
+        mediatorMock.Verify(x => x.Publish(It.IsAny<CategoryAddedEvent>(), It.IsAny<CancellationToken>()), Times.Never);
+        result.Success.Should().BeFalse();
+        result.Errors.Should().Contain(x => x.Key == Key.CategoryAnErrorOccorred);
     }
 }

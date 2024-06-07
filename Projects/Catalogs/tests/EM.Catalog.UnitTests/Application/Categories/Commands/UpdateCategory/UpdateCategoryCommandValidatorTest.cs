@@ -1,9 +1,10 @@
 ﻿using AutoFixture;
-using AutoFixture.AutoMoq;
+using AutoFixture.Xunit2;
 using EM.Catalog.Application.Categories.Commands.UpdateCategory;
-using EM.Catalog.Domain;
 using EM.Catalog.Domain.Entities;
 using EM.Catalog.Domain.Interfaces;
+using EM.Catalog.UnitTests.CustomAutoData;
+using EM.Common.Core.ResourceManagers;
 using FluentAssertions;
 using FluentValidation.Results;
 using Moq;
@@ -14,133 +15,137 @@ namespace EM.Catalog.UnitTests.Application.Categories.Commands.UpdateCategory;
 public sealed class UpdateCategoryCommandValidatorTest
 {
     private readonly IFixture _fixture;
-    private readonly Mock<IReadRepository> _repositoryMock;
-    private readonly UpdateCategoryCommandValidator _validator;
-    private readonly UpdateCategoryCommand _updateCategoryCommand;
 
-    public UpdateCategoryCommandValidatorTest()
-    {
-        _fixture = new Fixture().Customize(new AutoMoqCustomization());
-        _repositoryMock = _fixture.Freeze<Mock<IReadRepository>>();
-        _validator = _fixture.Create<UpdateCategoryCommandValidator>();
-        _updateCategoryCommand = _fixture.Create<UpdateCategoryCommand>();
-    }
+    public UpdateCategoryCommandValidatorTest() => _fixture = new Fixture();
 
-    [Fact]
-    public async Task Constructor_ValidUpdateCategoryCommand_ShouldReturnValidResult()
+    [Theory, AutoCategoryData]
+    public async Task Constructor_ValidUpdateCategoryCommand_ShouldReturnValidResult(
+        [Frozen] Mock<IReadRepository> repositoryMock,
+        UpdateCategoryCommandValidator sut,
+        UpdateCategoryCommand command)
     {
-        ValidationResult result = await _validator.ValidateAsync(_updateCategoryCommand);
+        repositoryMock
+            .Setup(x => x.GetCategoriesByCodeOrName(It.IsAny<short>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<Category>());
+
+        ValidationResult result = await sut.ValidateAsync(command);
 
         result.IsValid.Should().BeTrue();
         result.Errors.Should().BeEmpty();
     }
 
-    [Fact]
-    public async Task Constructor_InvalidUpdateCategoryCommandId_ShouldReturnInvalidResult()
+    [Theory, AutoCategoryData]
+    public async Task Constructor_InvalidUpdateCategoryCommandId_ShouldReturnInvalidResult(
+        UpdateCategoryCommandValidator sut)
     {
-        UpdateCategoryCommand updateCategoryCommand = _fixture.Build<UpdateCategoryCommand>()
+        UpdateCategoryCommand command = _fixture.Build<UpdateCategoryCommand>()
             .With(x => x.Id, Guid.Empty)
             .Create();
 
-        ValidationResult result = await _validator.ValidateAsync(updateCategoryCommand);
+        ValidationResult result = await sut.ValidateAsync(command);
 
         result.IsValid.Should().BeFalse();
-        result.Errors.Should().Contain(x => x.ErrorMessage == ErrorMessage.CategoryInvalidId);
+        result.Errors.Should().Contain(x => x.ErrorMessage == Key.CategoryInvalidId);
     }
 
-    [Fact]
-    public async Task Constructor_ZeroUpdateCategoryCommandCode_ShouldReturnInvalidResult()
+    [Theory, AutoCategoryData]
+    public async Task Constructor_ZeroUpdateCategoryCommandCode_ShouldReturnInvalidResult(
+        UpdateCategoryCommandValidator sut)
     {
-        UpdateCategoryCommand updateCategoryCommand = _fixture.Build<UpdateCategoryCommand>()
+        UpdateCategoryCommand command = _fixture.Build<UpdateCategoryCommand>()
             .With(x => x.Code, 0)
             .Create();
 
-        ValidationResult result = await _validator.ValidateAsync(updateCategoryCommand);
+        ValidationResult result = await sut.ValidateAsync(command);
 
         result.IsValid.Should().BeFalse();
-        result.Errors.Should().Contain(x => x.ErrorMessage == ErrorMessage.CategoryCodeLessThanEqualToZero);
+        result.Errors.Should().Contain(x => x.ErrorMessage == Key.CategoryCodeLessThanEqualToZero);
     }
 
-    [Fact]
-    public async Task Constructor_EmptyUpdateCategoryCommandName_ShouldReturnInvalidResult()
+    [Theory, AutoCategoryData]
+    public async Task Constructor_EmptyUpdateCategoryCommandName_ShouldReturnInvalidResult(
+        UpdateCategoryCommandValidator sut)
     {
-        UpdateCategoryCommand updateCategoryCommand = _fixture.Build<UpdateCategoryCommand>()
+        UpdateCategoryCommand command = _fixture.Build<UpdateCategoryCommand>()
             .With(x => x.Name, "")
             .Create();
 
-        ValidationResult result = await _validator.ValidateAsync(updateCategoryCommand);
+        ValidationResult result = await sut.ValidateAsync(command);
 
         result.IsValid.Should().BeFalse();
-        result.Errors.Should().Contain(x => x.ErrorMessage == ErrorMessage.CategoryNameNullOrEmpty);
+        result.Errors.Should().Contain(x => x.ErrorMessage == Key.CategoryNameNullOrEmpty);
     }
 
-    [Fact]
-    public async Task Constructor_NullUpdateCategoryCommandName_ShouldReturnInvalidResult()
+    [Theory, AutoCategoryData]
+    public async Task Constructor_NullUpdateCategoryCommandName_ShouldReturnInvalidResult(
+        UpdateCategoryCommandValidator sut)
     {
-        UpdateCategoryCommand updateCategoryCommand = _fixture.Build<UpdateCategoryCommand>()
+        UpdateCategoryCommand command = _fixture.Build<UpdateCategoryCommand>()
             .With(x => x.Name, null as string)
             .Create();
 
-        ValidationResult result = await _validator.ValidateAsync(updateCategoryCommand);
+        ValidationResult result = await sut.ValidateAsync(command);
 
         result.IsValid.Should().BeFalse();
-        result.Errors.Should().Contain(x => x.ErrorMessage == ErrorMessage.CategoryNameNullOrEmpty);
+        result.Errors.Should().Contain(x => x.ErrorMessage == Key.CategoryNameNullOrEmpty);
     }
 
-    [Fact]
-    public async Task Constructor_EmptyUpdateCategoryCommandDescription_ShouldReturnInvalidResult()
+    [Theory, AutoCategoryData]
+    public async Task Constructor_EmptyUpdateCategoryCommandDescription_ShouldReturnInvalidResult(
+        UpdateCategoryCommandValidator sut)
     {
-        UpdateCategoryCommand updateCategoryCommand = _fixture.Build<UpdateCategoryCommand>()
+        UpdateCategoryCommand command = _fixture.Build<UpdateCategoryCommand>()
             .With(x => x.Description, "")
             .Create();
 
-        ValidationResult result = await _validator.ValidateAsync(updateCategoryCommand);
+        ValidationResult result = await sut.ValidateAsync(command);
 
         result.IsValid.Should().BeFalse();
-        result.Errors.Should().Contain(x => x.ErrorMessage == ErrorMessage.CategoryDescriptionNullOrEmpty);
+        result.Errors.Should().Contain(x => x.ErrorMessage == Key.CategoryDescriptionNullOrEmpty);
     }
 
-    [Fact]
-    public async Task Constructor_NullUpdateCategoryCommandDescription_ShouldReturnInvalidResult()
+    [Theory, AutoCategoryData]
+    public async Task Constructor_NullUpdateCategoryCommandDescription_ShouldReturnInvalidResult(
+        UpdateCategoryCommandValidator sut)
     {
-        UpdateCategoryCommand updateCategoryCommand = _fixture.Build<UpdateCategoryCommand>()
+        UpdateCategoryCommand command = _fixture.Build<UpdateCategoryCommand>()
             .With(x => x.Description, null as string)
             .Create();
 
-        ValidationResult result = await _validator.ValidateAsync(updateCategoryCommand);
+        ValidationResult result = await sut.ValidateAsync(command);
 
         result.IsValid.Should().BeFalse();
-        result.Errors.Should().Contain(x => x.ErrorMessage == ErrorMessage.CategoryDescriptionNullOrEmpty);
+        result.Errors.Should().Contain(x => x.ErrorMessage == Key.CategoryDescriptionNullOrEmpty);
     }
 
-    [Fact]
-    public async Task Constructor_DuplicityUpdateCategoryCommand_ShouldReturnInvalidResult()
+    [Theory, AutoCategoryData]
+    public async Task Constructor_DuplicityUpdateCategoryCommand_ShouldReturnInvalidResult(
+        UpdateCategoryCommandValidator sut,
+        UpdateCategoryCommand command)
     {
         IEnumerable<Category> categories = new List<Category>() { _fixture.Create<Category>() };
 
-        _repositoryMock
+        ValidationResult result = await sut.ValidateAsync(command);
+
+        result.IsValid.Should().BeFalse();
+        result.Errors.Should().Contain(x => x.ErrorMessage == Key.CategoryRegisterDuplicity);
+    }
+
+    [Theory, AutoCategoryData]
+    public async Task Constructor_NotDuplicityUpdateCategoryCommand_ShouldReturnValidResult(
+        [Frozen] Mock<IReadRepository> repositoryMock,
+        UpdateCategoryCommandValidator sut)
+    {
+        List<Category> categories = new List<Category> { _fixture.Create<Category>() };
+        repositoryMock
             .Setup(x => x.GetCategoriesByCodeOrName(It.IsAny<short>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
-            .Returns(Task.FromResult(categories));
+            .ReturnsAsync(categories);
 
-        ValidationResult result = await _validator.ValidateAsync(_updateCategoryCommand);
-
-        result.IsValid.Should().BeFalse();
-        result.Errors.Should().Contain(x => x.ErrorMessage == ErrorMessage.CategoryRegisterDuplicity);
-    }
-
-    [Fact]
-    public async Task Constructor_NotDuplicityUpdateCategoryCommand_ShouldReturnValidResult()
-    {
-        IEnumerable<Category> categories = new List<Category>() { _fixture.Create<Category>() };
-        UpdateCategoryCommand updateCategoryCommand = _fixture.Build<UpdateCategoryCommand>()
-            .With(x => x.Id, categories.First().Id)
+        UpdateCategoryCommand command = _fixture.Build<UpdateCategoryCommand>()
+            .With(x => x.Id, categories[0].Id)
             .Create();
 
-        _repositoryMock
-            .Setup(x => x.GetCategoriesByCodeOrName(It.IsAny<short>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
-            .Returns(Task.FromResult(categories));
-
-        ValidationResult result = await _validator.ValidateAsync(updateCategoryCommand);
+        ValidationResult result = await sut.ValidateAsync(command);
 
         result.IsValid.Should().BeTrue();
         result.Errors.Should().BeEmpty();

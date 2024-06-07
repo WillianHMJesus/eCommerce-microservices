@@ -3,11 +3,11 @@ using EM.Catalog.Application.Products.Commands.UpdateProduct;
 using EM.Catalog.Application.Products.Queries.GetAllProducts;
 using EM.Catalog.Application.Products.Queries.GetProductById;
 using EM.Catalog.Application.Products.Queries.GetProductsByCategoryId;
-using EM.Catalog.Application.Results;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using EM.Catalog.Application.Products.Models;
 using AutoMapper;
+using EM.Common.Core.ResourceManagers;
 
 namespace EM.Catalog.API.Controllers;
 

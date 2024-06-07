@@ -1,9 +1,9 @@
-﻿using AutoFixture;
-using AutoFixture.AutoMoq;
+﻿using AutoFixture.Xunit2;
 using AutoMapper;
 using EM.Catalog.Application.Categories.Events.CategoryAdded;
 using EM.Catalog.Domain.Entities;
 using EM.Catalog.Domain.Interfaces;
+using EM.Catalog.UnitTests.CustomAutoData;
 using Moq;
 using Xunit;
 
@@ -11,30 +11,20 @@ namespace EM.Catalog.UnitTests.Application.Categories.Events.CategoryAdded;
 
 public sealed class CategoryAddedEventHandlerTest
 {
-    private readonly Mock<IReadRepository> _repositoryMock;
-    private readonly CategoryAddedEventHandler _categoryAddedEventHandler;
-    private readonly CategoryAddedEvent _categoryAddedEvent;
-
-    public CategoryAddedEventHandlerTest()
+    [Theory, AutoCategoryData]
+    public async Task Handle_ValidCategoryAddedEvent_ShouldInvokeReadRepositoryAddCategoryAsync(
+        [Frozen] Mock<IReadRepository> repositoryMock,
+        [Frozen] Mock<IMapper> mapperMock,
+        CategoryAddedEventHandler sut,
+        CategoryAddedEvent _event,
+        Category category)
     {
-        IFixture fixture = new Fixture().Customize(new AutoMoqCustomization());
-        _repositoryMock = fixture.Freeze<Mock<IReadRepository>>();
-        Category category = fixture.Create<Category>();
-
-        fixture.Freeze<Mock<IMapper>>()
+        mapperMock
             .Setup(x => x.Map<Category>(It.IsAny<CategoryAddedEvent>()))
             .Returns(category);
 
-        _categoryAddedEventHandler = fixture.Create<CategoryAddedEventHandler>();
-        _categoryAddedEvent = fixture.Create<CategoryAddedEvent>();
-        
-    }
+        await sut.Handle(_event, CancellationToken.None);
 
-    [Fact]
-    public async Task Handle_ValidCategoryAddedEvent_ShouldInvokeReadRepositoryAddCategoryAsync()
-    {
-        await _categoryAddedEventHandler.Handle(_categoryAddedEvent, CancellationToken.None);
-
-        _repositoryMock.Verify(x => x.AddCategoryAsync(It.IsAny<Category>(), It.IsAny<CancellationToken>()), Times.Once);
+        repositoryMock.Verify(x => x.AddCategoryAsync(It.IsAny<Category>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 }
