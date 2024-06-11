@@ -15,6 +15,8 @@ public sealed class UpdateCategoryCommandValidator : AbstractValidator<UpdateCat
 
         RuleFor(x => x.Id)
             .GreaterThan(Guid.Empty)
+            .WithMessage(Key.CategoryInvalidId)
+            .MustAsync(async (_, value, cancellationToken) => await ValidateCategoryIdAsync(value, cancellationToken))
             .WithMessage(Key.CategoryInvalidId);
 
         RuleFor(x => x.Code)
@@ -39,5 +41,12 @@ public sealed class UpdateCategoryCommandValidator : AbstractValidator<UpdateCat
         IEnumerable<Category> categories = await _repository.GetCategoriesByCodeOrName(command.Code, command.Name, cancellationToken);
 
         return !categories.Any(x => x.Id != command.Id); 
+    }
+
+    public async Task<bool> ValidateCategoryIdAsync(Guid categoryId, CancellationToken cancellationToken)
+    {
+        Category? category = await _repository.GetCategoryByIdAsync(categoryId, cancellationToken);
+
+        return category is not null;
     }
 }

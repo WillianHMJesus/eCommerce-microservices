@@ -15,6 +15,8 @@ public sealed class UpdateProductCommandValidator : AbstractValidator<UpdateProd
 
         RuleFor(x => x.Id)
             .NotEqual(Guid.Empty)
+            .WithMessage(Key.ProductInvalidId)
+            .MustAsync(async (_, value, cancellationToken) => await ValidateProductIdAsync(value, cancellationToken))
             .WithMessage(Key.ProductInvalidId);
 
         RuleFor(x => x.Name)
@@ -62,5 +64,12 @@ public sealed class UpdateProductCommandValidator : AbstractValidator<UpdateProd
         Category? category = await _repository.GetCategoryByIdAsync(categoryId, cancellationToken);
 
         return category is not null;
+    }
+
+    public async Task<bool> ValidateProductIdAsync(Guid productId, CancellationToken cancellationToken)
+    {
+        Product? product = await _repository.GetProductByIdAsync(productId, cancellationToken);
+
+        return product is not null;
     }
 }

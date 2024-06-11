@@ -1,7 +1,8 @@
 ﻿using System.Text.Json;
 
 namespace EM.Catalog.IntegrationTests.Helpers;
-internal sealed class HttpResponseMessageHelper
+
+public sealed class HttpResponseMessageHelper
 {
     public async Task<T?> DeserializeToObject<T>(HttpResponseMessage message)
     {
