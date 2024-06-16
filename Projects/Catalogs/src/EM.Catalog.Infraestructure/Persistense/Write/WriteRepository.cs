@@ -5,30 +5,30 @@ namespace EM.Catalog.Infraestructure.Persistense.Write;
 
 public sealed class WriteRepository : IWriteRepository
 {
-    private readonly CatalogContext _writeContext;
+    private readonly CatalogContext _context;
 
-    public WriteRepository(CatalogContext writeContext)
-        => _writeContext = writeContext;
+    public WriteRepository(CatalogContext context)
+        => _context = context;
 
     public async Task AddProductAsync(Product product, CancellationToken cancellationToken)
     {
-        await _writeContext.Products.AddAsync(product, cancellationToken);
-        _writeContext.Entry(product).Reference(x => x.Category).Load();
+        await _context.Products.AddAsync(product, cancellationToken);
+        _context.Entry(product).Reference(x => x.Category).Load();
     }
 
     public void UpdateProduct(Product product)
     {
-        _writeContext.Products.Update(product);
-        _writeContext.Entry(product).Reference(x => x.Category).Load();
+        _context.Products.Update(product);
+        _context.Entry(product).Reference(x => x.Category).Load();
     }
 
     public async Task AddCategoryAsync(Category category, CancellationToken cancellationToken)
     {
-        await _writeContext.Categories.AddAsync(category, cancellationToken);
+        await _context.Categories.AddAsync(category, cancellationToken);
     }
 
     public void UpdateCategory(Category category)
     {
-        _writeContext.Categories.Update(category);
+        _context.Categories.Update(category);
     }
 }
