@@ -2,11 +2,12 @@ FROM mcr.microsoft.com/mssql/server:2017-latest
 ENV SA_PASSWORD=Passw0rd
 ENV ACCEPT_EULA=Y
 
-WORKDIR /usr/src/app
+RUN mkdir -p /usr/config
+WORKDIR /usr/config
 
-COPY EntryPoint.sh /usr/src/app
-COPY SqlCmdStartup.sh /usr/src/app
-COPY StartupScript.sql /usr/src/app
+COPY . /usr/config
 
-RUN chmod +x ./SqlCmdStartup.sh
-CMD /bin/bash ./EntryPoint.sh
+RUN chmod +x /usr/config/entrypoint.sh
+RUN chmod +x /usr/config/configure-db.sh
+
+ENTRYPOINT ["./entrypoint.sh"]

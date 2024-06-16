@@ -1,2 +1,5 @@
 #!/bin/bash
-./SqlCmdStartup.sh & /opt/mssql/bin/sqlservr
+
+/usr/config/configure-db.sh &
+
+/opt/mssql/bin/sqlservr
