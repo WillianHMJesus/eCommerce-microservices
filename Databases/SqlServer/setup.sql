@@ -12,6 +12,12 @@ create table [Categories](
 );
 go
 
+DECLARE @ID NVARCHAR(max) = N'71bd4bf1-a516-4e83-a0e4-ad78d08bde42';
+
+insert into [Categories]
+values(CONVERT(uniqueidentifier, @ID), 9999, 'Integration Test', 'Categoria usada nos testes de integração');
+go
+
 create table [Products](
 	[Id] uniqueidentifier not null,
 	[Name] varchar(50) not null,

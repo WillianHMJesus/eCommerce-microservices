@@ -20,10 +20,17 @@ db.getCollection('Errors').insertMany([
     { "key": "CategoryInvalidId", "message": "O id da categoria não pode ser inválido." },
     { "key": "CategoryAnErrorOccorred", "message": "Ocorreu um erro ao cadastrar ou atualizar a categoria." },
     { "key": "CategoryRegisterDuplicity", "message": "Não é possível cadastrar ou atualizar uma categoria duplicada." }
-])
+]);
 
 db = db.getSiblingDB('Catalog');
 db.createCollection('Categories');
+db.getCollection('Categories').insert({
+    '_id': UUID("71bd4bf1-a516-4e83-a0e4-ad78d08bde42"),
+    'Code': 9999,
+    'Name': 'Integration Test',
+    'Description': 'Categoria usada nos testes de integração'
+});
+
 db.createCollection('Products');
 
 db = db.getSiblingDB('Cart');
