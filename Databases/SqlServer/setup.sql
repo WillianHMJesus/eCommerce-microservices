@@ -15,7 +15,7 @@ go
 DECLARE @ID NVARCHAR(max) = N'71bd4bf1-a516-4e83-a0e4-ad78d08bde42';
 
 insert into [Categories]
-values(CONVERT(uniqueidentifier, @ID), 9999, 'Integration Test', 'Categoria usada nos testes de integração');
+values(CONVERT(uniqueidentifier, @ID), 9999, 'Integration Test', 'Categoria usada nos testes de integraÃ§Ã£o');
 go
 
 create table [Products](
