@@ -14,21 +14,23 @@ db.getCollection('Errors').insertMany([
     { "key": "ProductCategoryNotFound", "message": "A categoria do produto não foi encontrada." },
     { "key": "ProductAnErrorOccorred", "message": "Ocorreu um erro ao cadastrar ou atualizar o produto." },
     { "key": "ProductRegisterDuplicity", "message": "Não é possível cadastrar ou atualizar um produto duplicado." },
+    { "key": "ProductNotFound", "message": "Produto não encontrado." },
     { "key": "CategoryCodeLessThanEqualToZero", "message": "O código da categoria não pode ser menor ou igual a zero." },
     { "key": "CategoryNameNullOrEmpty", "message": "O nome da categoria não pode ser vazio ou nulo." },
     { "key": "CategoryDescriptionNullOrEmpty", "message": "A descrição da categoria não pode ser vazio ou nulo." },
     { "key": "CategoryInvalidId", "message": "O id da categoria não pode ser inválido." },
     { "key": "CategoryAnErrorOccorred", "message": "Ocorreu um erro ao cadastrar ou atualizar a categoria." },
-    { "key": "CategoryRegisterDuplicity", "message": "Não é possível cadastrar ou atualizar uma categoria duplicada." }
+    { "key": "CategoryRegisterDuplicity", "message": "Não é possível cadastrar ou atualizar uma categoria duplicada." },
+    { "key": "CategoryNotFound", "message": "Categoria não encontrada." }
 ]);
 
 db = db.getSiblingDB('Catalog');
 db.createCollection('Categories');
 db.getCollection('Categories').insert({
-    '_id': UUID("71bd4bf1-a516-4e83-a0e4-ad78d08bde42"),
-    'Code': 9999,
-    'Name': 'Integration Test',
-    'Description': 'Categoria usada nos testes de integração'
+    '_id': BinData(3,'f51yszTRpECVu9NCDcUmGw=='),
+    'code': 9999,
+    'name': 'Integration Test',
+    'description': 'Categoria usada nos testes de integração'
 });
 
 db.createCollection('Products');

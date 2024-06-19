@@ -12,7 +12,7 @@ create table [Categories](
 );
 go
 
-DECLARE @ID NVARCHAR(max) = N'71bd4bf1-a516-4e83-a0e4-ad78d08bde42';
+DECLARE @ID NVARCHAR(max) = N'b3729d7f-d134-40a4-95bb-d3420dc5261b';
 
 insert into [Categories]
 values(CONVERT(uniqueidentifier, @ID), 9999, 'Integration Test', 'Categoria usada nos testes de integração');
