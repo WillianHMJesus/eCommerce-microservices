@@ -18,6 +18,7 @@ public sealed record Key
     public const string ProductCategoryNotFound = nameof(ProductCategoryNotFound);
     public const string ProductAnErrorOccorred = nameof(ProductAnErrorOccorred);
     public const string ProductRegisterDuplicity = nameof(ProductRegisterDuplicity);
+    public const string ProductNotFound = nameof(ProductNotFound);
     #endregion
 
     #region Category
@@ -27,5 +28,6 @@ public sealed record Key
     public const string CategoryInvalidId = nameof(CategoryInvalidId);
     public const string CategoryAnErrorOccorred = nameof(CategoryAnErrorOccorred);
     public const string CategoryRegisterDuplicity = nameof(CategoryRegisterDuplicity);
+    public const string CategoryNotFound = nameof(CategoryNotFound);
     #endregion
 }
