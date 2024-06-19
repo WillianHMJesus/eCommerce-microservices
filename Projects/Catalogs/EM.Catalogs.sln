@@ -23,7 +23,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EM.Catalog.Infraestructure"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Integration", "Integration", "{2EE53777-DE0B-40CA-8B3D-250D59C2A729}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EM.Catalog.IntegrationTests", "tests\EM.Catalog.IntegrationTests\EM.Catalog.IntegrationTests.csproj", "{5FFC1785-1634-4181-9818-CD8E0BAE2510}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EM.Catalog.IntegrationTests", "tests\EM.Catalog.IntegrationTests\EM.Catalog.IntegrationTests.csproj", "{5FFC1785-1634-4181-9818-CD8E0BAE2510}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

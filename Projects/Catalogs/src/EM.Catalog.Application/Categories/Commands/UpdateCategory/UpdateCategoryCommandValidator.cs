@@ -17,7 +17,7 @@ public sealed class UpdateCategoryCommandValidator : AbstractValidator<UpdateCat
             .GreaterThan(Guid.Empty)
             .WithMessage(Key.CategoryInvalidId)
             .MustAsync(async (_, value, cancellationToken) => await ValidateCategoryIdAsync(value, cancellationToken))
-            .WithMessage(Key.CategoryInvalidId);
+            .WithMessage(Key.CategoryNotFound);
 
         RuleFor(x => x.Code)
             .GreaterThan(default(short))

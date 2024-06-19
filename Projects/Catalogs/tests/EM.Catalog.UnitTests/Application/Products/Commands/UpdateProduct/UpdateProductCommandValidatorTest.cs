@@ -51,6 +51,23 @@ public sealed class UpdateProductCommandValidatorTest
     }
 
     [Theory, AutoProductData]
+    public async Task Constructor_UpdateProductCommandIdNotFound_ShouldReturnInvalidResult(
+        [Frozen] Mock<IReadRepository> repositoryMock,
+        UpdateProductCommandValidator sut,
+        UpdateProductCommand command)
+    {
+        Product? product = null;
+        repositoryMock
+            .Setup(x => x.GetProductByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(product);
+
+        ValidationResult result = await sut.ValidateAsync(command);
+
+        result.IsValid.Should().BeFalse();
+        result.Errors.Should().Contain(x => x.ErrorMessage == Key.ProductNotFound);
+    }
+
+    [Theory, AutoProductData]
     public async Task Constructor_EmptyUpdateProductCommandName_ShouldReturnInvalidResult(
         UpdateProductCommandValidator sut)
     {

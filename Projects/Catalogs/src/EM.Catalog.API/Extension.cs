@@ -20,10 +20,10 @@ public static class Extension
         services.AddValidatorsFromAssembly(AssemblyReference.Assembly);
         services.AddScoped(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
 
-        services.AddDbContext<WriteCatalogContext>(options => options.UseSqlServer(configuration.GetConnectionString("WriteCatalog")));
+        services.AddDbContext<WriteCatalogContext>(options => options.UseSqlServer(configuration.GetConnectionString("catalog")));
         services.AddScoped<IMongoClient>(provider =>
         {
-            return new MongoClient(configuration.GetConnectionString("ReadCatalog"));
+            return new MongoClient(configuration.GetConnectionString("mongoDb"));
         });
 
         services.AddScoped<WriteCatalogContext>();

@@ -8,8 +8,6 @@ using EM.Catalog.IntegrationTests.Helpers;
 using EM.Catalog.IntegrationTests.Models;
 using EM.Common.Core.ResourceManagers;
 using FluentAssertions;
-using Microsoft.AspNetCore.Mvc.Testing;
-using System.Collections.Generic;
 using System.Net;
 using System.Text;
 using System.Text.Json;
@@ -19,7 +17,7 @@ namespace EM.Catalog.IntegrationTests.API.Controllers;
 
 [TestCaseOrderer(PriorityOrderer.Name, PriorityOrderer.Assembly)]
 [Collection(nameof(CategoryCollection))]
-public sealed class CategoriesControllerTest : IClassFixture<WebApplicationFactory<Program>>
+public sealed class CategoriesControllerTest : IClassFixture<IntegrationTestWebAppFactory>
 {
     private readonly CategoryFixture _categoryFixture;
     private readonly IFixture _fixture;
@@ -27,7 +25,7 @@ public sealed class CategoriesControllerTest : IClassFixture<WebApplicationFacto
     private readonly HttpResponseMessageHelper _helper;
 
     public CategoriesControllerTest(
-        WebApplicationFactory<Program> factory, 
+        IntegrationTestWebAppFactory factory,
         CategoryFixture categoryFixture)
     {
         _categoryFixture = categoryFixture;
@@ -131,7 +129,7 @@ public sealed class CategoriesControllerTest : IClassFixture<WebApplicationFacto
 
         //Assert
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-        errors.Should().Contain(x => x.Message == "O id da categoria não pode ser inválido.");
+        errors.Should().Contain(x => x.Message == "Categoria não encontrada.");
     }
 
     [Fact, Priority(2)]

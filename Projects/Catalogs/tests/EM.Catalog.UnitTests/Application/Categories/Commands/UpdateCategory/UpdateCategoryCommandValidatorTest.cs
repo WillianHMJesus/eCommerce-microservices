@@ -49,6 +49,23 @@ public sealed class UpdateCategoryCommandValidatorTest
     }
 
     [Theory, AutoCategoryData]
+    public async Task Constructor_UpdateCategoryCommandIdNotFound_ShouldReturnInvalidResult(
+        [Frozen] Mock<IReadRepository> repositoryMock,
+        UpdateCategoryCommandValidator sut,
+        UpdateCategoryCommand command)
+    {
+        Category? category = null;
+        repositoryMock
+            .Setup(x => x.GetCategoryByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(category);
+
+        ValidationResult result = await sut.ValidateAsync(command);
+
+        result.IsValid.Should().BeFalse();
+        result.Errors.Should().Contain(x => x.ErrorMessage == Key.CategoryNotFound);
+    }
+
+    [Theory, AutoCategoryData]
     public async Task Constructor_ZeroUpdateCategoryCommandCode_ShouldReturnInvalidResult(
         UpdateCategoryCommandValidator sut)
     {

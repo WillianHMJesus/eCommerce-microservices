@@ -9,7 +9,6 @@ using EM.Catalog.IntegrationTests.Helpers;
 using EM.Catalog.IntegrationTests.Models;
 using EM.Common.Core.ResourceManagers;
 using FluentAssertions;
-using Microsoft.AspNetCore.Mvc.Testing;
 using System.Net;
 using System.Text;
 using System.Text.Json;
@@ -19,7 +18,7 @@ namespace EM.Catalog.IntegrationTests.API.Controllers;
 
 [TestCaseOrderer(PriorityOrderer.Name, PriorityOrderer.Assembly)]
 [Collection(nameof(ProductCollection))]
-public sealed class ProductsControllerTest : IClassFixture<WebApplicationFactory<Program>>
+public sealed class ProductsControllerTest : IClassFixture<IntegrationTestWebAppFactory>
 {
     private readonly ProductFixture _productFixture;
     private readonly IFixture _fixture;
@@ -28,7 +27,7 @@ public sealed class ProductsControllerTest : IClassFixture<WebApplicationFactory
     private readonly Guid _categoryId;
 
     public ProductsControllerTest(
-        WebApplicationFactory<Program> factory,
+        IntegrationTestWebAppFactory factory,
         ProductFixture productFixture)
     {
         _productFixture = productFixture;
@@ -163,7 +162,7 @@ public sealed class ProductsControllerTest : IClassFixture<WebApplicationFactory
 
         //Assert
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-        errors.Should().Contain(x => x.Message == "O id do produto não pode ser inválido.");
+        errors.Should().Contain(x => x.Message == "Produto não encontrado.");
     }
 
     [Fact, Priority(2)]

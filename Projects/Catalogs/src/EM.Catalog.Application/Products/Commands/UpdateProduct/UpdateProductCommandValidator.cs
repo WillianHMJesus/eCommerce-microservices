@@ -17,7 +17,7 @@ public sealed class UpdateProductCommandValidator : AbstractValidator<UpdateProd
             .NotEqual(Guid.Empty)
             .WithMessage(Key.ProductInvalidId)
             .MustAsync(async (_, value, cancellationToken) => await ValidateProductIdAsync(value, cancellationToken))
-            .WithMessage(Key.ProductInvalidId);
+            .WithMessage(Key.ProductNotFound);
 
         RuleFor(x => x.Name)
             .Must(x => !string.IsNullOrEmpty(x))
