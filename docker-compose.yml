@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
 
   mssql:
@@ -8,7 +6,7 @@ services:
     ports:
       - 1433:1433
 
-  mongo:
+  mongodb:
     build: ./Databases/MongoDb
     restart: always
     ports:
@@ -20,3 +18,17 @@ services:
     ports:
       - 5672:5672
       - 15672:15672
+
+  catalog-api:
+    image: ${DOCKER_REGISTRY-}catalog-api
+    restart: always
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+    ports:
+      - "8080:5000"
+    build:
+      context: .
+      dockerfile: Projects/Catalogs/Dockerfile
+    depends_on:
+      - mssql
+      - mongodb
