@@ -1,34 +1,58 @@
 services:
 
   mssql:
+    container_name: mssql
     build: ./Databases/SqlServer
     restart: always
+    networks:
+      - database
     ports:
       - 1433:1433
 
   mongodb:
+    container_name: mongodb
     build: ./Databases/MongoDb
     restart: always
+    networks:
+      - nosql
     ports:
       - 27017:27017
 
   rabbitmq:
+    container_name: rabbitmq
     build: ./BrokersMessage/RabbitMq
     restart: always
+    networks:
+      - message-broker
     ports:
       - 5672:5672
       - 15672:15672
 
   catalog-api:
+    container_name: catalog-api
     image: ${DOCKER_REGISTRY-}catalog-api
     restart: always
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
+    networks:
+      - database
+      - nosql
     ports:
-      - "8080:5000"
+      - "7274:7274"
     build:
       context: .
       dockerfile: Projects/Catalogs/Dockerfile
     depends_on:
       - mssql
       - mongodb
+
+networks:
+  database:
+    name: database
+    driver: bridge
+  nosql:
+    name: nosql
+    driver: bridge
+  message-broker:
+    name: message-broker
+    driver: bridge
