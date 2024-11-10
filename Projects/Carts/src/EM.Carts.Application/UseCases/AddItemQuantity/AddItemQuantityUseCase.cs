@@ -1,50 +1,36 @@
-﻿using EM.Carts.Application.Interfaces;
-using EM.Carts.Domain;
+﻿using EM.Carts.Application.Interfaces.Presenters;
+using EM.Carts.Application.Interfaces.UseCases;
 using EM.Carts.Domain.Entities;
 using EM.Carts.Domain.Interfaces;
 
 namespace EM.Carts.Application.UseCases.AddItemQuantity;
 
-public sealed class AddItemQuantityUseCase : IAddItemQuantityUseCase
+public sealed class AddItemQuantityUseCase : IUseCase<AddItemQuantityRequest>
 {
-    private readonly ICartRepository _cartRepository;
+    private readonly ICartRepository _repository;
     private IPresenter _presenter = default!;
 
-    public AddItemQuantityUseCase(ICartRepository cartRepository)
-        => _cartRepository = cartRepository;
-
-    public async Task ExecuteAsync(AddItemQuantityRequest request)
+    public AddItemQuantityUseCase(ICartRepository repository)
     {
-        Cart? cart = await _cartRepository.GetCartByUserIdAsync(request.UserId);
-        
-        if (cart == null)
-        {
-            _presenter.BadRequest(new
-            {
-                ErrorMessage = ErrorMessage.CartNotFound
-            });
+        _repository = repository;
+    }
 
-            return;
-        }
+    public async Task ExecuteAsync(AddItemQuantityRequest request, CancellationToken cancellationToken)
+    {
+        Cart cart = await _repository.GetCartByUserIdAsync(request.UserId, cancellationToken)
+            ?? throw new ArgumentNullException();
 
-        Item? existingItem = cart.Items.FirstOrDefault(x => x.ProductId == request.ProductId);
-
-        if (existingItem == null)
-        {
-            _presenter.BadRequest(new
-            {
-                ErrorMessage = ErrorMessage.ItemNotFound
-            });
-
-            return;
-        }
+        Item? existingItem = cart.Items.FirstOrDefault(x => x.ProductId == request.ProductId)
+            ?? throw new ArgumentNullException();
 
         existingItem.AddQuantity(request.Quantity);
-        await _cartRepository.UpdateCartAsync(cart);
+        await _repository.UpdateCartAsync(cart, cancellationToken);
 
         _presenter.Success();
     }
 
     public void SetPresenter(IPresenter presenter)
-        => _presenter = presenter;
+    {
+        _presenter = presenter;
+    }
 }

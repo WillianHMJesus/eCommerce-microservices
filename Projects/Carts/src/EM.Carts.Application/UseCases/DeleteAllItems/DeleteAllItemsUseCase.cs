@@ -1,38 +1,33 @@
-﻿using EM.Carts.Application.Interfaces;
-using EM.Carts.Domain;
+﻿using EM.Carts.Application.Interfaces.Presenters;
+using EM.Carts.Application.Interfaces.UseCases;
 using EM.Carts.Domain.Entities;
 using EM.Carts.Domain.Interfaces;
 
 namespace EM.Carts.Application.UseCases.DeleteAllItems;
 
-public sealed class DeleteAllItemsUseCase : IDeleteAllItemsUseCase
+public sealed class DeleteAllItemsUseCase : IUseCase<DeleteAllItemsRequest>
 {
-    private readonly ICartRepository _cartRepository;
+    private readonly ICartRepository _repository;
     private IPresenter _presenter = default!;
 
-    public DeleteAllItemsUseCase(ICartRepository cartRepository)
-        => _cartRepository = cartRepository;
-
-    public async Task ExecuteAsync(Guid userId)
+    public DeleteAllItemsUseCase(ICartRepository repository)
     {
-        Cart? cart = await _cartRepository.GetCartByUserIdAsync(userId);
+        _repository = repository;
+    }
 
-        if (cart == null)
-        {
-            _presenter.BadRequest(new
-            {
-                ErrorMessage = ErrorMessage.CartNotFound
-            });
-
-            return;
-        }
+    public async Task ExecuteAsync(DeleteAllItemsRequest request, CancellationToken cancellationToken)
+    {
+        Cart cart = await _repository.GetCartByUserIdAsync(request.UserId, cancellationToken)
+            ?? throw new ArgumentNullException();
 
         cart.RemoveAllItems();
-        await _cartRepository.UpdateCartAsync(cart);
+        await _repository.UpdateCartAsync(cart, cancellationToken);
         
         _presenter.Success();
     }
 
     public void SetPresenter(IPresenter presenter)
-        => _presenter = presenter;
+    {
+        _presenter = presenter;
+    }
 }

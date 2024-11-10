@@ -1,50 +1,36 @@
-﻿using EM.Carts.Application.Interfaces;
-using EM.Carts.Domain;
+﻿using EM.Carts.Application.Interfaces.Presenters;
+using EM.Carts.Application.Interfaces.UseCases;
 using EM.Carts.Domain.Entities;
 using EM.Carts.Domain.Interfaces;
 
 namespace EM.Carts.Application.UseCases.DeleteItem;
 
-public sealed class DeleteItemUseCase : IDeleteItemUseCase
+public sealed class DeleteItemUseCase : IUseCase<DeleteItemRequest>
 {
-    private readonly ICartRepository _cartRepository;
+    private readonly ICartRepository _repository;
     private IPresenter _presenter = default!;
 
-    public DeleteItemUseCase(ICartRepository cartRepository)
-        => _cartRepository = cartRepository;
-
-    public async Task ExecuteAsync(DeleteItemRequest request)
+    public DeleteItemUseCase(ICartRepository repository)
     {
-        Cart? cart = await _cartRepository.GetCartByUserIdAsync(request.UserId);
+        _repository = repository;
+    }
 
-        if (cart == null)
-        {
-            _presenter.BadRequest(new
-            {
-                ErrorMessage = ErrorMessage.CartNotFound
-            });
+    public async Task ExecuteAsync(DeleteItemRequest request, CancellationToken cancellationToken)
+    {
+        Cart cart = await _repository.GetCartByUserIdAsync(request.UserId, cancellationToken)
+            ?? throw new ArgumentNullException();
 
-            return;
-        }
-
-        Item? existingItem = cart.Items.FirstOrDefault(x => x.ProductId == request.ProductId);
-
-        if (existingItem == null)
-        {
-            _presenter.BadRequest(new
-            {
-                ErrorMessage = ErrorMessage.ItemNotFound
-            });
-
-            return;
-        }
+        Item existingItem = cart.Items.FirstOrDefault(x => x.ProductId == request.ProductId)
+            ?? throw new ArgumentNullException();
 
         cart.RemoveItem(existingItem);
-        await _cartRepository.UpdateCartAsync(cart);
+        await _repository.UpdateCartAsync(cart, cancellationToken);
 
         _presenter.Success();
     }
 
     public void SetPresenter(IPresenter presenter)
-        => _presenter = presenter;
+    {
+        _presenter = presenter;
+    }
 }

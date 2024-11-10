@@ -1,32 +1,43 @@
-﻿using EM.Carts.Application.Interfaces;
+﻿using AutoMapper;
+using EM.Carts.Application.DTOs;
+using EM.Carts.Application.Interfaces.ExternalServices;
+using EM.Carts.Application.Interfaces.Presenters;
+using EM.Carts.Application.Interfaces.UseCases;
 using EM.Carts.Domain.Entities;
 using EM.Carts.Domain.Interfaces;
 
 namespace EM.Carts.Application.UseCases.AddItem;
 
-public sealed class AddItemUseCase : IAddItemUseCase
+public sealed class AddItemUseCase : IUseCase<AddItemRequest>
 {
-    private readonly ICartRepository _cartRepository;
+    private readonly ICartRepository _repository;
+    private readonly ICatalogExternalService _catalogExternalService;
+    private readonly IMapper _mapper;
     private IPresenter _presenter = default!;
 
-    public AddItemUseCase(ICartRepository cartRepository)
-        => _cartRepository = cartRepository;
+    public AddItemUseCase(
+        ICartRepository repository,
+        ICatalogExternalService catalogExternalService,
+        IMapper mapper)
+    { 
+        _repository = repository;
+        _catalogExternalService = catalogExternalService;
+        _mapper = mapper;
+    }
 
-    public async Task ExecuteAsync(AddItemRequest request)
+    public async Task ExecuteAsync(AddItemRequest request, CancellationToken cancellationToken)
     {
-        Cart? cart = await _cartRepository.GetCartByUserIdAsync(request.UserId);
+        Cart cart = await _repository.GetCartByUserIdAsync(request.UserId, cancellationToken)
+            ?? await CreateCart(request.UserId, cancellationToken);
 
-        if (cart == null)
-        {
-            cart = new Cart(request.UserId);
-            await _cartRepository.AddCartAsync(cart);
-        }
+        ProductDTO product = await _catalogExternalService.GetProductsByIdAsync(request.ProductId, cancellationToken)
+            ?? throw new ArgumentNullException();
 
         Item? existingItem = cart.Items.FirstOrDefault(x => x.ProductId == request.ProductId);
 
-        if (existingItem == null)
+        if (existingItem is null)
         {
-            Item item = new(request.ProductId, request.ProductName, request.ProductImage, request.Value, request.Quantity);
+            Item item = _mapper.Map<Item>((request, product));
             cart.AddItem(item);
         }
         else
@@ -34,10 +45,20 @@ public sealed class AddItemUseCase : IAddItemUseCase
             existingItem.AddQuantity(request.Quantity);
         }
 
-        await _cartRepository.UpdateCartAsync(cart);
+        await _repository.UpdateCartAsync(cart, cancellationToken);
         _presenter.Success();
     }
 
+    private async Task<Cart> CreateCart(Guid userId, CancellationToken cancellationToken)
+    {
+        Cart cart = new Cart(userId);
+        await _repository.AddCartAsync(cart, cancellationToken);
+
+        return cart;
+    }
+
     public void SetPresenter(IPresenter presenter)
-        => _presenter = presenter;
+    {
+        _presenter = presenter;
+    }
 }

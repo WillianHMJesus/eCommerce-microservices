@@ -1,4 +1,5 @@
-﻿using EM.Shared.Core;
+﻿using EM.Common.Core.Domain;
+using EM.Common.Core.ResourceManagers;
 
 namespace EM.Carts.Domain.Entities;
 
@@ -18,18 +19,18 @@ public sealed class Cart : Entity
 
     public override void Validate()
     {
-        AssertionConcern.ValidateDefault(UserId, ErrorMessage.UserIdInvalid);
+        AssertionConcern.ValidateNullOrDefault(UserId, Key.UserIdInvalid);
     }
 
     public void AddItem(Item item)
     {
-        AssertionConcern.ValidateNull(item, ErrorMessage.CartItemNull);
+        AssertionConcern.ValidateNullOrDefault(item, Key.CartItemNull);
         Items.Add(item);
     }
 
     public void RemoveItem(Item item)
     {
-        AssertionConcern.ValidateNull(item, ErrorMessage.CartItemNull);
+        AssertionConcern.ValidateNullOrDefault(item, Key.CartItemNull);
         Items.Remove(item);
     }
 

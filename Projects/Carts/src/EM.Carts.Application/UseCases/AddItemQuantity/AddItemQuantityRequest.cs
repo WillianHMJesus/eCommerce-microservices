@@ -1,8 +1,9 @@
-﻿using System.Text.Json.Serialization;
+﻿using EM.Carts.Application.Interfaces.UseCases;
+using System.Text.Json.Serialization;
 
 namespace EM.Carts.Application.UseCases.AddItemQuantity;
 
-public sealed record AddItemQuantityRequest
+public sealed record AddItemQuantityRequest : IRequest
 {
     [JsonIgnore]
     public Guid UserId { get; set; }

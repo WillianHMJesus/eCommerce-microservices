@@ -1,4 +1,5 @@
-﻿using EM.Shared.Core;
+﻿using EM.Common.Core.Domain;
+using EM.Common.Core.ResourceManagers;
 
 namespace EM.Carts.Domain.Entities;
 
@@ -23,24 +24,23 @@ public sealed class Item : Entity
 
     public override void Validate()
     {
-        AssertionConcern.ValidateDefault(ProductId, ErrorMessage.ProductIdInvalid);
-        AssertionConcern.ValidateNullOrEmpty(ProductName, ErrorMessage.ProductNameNullOrEmpty);
-        AssertionConcern.ValidateNullOrEmpty(ProductImage, ErrorMessage.ProductImageNullOrEmpty);
-        AssertionConcern.ValidateLessThanEqualToMinimum(Value, 0, ErrorMessage.ValueLessThanEqualToZero);
-        AssertionConcern.ValidateLessThanEqualToMinimum(Quantity, 0, ErrorMessage.QuantityLessThanEqualToZero);
+        AssertionConcern.ValidateNullOrDefault(ProductId, Key.ProductInvalidId);
+        AssertionConcern.ValidateNullOrEmpty(ProductName, Key.ProductNameNullOrEmpty);
+        AssertionConcern.ValidateNullOrEmpty(ProductImage, Key.ProductImageNullOrEmpty);
+        AssertionConcern.ValidateLessThanEqualToMinimum(Value, 0, Key.ProductValueLessThanEqualToZero);
+        AssertionConcern.ValidateLessThanEqualToMinimum(Quantity, 0, Key.ProductQuantityLessThanEqualToZero);
     }
 
     public void AddQuantity(int quantity)
     {
-        AssertionConcern.ValidateLessThanEqualToMinimum(quantity, 0, ErrorMessage.QuantityLessThanEqualToZero);
+        AssertionConcern.ValidateLessThanEqualToMinimum(quantity, 0, Key.ProductQuantityLessThanEqualToZero);
         Quantity += quantity;
     }
 
-    public void SubtractQuantity(int quantity)
+    public void RemoveQuantity(int quantity)
     {
-        AssertionConcern.ValidateLessThanEqualToMinimum(quantity, 0, ErrorMessage.QuantityLessThanEqualToZero);
-        AssertionConcern.ValidateLessThanEqualToMinimum(Quantity - quantity, 0, ErrorMessage.QuantityGreaterThanAvailable);
-
+        AssertionConcern.ValidateLessThanEqualToMinimum(quantity, 0, Key.ProductQuantityLessThanEqualToZero);
+        AssertionConcern.ValidateLessThanEqualToMinimum(Quantity - quantity, 0, Key.QuantityGreaterThanAvailable);
         Quantity -= quantity;
     }
 }

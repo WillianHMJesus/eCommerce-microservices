@@ -1,4 +1,4 @@
-﻿using EM.Carts.Application.Interfaces;
+﻿using EM.Carts.Application.Interfaces.Presenters;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EM.Carts.API.Controllers;
@@ -9,13 +9,19 @@ public abstract class BaseController : ControllerBase, IPresenter
 
     [NonAction]
     public Guid GetUserId()
-        => Guid.Parse("73e84dc0-5da5-4da6-80c6-8c37d211ba1b");
+    {
+        return Guid.Parse("73e84dc0-5da5-4da6-80c6-8c37d211ba1b");
+    }
 
     [NonAction]
     public void Success(object? data = null)
-        => _actionResult = Ok(data);
+    {
+        _actionResult = Ok(data);
+    }
 
     [NonAction]
     void IBadRequest.BadRequest(object errors)
-        => _actionResult = BadRequest(errors);
+    {
+        _actionResult = BadRequest(errors);
+    }
 }
