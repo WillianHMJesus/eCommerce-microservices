@@ -6,7 +6,7 @@ public class Result
     public object? Data { get; set; }
     public IEnumerable<Error> Errors { get; set; } = new List<Error>();
 
-    public static Result CreateResponseWithData(object data)
+    public static Result CreateResponseWithData(object? data = null)
     {
         return new Result { Data = data };
     }
