@@ -15,6 +15,11 @@ public sealed class TransactionEntityTypeConfiguration : IEntityTypeConfiguratio
         builder.Property(x => x.CardNumber)
             .IsRequired()
             .HasColumnType("varchar")
-            .HasMaxLength(15);
+            .HasMaxLength(20);
+
+        builder.Property(x => x.Status)
+            .IsRequired()
+            .HasColumnType("varchar")
+            .HasMaxLength(50);
     }
 }

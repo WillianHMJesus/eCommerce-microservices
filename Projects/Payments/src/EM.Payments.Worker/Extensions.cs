@@ -1,4 +1,6 @@
-﻿using EM.Payments.Application.Interfaces;
+﻿using EM.Common.Core.MessageBrokers;
+using EM.Payments.Application.Interfaces;
+using EM.Payments.Application.Mappings;
 using EM.Payments.Application.MessageBrokers;
 using EM.Payments.Application.MessageBrokers.Consumers;
 using EM.Payments.Domain.Interfaces;
@@ -31,13 +33,12 @@ public static class Extensions
 
     public static IServiceCollection AddDependencyInjection(this IServiceCollection services, IConfiguration configuration)
     {
+        services.AddAutoMapper(typeof(TransactionMapping));
         services.AddDbContext<PaymentContext>(options => options.UseSqlServer(configuration.GetConnectionString("Payment")));
         services.AddScoped<PaymentContext>();
         services.AddScoped<ITransactionRepository, TransactionRepository>();
-
         services.AddScoped<IPaymentGateway, PaymentGateway>();
-
-        services.AddScoped<IMessageBrokerService, RabbitMqService>();
+        services.AddScoped<IMessageBrokerService, MassTransitService>();
 
         return services;
     }

@@ -1,4 +1,4 @@
-﻿using EM.Payments.Application.DTOs;
+﻿using EM.Common.Core.Events;
 using EM.Payments.Application.Interfaces;
 
 namespace EM.Payments.Infraestructure.ExternalServices;
@@ -13,8 +13,8 @@ public sealed class PaymentGateway : IPaymentGateway
         "1234456778904321"
     };
 
-    public Task<bool> ProccessPaymentAsync(PaymentDTO payment)
+    public bool ProccessPayment(OrderCreatedEvent _event)
     {
-        return Task.FromResult(cardsNumber.Any(x => x == payment.CardNumber));
+        return !cardsNumber.Any(x => x == _event.CardNumber);
     }
 }

@@ -1,4 +1,3 @@
-using EM.Payments.Application.MessageBrokers.Consumers;
 using EM.Payments.Worker;
 using MassTransit;
 

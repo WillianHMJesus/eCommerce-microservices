@@ -1,60 +1,46 @@
-﻿using EM.Payments.Application.DTOs;
+﻿using AutoMapper;
+using EM.Common.Core.Events;
+using EM.Common.Core.MessageBrokers;
 using EM.Payments.Application.Interfaces;
 using EM.Payments.Domain.Entities;
 using EM.Payments.Domain.Interfaces;
-using EM.Shared.Core.MessageBrokers.Contracts;
 using MassTransit;
 
 namespace EM.Payments.Application.MessageBrokers.Consumers;
 
-public sealed class OrderCreatedConsumer : IConsumer<OrderCreated>
+public sealed class OrderCreatedConsumer : IConsumer<OrderCreatedEvent>
 {
     private readonly IPaymentGateway _paymentGateway;
     private readonly ITransactionRepository _transactionRepository;
     private readonly IMessageBrokerService _messageBrokerService;
+    private readonly IMapper _mapper;
 
     public OrderCreatedConsumer(
         IPaymentGateway paymentGateway,
         ITransactionRepository transactionRepository,
-        IMessageBrokerService messageBrokerService)
+        IMessageBrokerService messageBrokerService,
+        IMapper mapper)
     {
         _paymentGateway = paymentGateway;
         _transactionRepository = transactionRepository;
         _messageBrokerService = messageBrokerService;
+        _mapper = mapper;
     }
 
-    public async Task Consume(ConsumeContext<OrderCreated> context)
+    public async Task Consume(ConsumeContext<OrderCreatedEvent> context)
     {
-        OrderCreated orderCreated = context.Message;
-        bool paymentResult = await _paymentGateway.ProccessPaymentAsync((PaymentDTO)orderCreated);
+        OrderCreatedEvent message = context.Message;
+        bool paymentResult = _paymentGateway.ProccessPayment(message);
 
-        Transaction transaction = new(orderCreated.UserId, orderCreated.OrderId, orderCreated.Value, orderCreated.CardNumber, paymentResult);
+        Transaction transaction = _mapper.Map<Transaction>((message, paymentResult));
         await _transactionRepository.AddAsync(transaction);
 
-        if (!transaction.PaymentAproved)
+        if (paymentResult)
         {
-            await SendMessagePaymentRefused(orderCreated);
+            await _messageBrokerService.SendMessage(new PaymentApprovedEvent(message.OrderId), context.CancellationToken);
             return;
         }
 
-        await SendMessagePaymentApproved(orderCreated);
-    }
-
-    private async Task SendMessagePaymentApproved(OrderCreated orderCreated)
-    {
-        await _messageBrokerService.SendMessage(new PaymentApproved
-        {
-            UserId = orderCreated.UserId,
-            OrderId = orderCreated.OrderId
-        });
-    }
-
-    private async Task SendMessagePaymentRefused(OrderCreated orderCreated)
-    {
-        await _messageBrokerService.SendMessage(new PaymentRefused
-        {
-            UserId = orderCreated.UserId,
-            OrderId = orderCreated.OrderId
-        });
+        await _messageBrokerService.SendMessage(new PaymentRefusedEvent(message.OrderId), context.CancellationToken);
     }
 }

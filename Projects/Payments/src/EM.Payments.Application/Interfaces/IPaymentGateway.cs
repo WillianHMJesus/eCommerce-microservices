@@ -1,8 +1,8 @@
-﻿using EM.Payments.Application.DTOs;
+﻿using EM.Common.Core.Events;
 
 namespace EM.Payments.Application.Interfaces;
 
 public interface IPaymentGateway
 {
-    Task<bool> ProccessPaymentAsync(PaymentDTO payment);
+    bool ProccessPayment(OrderCreatedEvent _event);
 }
