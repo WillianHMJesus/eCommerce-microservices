@@ -33,8 +33,9 @@ services:
     image: ${DOCKER_REGISTRY-}catalog-api
     restart: always
     environment:
-      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_ENVIRONMENT=Production
     networks:
+      - application
       - database
       - nosql
     ports:
@@ -46,6 +47,39 @@ services:
       - mssql
       - mongodb
 
+  cart-api:
+    container_name: cart-api
+    image: ${DOCKER_REGISTRY-}cart-api
+    restart: always
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+    networks:
+      - application
+      - nosql
+    ports:
+      - "7292:7292"
+    build:
+      context: .
+      dockerfile: Projects/Carts/Dockerfile
+    depends_on:
+      - mongodb
+
+  payment-worker:
+    container_name: payment-worker
+    image: ${DOCKER_REGISTRY-}payment-worker
+    restart: always
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+    networks:
+      - database
+      - message-broker
+    build:
+      context: .
+      dockerfile: Projects/Payments/Dockerfile
+    depends_on:
+      - mssql
+      - rabbitmq
+
 networks:
   database:
     name: database
@@ -55,4 +89,7 @@ networks:
     driver: bridge
   message-broker:
     name: message-broker
+    driver: bridge
+  application:
+    name: application
     driver: bridge
