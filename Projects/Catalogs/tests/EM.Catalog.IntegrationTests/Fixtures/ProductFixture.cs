@@ -1,5 +1,6 @@
 ﻿using AutoFixture;
-using EM.Catalog.Application.Products.Commands.AddProduct;
+using EM.Catalog.Application.Categories.Models;
+using EM.Catalog.Application.Products.Models;
 using Microsoft.AspNetCore.Mvc.Testing;
 
 namespace EM.Catalog.IntegrationTests.Fixtures;
@@ -10,20 +11,26 @@ public class ProductCollection : ICollectionFixture<ProductFixture>
 
 public class ProductFixture : IClassFixture<WebApplicationFactory<Program>>
 {
-    private AddProductCommand? _addProductCommand;
+    private ProductRequest? _productRequest;
 
+    public Guid CategoryId { get; set; }
     public Guid? ProductId { get; set; }
 
-    public AddProductCommand GenerateValidAddProductCommandWithTheSameValue(Guid categoryId)
+    public ProductRequest GenerateValidProductRequestWithTheSameValue(Guid categoryId)
     {
-        if (_addProductCommand is null)
+        if (_productRequest is null)
         {
-            _addProductCommand = new Fixture()
-                .Build<AddProductCommand>()
+            _productRequest = new Fixture()
+                .Build<ProductRequest>()
                 .With(x => x.CategoryId, categoryId)
                 .Create();
         }
 
-        return _addProductCommand;
+        return _productRequest;
+    }
+
+    public CategoryRequest GenerateValidCategoryRequest()
+    {
+        return new Fixture().Create<CategoryRequest>();
     }
 }

@@ -7,6 +7,8 @@ using Moq;
 using EM.Catalog.Application.Categories.Commands.AddCategory;
 using EM.Catalog.Application.Categories.Commands.UpdateCategory;
 using EM.Common.Core.ResourceManagers;
+using EM.Catalog.Application.Categories.Validations;
+using EM.Catalog.Domain.Interfaces;
 
 namespace EM.Catalog.UnitTests.CustomAutoData;
 
@@ -30,6 +32,22 @@ public class AutoCategoryDataAttribute : AutoDataAttribute
         fixture.Freeze<Mock<IMapper>>()
             .Setup(x => x.Map<Category>(It.IsAny<UpdateCategoryCommand>()))
             .Returns(category);
+
+        fixture.Freeze<Mock<ICategoryValidations>>()
+            .Setup(x => x.ValidateCategoryIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+
+        fixture.Freeze<Mock<ICategoryValidations>>()
+            .Setup(x => x.ValidateDuplicityAsync(It.IsAny<AddCategoryCommand>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+
+        fixture.Freeze<Mock<ICategoryValidations>>()
+            .Setup(x => x.ValidateDuplicityAsync(It.IsAny<UpdateCategoryCommand>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+
+        fixture.Freeze<Mock<IUnitOfWork>>()
+            .Setup(x => x.CommitAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
 
         IEnumerable<Error> errors = new List<Error> { new Error(Key.CategoryAnErrorOccorred, "") };
         fixture.Freeze<Mock<IResourceManager>>()

@@ -1,8 +1,8 @@
 ﻿using AutoFixture;
 using AutoFixture.Xunit2;
 using EM.Catalog.Application.Categories.Commands.AddCategory;
+using EM.Catalog.Application.Categories.Validations;
 using EM.Catalog.Domain.Entities;
-using EM.Catalog.Domain.Interfaces;
 using EM.Catalog.UnitTests.CustomAutoData;
 using EM.Common.Core.ResourceManagers;
 using FluentAssertions;
@@ -20,14 +20,9 @@ public sealed class AddCategoryCommandValidatorTest
 
     [Theory, AutoCategoryData]
     public async Task Constructor_ValidAddCategoryCommand_ShouldReturnValidResult(
-        [Frozen] Mock<IReadRepository> repositoryMock,
         AddCategoryCommandValidator sut,
         AddCategoryCommand command)
     {
-        repositoryMock
-            .Setup(x => x.GetCategoriesByCodeOrName(It.IsAny<short>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new List<Category>());
-
         ValidationResult result = await sut.ValidateAsync(command);
 
         result.IsValid.Should().BeTrue();
@@ -106,10 +101,13 @@ public sealed class AddCategoryCommandValidatorTest
 
     [Theory, AutoCategoryData]
     public async Task Constructor_DuplicityAddCategoryCommand_ShouldReturnInvalidResult(
+        [Frozen] Mock<ICategoryValidations> validationsMock,
         AddCategoryCommandValidator sut,
         AddCategoryCommand command)
     {
-        IEnumerable<Category> categories = new List<Category>() { _fixture.Create<Category>() };
+        validationsMock
+            .Setup(x => x.ValidateDuplicityAsync(It.IsAny<AddCategoryCommand>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(false);
 
         var result = await sut.ValidateAsync(command);
 

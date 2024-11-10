@@ -15,20 +15,16 @@ namespace EM.Catalog.UnitTests.Application.Products.Commands.UpdateProduct;
 public sealed class UpdateProductCommandHandlerTest
 {
     [Theory, AutoProductData]
-    public async Task Handle_ValidUpdateProductCommand_ShouldInvokeWriteRepositoryUpdateProductAsync(
-        [Frozen] Mock<IWriteRepository> repositoryMock,
+    public async Task Handle_ValidCommit_ShouldReturnWithSuccess(
+        [Frozen] Mock<IWriteRepository> writeRepository,
         [Frozen] Mock<IUnitOfWork> unitOfWorkMock,
         [Frozen] Mock<IMediator> mediatorMock,
         UpdateProductCommandHandler sut,
         UpdateProductCommand command)
     {
-        unitOfWorkMock
-            .Setup(x => x.CommitAsync(It.IsAny<CancellationToken>()))
-            .ReturnsAsync(true);
-
         Result result = await sut.Handle(command, CancellationToken.None);
 
-        repositoryMock.Verify(x => x.UpdateProduct(It.IsAny<Product>()), Times.Once);
+        writeRepository.Verify(x => x.UpdateProduct(It.IsAny<Product>()), Times.Once);
         unitOfWorkMock.Verify(x => x.CommitAsync(It.IsAny<CancellationToken>()), Times.Once);
         mediatorMock.Verify(x => x.Publish(It.IsAny<ProductUpdatedEvent>(), It.IsAny<CancellationToken>()), Times.Once);
         result.Success.Should().BeTrue();
@@ -36,8 +32,8 @@ public sealed class UpdateProductCommandHandlerTest
     }
 
     [Theory, AutoProductData]
-    public async Task Handle_ProductCategoryNotFound_ShouldReturnWithFailed(
-        [Frozen] Mock<IWriteRepository> repositoryMock,
+    public async Task Handle_InvalidCommit_ShouldReturnWithFailure(
+        [Frozen] Mock<IWriteRepository> writeRepository,
         [Frozen] Mock<IUnitOfWork> unitOfWorkMock,
         [Frozen] Mock<IMediator> mediatorMock,
         UpdateProductCommandHandler sut,
@@ -49,7 +45,7 @@ public sealed class UpdateProductCommandHandlerTest
 
         Result result = await sut.Handle(command, CancellationToken.None);
 
-        repositoryMock.Verify(x => x.UpdateProduct(It.IsAny<Product>()), Times.Once);
+        writeRepository.Verify(x => x.UpdateProduct(It.IsAny<Product>()), Times.Once);
         unitOfWorkMock.Verify(x => x.CommitAsync(It.IsAny<CancellationToken>()), Times.Once);
         mediatorMock.Verify(x => x.Publish(It.IsAny<ProductUpdatedEvent>(), It.IsAny<CancellationToken>()), Times.Never);
         result.Success.Should().BeFalse();

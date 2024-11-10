@@ -1,5 +1,5 @@
-﻿using EM.Catalog.Application.Categories.Commands.AddCategory;
-using AutoFixture;
+﻿using AutoFixture;
+using EM.Catalog.Application.Categories.Models;
 
 namespace EM.Catalog.IntegrationTests.Fixtures;
 
@@ -9,15 +9,15 @@ public class CategoryCollection : ICollectionFixture<CategoryFixture>
 
 public class CategoryFixture
 {
-    private AddCategoryCommand? _addCategoryCommand;
+    private CategoryRequest? _categoryRequest;
 
     public Guid? CategoryId { get; set; }
 
-    public AddCategoryCommand GenerateValidAddCategoryCommandWithTheSameValue()
+    public CategoryRequest GenerateValidCategoryRequestWithTheSameValue()
     {
-        if (_addCategoryCommand is null)
-            _addCategoryCommand = new Fixture().Create<AddCategoryCommand>();
+        if (_categoryRequest is null)
+            _categoryRequest = new Fixture().Create<CategoryRequest>();
 
-        return _addCategoryCommand;
+        return _categoryRequest;
     }
 }

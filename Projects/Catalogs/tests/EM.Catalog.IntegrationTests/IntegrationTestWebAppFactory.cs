@@ -20,7 +20,7 @@ public class IntegrationTestWebAppFactory
         .Build();
 
     private readonly MongoDbContainer _readDbContainer = new MongoDbBuilder()
-        .WithImage("ecommerce-microservices-mongo:latest")
+        .WithImage("ecommerce-microservices-mongodb:latest")
         .WithUsername("root")
         .WithPassword("Passw0rd")
         .Build();

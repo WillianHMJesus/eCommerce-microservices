@@ -17,6 +17,6 @@ public sealed class GetProductsByCategoryIdQueryHandlerTest
     {
         await sut.Handle(query, CancellationToken.None);
 
-        repositoryMock.Verify(x => x.GetProductsByCategoryIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()), Times.Once);
+        repositoryMock.Verify(x => x.GetProductsByCategoryIdAsync(It.IsAny<Guid>(), It.IsAny<short>(), It.IsAny<short>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 }

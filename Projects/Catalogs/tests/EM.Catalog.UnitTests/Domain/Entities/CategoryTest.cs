@@ -1,6 +1,5 @@
 ﻿using AutoFixture;
 using AutoFixture.Xunit2;
-using EM.Catalog.Domain;
 using EM.Catalog.Domain.Entities;
 using EM.Common.Core.Domain;
 using EM.Common.Core.ResourceManagers;
@@ -86,5 +85,13 @@ public sealed class CategoryTest
 
         domainException.Should().NotBeNull();
         domainException.Message.Should().Be(Key.CategoryDescriptionNullOrEmpty);
+    }
+
+    [Theory, AutoData]
+    public void Inactivate_ValidCategory_ShouldInactivateCategory(Category category)
+    {
+        category.Inactivate();
+
+        category.Active.Should().BeFalse();
     }
 }

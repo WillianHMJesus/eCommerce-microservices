@@ -1,6 +1,6 @@
 ﻿namespace EM.Catalog.Application.Products.Models;
 
-public sealed record AddProductRequest
+public sealed record ProductRequest
 {
     public string Name { get; set; } = ""!;
     public string Description { get; set; } = ""!;

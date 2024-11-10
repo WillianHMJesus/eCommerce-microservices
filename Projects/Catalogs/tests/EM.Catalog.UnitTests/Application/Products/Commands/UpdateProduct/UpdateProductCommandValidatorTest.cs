@@ -1,8 +1,10 @@
 ﻿using AutoFixture;
 using AutoFixture.AutoMoq;
 using AutoFixture.Xunit2;
+using EM.Catalog.Application.Categories.Validations;
 using EM.Catalog.Application.Products.Commands.AddProduct;
 using EM.Catalog.Application.Products.Commands.UpdateProduct;
+using EM.Catalog.Application.Products.Validations;
 using EM.Catalog.Domain.Entities;
 using EM.Catalog.Domain.Interfaces;
 using EM.Catalog.UnitTests.CustomAutoData;
@@ -22,14 +24,9 @@ public sealed class UpdateProductCommandValidatorTest
 
     [Theory, AutoProductData]
     public async Task Constructor_ValidUpdateProductCommand_ShouldReturnValidResult(
-        [Frozen] Mock<IReadRepository> repositoryMock,
         UpdateProductCommandValidator sut,
         UpdateProductCommand command)
     {
-        repositoryMock
-            .Setup(x => x.GetProductsByNameAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new List<Product>());
-
         ValidationResult result = await sut.ValidateAsync(command);
 
         result.IsValid.Should().BeTrue();
@@ -48,23 +45,6 @@ public sealed class UpdateProductCommandValidatorTest
 
         result.IsValid.Should().BeFalse();
         result.Errors.Should().Contain(x => x.ErrorMessage == Key.ProductInvalidId);
-    }
-
-    [Theory, AutoProductData]
-    public async Task Constructor_UpdateProductCommandIdNotFound_ShouldReturnInvalidResult(
-        [Frozen] Mock<IReadRepository> repositoryMock,
-        UpdateProductCommandValidator sut,
-        UpdateProductCommand command)
-    {
-        Product? product = null;
-        repositoryMock
-            .Setup(x => x.GetProductByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(product);
-
-        ValidationResult result = await sut.ValidateAsync(command);
-
-        result.IsValid.Should().BeFalse();
-        result.Errors.Should().Contain(x => x.ErrorMessage == Key.ProductNotFound);
     }
 
     [Theory, AutoProductData]
@@ -194,10 +174,31 @@ public sealed class UpdateProductCommandValidatorTest
     }
 
     [Theory, AutoProductData]
-    public async Task Constructor_DuplicityUpdateProductCommand_ShouldReturnInvalidResult(
+    public async Task Constructor_UpdateProductCommandIdNotFound_ShouldReturnInvalidResult(
+        [Frozen] Mock<IProductValidations> validationsMock,
         UpdateProductCommandValidator sut,
         UpdateProductCommand command)
     {
+        validationsMock
+            .Setup(x => x.ValidateProductIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(false);
+
+        ValidationResult result = await sut.ValidateAsync(command);
+
+        result.IsValid.Should().BeFalse();
+        result.Errors.Should().Contain(x => x.ErrorMessage == Key.ProductNotFound);
+    }
+
+    [Theory, AutoProductData]
+    public async Task Constructor_DuplicityUpdateProductCommand_ShouldReturnInvalidResult(
+        [Frozen] Mock<IProductValidations> validationsMock,
+        UpdateProductCommandValidator sut,
+        UpdateProductCommand command)
+    {
+        validationsMock
+            .Setup(x => x.ValidateDuplicityAsync(It.IsAny<UpdateProductCommand>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(false);
+
         ValidationResult result = await sut.ValidateAsync(command);
 
         result.IsValid.Should().BeFalse();
@@ -205,40 +206,14 @@ public sealed class UpdateProductCommandValidatorTest
     }
 
     [Theory, AutoProductData]
-    public async Task Constructor_NotDuplicityUpdateProductCommand_ShouldReturnValidResult(
-        [Frozen] Mock<IReadRepository> repositoryMock,
-        UpdateProductCommandValidator sut)
-    {
-        List<Product> products = new List<Product>() { _fixture.Create<Product>() };
-        repositoryMock
-            .Setup(x => x.GetProductsByNameAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(products);
-
-        UpdateProductCommand command = _fixture.Build<UpdateProductCommand>()
-            .With(x => x.Id, products[0].Id)
-            .Create();
-
-        ValidationResult result = await sut.ValidateAsync(command);
-
-        result.IsValid.Should().BeTrue();
-        result.Errors.Should().BeEmpty();
-    }
-
-    [Theory, AutoProductData]
     public async Task Constructor_NotFoundUpdateProductCommandCategoryId_ShouldReturnInvalidResult(
-        [Frozen] Mock<IReadRepository> repositoryMock,
+        [Frozen] Mock<ICategoryValidations> validationsMock,
         UpdateProductCommandValidator sut,
         UpdateProductCommand command)
     {
-        Category? category = null;
-
-        repositoryMock
-            .Setup(x => x.GetProductsByNameAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new List<Product>());
-
-        repositoryMock
-            .Setup(x => x.GetCategoryByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(category);
+        validationsMock
+            .Setup(x => x.ValidateCategoryIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(false);
 
         ValidationResult result = await sut.ValidateAsync(command);
 

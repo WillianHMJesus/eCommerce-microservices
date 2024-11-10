@@ -21,7 +21,8 @@ public sealed class GetCategoryByIdQueryHandler : IQueryHandler<GetCategoryByIdQ
 
     public async Task<CategoryDTO?> Handle(GetCategoryByIdQuery query, CancellationToken cancellationToken)
     {
-        Category? category = await _readRepository.GetCategoryByIdAsync(query.Id, cancellationToken);
+        Category? category = 
+            await _readRepository.GetCategoryByIdAsync(query.Id, cancellationToken);
         
         return _mapper.Map<CategoryDTO?>(category);
     }

@@ -1,7 +1,5 @@
-﻿using AutoFixture;
-using AutoFixture.Xunit2;
+﻿using AutoFixture.Xunit2;
 using EM.Catalog.Application.Categories.Commands.AddCategory;
-using EM.Catalog.Application.Categories.Commands.UpdateCategory;
 using EM.Catalog.Application.Categories.Models;
 using EM.Catalog.IntegrationTests.Fixtures;
 using EM.Catalog.IntegrationTests.Helpers;
@@ -20,30 +18,27 @@ namespace EM.Catalog.IntegrationTests.API.Controllers;
 public sealed class CategoriesControllerTest : IClassFixture<IntegrationTestWebAppFactory>
 {
     private readonly CategoryFixture _categoryFixture;
-    private readonly IFixture _fixture;
     private readonly HttpClient _client;
-    private readonly HttpResponseMessageHelper _helper;
 
     public CategoriesControllerTest(
         IntegrationTestWebAppFactory factory,
         CategoryFixture categoryFixture)
     {
         _categoryFixture = categoryFixture;
-        _fixture = new Fixture();
         _client = factory.CreateClient();
-        _helper = new HttpResponseMessageHelper();
     }
 
     [Fact, Priority(0)]
     public async Task AddAsync_ValidCategory_ShouldReturnSuccess()
     {
         //Arrange
-        AddCategoryCommand command = _categoryFixture.GenerateValidAddCategoryCommandWithTheSameValue();
-        StringContent content = new(JsonSerializer.Serialize(command), Encoding.UTF8, "application/json");
+        CategoryRequest request = _categoryFixture.GenerateValidCategoryRequestWithTheSameValue();
+        StringContent content = new(JsonSerializer.Serialize(request), Encoding.UTF8, "application/json");
 
         //Act
         HttpResponseMessage response = await _client.PostAsync("/api/categories", content);
-        AddApiResponse? result = await _helper.DeserializeToObject<AddApiResponse>(response);
+        string responseBody = await response.Content.ReadAsStringAsync();
+        AddApiResponse? result = JsonConvert.DeserializeToObject<AddApiResponse>(responseBody);
         _categoryFixture.CategoryId = result?.Id;
 
         //Assert
@@ -54,12 +49,13 @@ public sealed class CategoriesControllerTest : IClassFixture<IntegrationTestWebA
     public async Task AddAsync_DuplicityCategory_ShouldReturnFailure()
     {
         //Arrange
-        AddCategoryCommand command = _categoryFixture.GenerateValidAddCategoryCommandWithTheSameValue();
-        StringContent content = new(JsonSerializer.Serialize(command), Encoding.UTF8, "application/json");
+        CategoryRequest request = _categoryFixture.GenerateValidCategoryRequestWithTheSameValue();
+        StringContent content = new(JsonSerializer.Serialize(request), Encoding.UTF8, "application/json");
 
         //Act
         HttpResponseMessage response = await _client.PostAsync("/api/categories", content);
-        IEnumerable<Error>? errors = await _helper.DeserializeToObject<IEnumerable<Error>>(response);
+        string responseBody = await response.Content.ReadAsStringAsync();
+        IEnumerable<Error>? errors = JsonConvert.DeserializeToObject<IEnumerable<Error>>(responseBody);
 
         //Assert
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
@@ -70,12 +66,13 @@ public sealed class CategoriesControllerTest : IClassFixture<IntegrationTestWebA
     public async Task AddAsync_InvalidCategory_ShouldReturnFailure()
     {
         //Arrange
-        AddCategoryCommand command = new(0, "", "");
-        StringContent content = new(JsonSerializer.Serialize(command), Encoding.UTF8, "application/json");
+        CategoryRequest request = new() { Code = 0, Name = "", Description = "" };
+        StringContent content = new(JsonSerializer.Serialize(request), Encoding.UTF8, "application/json");
 
         //Act
         HttpResponseMessage response = await _client.PostAsync("/api/categories", content);
-        IEnumerable<Error>? errors = await _helper.DeserializeToObject<IEnumerable<Error>>(response);
+        string responseBody = await response.Content.ReadAsStringAsync();
+        IEnumerable<Error>? errors = JsonConvert.DeserializeToObject<IEnumerable<Error>>(responseBody);
 
         //Assert
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
@@ -84,17 +81,14 @@ public sealed class CategoriesControllerTest : IClassFixture<IntegrationTestWebA
         errors.Should().Contain(x => x.Message == "A descrição da categoria não pode ser vazio ou nulo.");
     }
 
-    [Fact, Priority(3)]
-    public async Task UpdateAsync_ValidCategory_ShouldReturnSuccess()
+    [Theory, AutoData, Priority(3)]
+    public async Task UpdateAsync_ValidCategory_ShouldReturnSuccess(CategoryRequest request)
     {
         //Arrange
-        UpdateCategoryCommand command = _fixture.Build<UpdateCategoryCommand>()
-            .With(x => x.Id, _categoryFixture.CategoryId)
-            .Create();
-        StringContent content = new(JsonSerializer.Serialize(command), Encoding.UTF8, "application/json");
+        StringContent content = new(JsonSerializer.Serialize(request), Encoding.UTF8, "application/json");
 
         //Act
-        HttpResponseMessage response = await _client.PutAsync("/api/categories", content);
+        HttpResponseMessage response = await _client.PutAsync($"/api/categories/{_categoryFixture.CategoryId}", content);
 
         //Assert
         response.EnsureSuccessStatusCode();
@@ -104,13 +98,13 @@ public sealed class CategoriesControllerTest : IClassFixture<IntegrationTestWebA
     public async Task UpdateAsync_DuplicityCategory_ShouldReturnFailure()
     {
         //Arrange
-        AddCategoryCommand addCommand = _categoryFixture.GenerateValidAddCategoryCommandWithTheSameValue();
-        UpdateCategoryCommand command = new(Guid.NewGuid(), addCommand.Code, addCommand.Name, addCommand.Description);
-        StringContent content = new(JsonSerializer.Serialize(command), Encoding.UTF8, "application/json");
+        CategoryRequest request = _categoryFixture.GenerateValidCategoryRequestWithTheSameValue();
+        StringContent content = new(JsonSerializer.Serialize(request), Encoding.UTF8, "application/json");
 
         //Act
-        HttpResponseMessage response = await _client.PutAsync("/api/categories", content);
-        IEnumerable<Error>? errors = await _helper.DeserializeToObject<IEnumerable<Error>>(response);
+        HttpResponseMessage response = await _client.PutAsync($"/api/categories/{Guid.NewGuid()}", content);
+        string responseBody = await response.Content.ReadAsStringAsync();
+        IEnumerable<Error>? errors = JsonConvert.DeserializeToObject<IEnumerable<Error>>(responseBody);
 
         //Assert
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
@@ -118,14 +112,15 @@ public sealed class CategoriesControllerTest : IClassFixture<IntegrationTestWebA
     }
 
     [Theory, AutoData, Priority(2)]
-    public async Task UpdateAsync_CategoryNotFound_ShouldReturnFailure(UpdateCategoryCommand command)
+    public async Task UpdateAsync_CategoryNotFound_ShouldReturnFailure(CategoryRequest request)
     {
         //Arrange
-        StringContent content = new(JsonSerializer.Serialize(command), Encoding.UTF8, "application/json");
+        StringContent content = new(JsonSerializer.Serialize(request), Encoding.UTF8, "application/json");
 
         //Act
-        HttpResponseMessage response = await _client.PutAsync("/api/categories", content);
-        IEnumerable<Error>? errors = await _helper.DeserializeToObject<IEnumerable<Error>>(response);
+        HttpResponseMessage response = await _client.PutAsync($"/api/categories/{Guid.NewGuid()}", content);
+        string responseBody = await response.Content.ReadAsStringAsync();
+        IEnumerable<Error>? errors = JsonConvert.DeserializeToObject<IEnumerable<Error>>(responseBody);
 
         //Assert
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
@@ -136,12 +131,13 @@ public sealed class CategoriesControllerTest : IClassFixture<IntegrationTestWebA
     public async Task UpdateAsync_InvalidCategory_ShouldReturnFailure()
     {
         //Arrange
-        UpdateCategoryCommand command = new(Guid.Empty, 0, "", "");
-        StringContent content = new(JsonSerializer.Serialize(command), Encoding.UTF8, "application/json");
+        CategoryRequest request = new() { Code = 0, Name = "", Description = "" };
+        StringContent content = new(JsonSerializer.Serialize(request), Encoding.UTF8, "application/json");
 
         //Act
-        HttpResponseMessage response = await _client.PutAsync("/api/categories", content);
-        IEnumerable<Error>? errors = await _helper.DeserializeToObject<IEnumerable<Error>>(response);
+        HttpResponseMessage response = await _client.PutAsync($"/api/categories/{Guid.Empty}", content);
+        string responseBody = await response.Content.ReadAsStringAsync();
+        IEnumerable<Error>? errors = JsonConvert.DeserializeToObject<IEnumerable<Error>>(responseBody);
 
         //Assert
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
@@ -156,7 +152,8 @@ public sealed class CategoriesControllerTest : IClassFixture<IntegrationTestWebA
     {
         //Act
         HttpResponseMessage response = await _client.GetAsync($"/api/categories/{_categoryFixture.CategoryId}");
-        CategoryDTO? category = await _helper.DeserializeToObject<CategoryDTO> (response);
+        string responseBody = await response.Content.ReadAsStringAsync();
+        CategoryDTO? category = JsonConvert.DeserializeToObject<CategoryDTO>(responseBody);
 
         //Assert
         category.Should().NotBeNull();
@@ -173,7 +170,7 @@ public sealed class CategoriesControllerTest : IClassFixture<IntegrationTestWebA
     }
 
     [Fact, Priority(4)]
-    public async Task GetByIdAsync_IdNotFound_ShouldReturnNoContent()
+    public async Task GetByIdAsync_CategoryNotFound_ShouldReturnNoContent()
     {
         //Act
         HttpResponseMessage response = await _client.GetAsync($"/api/categories/{Guid.NewGuid()}");
@@ -183,14 +180,62 @@ public sealed class CategoriesControllerTest : IClassFixture<IntegrationTestWebA
     }
 
     [Fact, Priority(4)]
-    public async Task GetAllAsync_ValidRequest_ShouldReturnCategory()
+    public async Task GetAllAsync_ValidRequest_ShouldReturnCategories()
     {
         //Act
         HttpResponseMessage response = await _client.GetAsync($"/api/categories");
-        IEnumerable<CategoryDTO> categories = await _helper.DeserializeToObject<IEnumerable<CategoryDTO>>(response) 
-            ?? Enumerable.Empty<CategoryDTO>();
+        string responseBody = await response.Content.ReadAsStringAsync();
+        IEnumerable<CategoryDTO>? categories = JsonConvert.DeserializeToObject<IEnumerable<CategoryDTO>>(responseBody);
 
         //Assert
         categories.Should().Contain(x => x.Id == _categoryFixture.CategoryId);
+    }
+
+    [Fact, Priority(6)]
+    public async Task DeleteAsync_ValidId_ShouldReturnNoContent()
+    {
+        //Act
+        HttpResponseMessage response = await _client.DeleteAsync($"/api/categories/{_categoryFixture.CategoryId}");
+
+        //Assert
+        response.EnsureSuccessStatusCode();
+    }
+
+    [Fact, Priority(5)]
+    public async Task DeleteAsync_InvalidId_ShouldReturnFailure()
+    {
+        //Act
+        HttpResponseMessage response = await _client.DeleteAsync($"/api/categories/{Guid.Empty}");
+        string responseBody = await response.Content.ReadAsStringAsync();
+        IEnumerable<Error>? errors = JsonConvert.DeserializeToObject<IEnumerable<Error>>(responseBody);
+
+        //Assert
+        //Assert
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        errors.Should().Contain(x => x.Message == "O id da categoria não pode ser inválido.");
+    }
+
+    [Fact, Priority(5)]
+    public async Task DeleteAsync_CategoryNotFound_ShouldReturnFailure()
+    {
+        //Act
+        HttpResponseMessage response = await _client.DeleteAsync($"/api/categories/{Guid.NewGuid()}");
+        string responseBody = await response.Content.ReadAsStringAsync();
+        IEnumerable<Error>? errors = JsonConvert.DeserializeToObject<IEnumerable<Error>>(responseBody);
+
+        //Assert
+        //Assert
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        errors.Should().Contain(x => x.Message == "Categoria não encontrada.");
+    }
+
+    [Fact, Priority(7)]
+    public async Task GetByIdAsync_CategoryDeleted_ShouldReturnNoContent()
+    {
+        //Act
+        HttpResponseMessage response = await _client.GetAsync($"/api/categories/{_categoryFixture.CategoryId}");
+
+        //Assert
+        response.StatusCode.Should().Be(HttpStatusCode.NoContent);
     }
 }

@@ -21,7 +21,8 @@ public sealed class GetProductByIdQueryHandler : IQueryHandler<GetProductByIdQue
 
     public async Task<ProductDTO?> Handle(GetProductByIdQuery query, CancellationToken cancellationToken)
     {
-        Product? product = await _readRepository.GetProductByIdAsync(query.Id, cancellationToken);
+        Product? product = 
+            await _readRepository.GetProductByIdAsync(query.Id, cancellationToken);
 
         return _mapper.Map<ProductDTO?>(product);
     }

@@ -25,6 +25,6 @@ public sealed class ProductUpdatedEventHandlerTest
 
         await sut.Handle(_event, CancellationToken.None);
 
-        repositoryMock.Verify(x => x.UpdateProductAsync(It.IsAny<Product>(), It.IsAny<CancellationToken>()));
+        repositoryMock.Verify(x => x.UpdateProductAsync(It.IsAny<Product>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 }

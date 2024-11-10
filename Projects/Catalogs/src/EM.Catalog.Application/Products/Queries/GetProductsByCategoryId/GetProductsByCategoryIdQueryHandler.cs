@@ -21,7 +21,8 @@ public sealed class GetProductsByCategoryIdQueryHandler : IQueryHandler<GetProdu
 
     public async Task<IEnumerable<ProductDTO>> Handle(GetProductsByCategoryIdQuery query, CancellationToken cancellationToken)
     {
-        IEnumerable<Product> products = await _readRepository.GetProductsByCategoryIdAsync(query.CategoryId, cancellationToken);
+        IEnumerable<Product> products = 
+            await _readRepository.GetProductsByCategoryIdAsync(query.CategoryId, query.Page, query.PageSize, cancellationToken);
 
         return _mapper.Map<IEnumerable<ProductDTO>>(products);
     }

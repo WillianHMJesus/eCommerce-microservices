@@ -8,6 +8,8 @@ using FluentValidation;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using MongoDB.Driver;
+using EM.Catalog.Application.Categories.Validations;
+using EM.Catalog.Application.Products.Validations;
 
 namespace EM.Catalog.API;
 
@@ -19,6 +21,9 @@ public static class Extension
         services.AddAutoMapper(AssemblyReference.Assembly);
         services.AddValidatorsFromAssembly(AssemblyReference.Assembly);
         services.AddScoped(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
+
+        services.AddScoped<ICategoryValidations,  CategoryValidations>();
+        services.AddScoped<IProductValidations, ProductValidations>();
 
         services.AddDbContext<WriteCatalogContext>(options => options.UseSqlServer(configuration.GetConnectionString("catalog")));
         services.AddScoped<IMongoClient>(provider =>

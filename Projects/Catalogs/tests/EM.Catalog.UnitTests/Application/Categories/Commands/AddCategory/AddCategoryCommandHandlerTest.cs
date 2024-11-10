@@ -16,20 +16,16 @@ public sealed class AddCategoryCommandHandlerTest
 {
     [Theory, AutoCategoryData]
     public async Task Handle_ValidCommit_ShouldReturnWithSuccess(
-        [Frozen] Mock<IWriteRepository> repositoryMock,
+        [Frozen] Mock<IWriteRepository> writeRepository,
         [Frozen] Mock<IUnitOfWork> unitOfWorkMock,
         [Frozen] Mock<IMediator> mediatorMock,
         AddCategoryCommandHandler sut,
         AddCategoryCommand command,
         Category category)
     {
-        unitOfWorkMock
-            .Setup(x => x.CommitAsync(It.IsAny<CancellationToken>()))
-            .ReturnsAsync(true);
-
         Result result = await sut.Handle(command, CancellationToken.None);
 
-        repositoryMock.Verify(x => x.AddCategoryAsync(It.IsAny<Category>(), It.IsAny<CancellationToken>()), Times.Once);
+        writeRepository.Verify(x => x.AddCategoryAsync(It.IsAny<Category>(), It.IsAny<CancellationToken>()), Times.Once);
         unitOfWorkMock.Verify(x => x.CommitAsync(It.IsAny<CancellationToken>()), Times.Once);
         mediatorMock.Verify(x => x.Publish(It.IsAny<CategoryAddedEvent>(), It.IsAny<CancellationToken>()), Times.Once);
         result.Success.Should().BeTrue();
@@ -37,8 +33,8 @@ public sealed class AddCategoryCommandHandlerTest
     }
 
     [Theory, AutoCategoryData]
-    public async Task Handle_InvalidCommit_ShouldThrowDomainException(
-        [Frozen] Mock<IWriteRepository> repositoryMock,
+    public async Task Handle_InvalidCommit_ShouldReturnWithFailure(
+        [Frozen] Mock<IWriteRepository> writeRepository,
         [Frozen] Mock<IUnitOfWork> unitOfWorkMock,
         [Frozen] Mock<IMediator> mediatorMock,
         AddCategoryCommandHandler sut,
@@ -50,7 +46,7 @@ public sealed class AddCategoryCommandHandlerTest
 
         Result result = await sut.Handle(command, CancellationToken.None);
 
-        repositoryMock.Verify(x => x.AddCategoryAsync(It.IsAny<Category>(), It.IsAny<CancellationToken>()), Times.Once);
+        writeRepository.Verify(x => x.AddCategoryAsync(It.IsAny<Category>(), It.IsAny<CancellationToken>()), Times.Once);
         unitOfWorkMock.Verify(x => x.CommitAsync(It.IsAny<CancellationToken>()), Times.Once);
         mediatorMock.Verify(x => x.Publish(It.IsAny<CategoryAddedEvent>(), It.IsAny<CancellationToken>()), Times.Never);
         result.Success.Should().BeFalse();

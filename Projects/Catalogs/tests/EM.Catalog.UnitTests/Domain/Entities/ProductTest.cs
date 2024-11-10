@@ -189,4 +189,12 @@ public sealed class ProductTest
         domainException.Should().NotBeNull();
         domainException.Message.Should().Be(Key.ProductQuantityDebitedLargerThanAvailable);
     }
+
+    [Theory, AutoData]
+    public void Inactivate_ValidProduct_ShouldInactivateProduct(Product product)
+    {
+        product.Inactivate();
+
+        product.Active.Should().BeFalse();
+    }
 }

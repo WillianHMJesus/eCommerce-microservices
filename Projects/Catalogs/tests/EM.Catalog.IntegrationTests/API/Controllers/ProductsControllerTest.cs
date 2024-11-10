@@ -23,8 +23,6 @@ public sealed class ProductsControllerTest : IClassFixture<IntegrationTestWebApp
     private readonly ProductFixture _productFixture;
     private readonly IFixture _fixture;
     private readonly HttpClient _client;
-    private readonly HttpResponseMessageHelper _helper;
-    private readonly Guid _categoryId;
 
     public ProductsControllerTest(
         IntegrationTestWebAppFactory factory,
@@ -33,29 +31,32 @@ public sealed class ProductsControllerTest : IClassFixture<IntegrationTestWebApp
         _productFixture = productFixture;
         _fixture = new Fixture();
         _client = factory.CreateClient();
-        _helper = new HttpResponseMessageHelper();
-        _categoryId = GetCategoryIdAsync().GetAwaiter().GetResult() ?? Guid.NewGuid();
     }
 
-    private async Task<Guid?> GetCategoryIdAsync()
+    private async Task<Guid> GetCategoryIdAsync()
     {
-        HttpResponseMessage response = await _client.GetAsync($"/api/categories");
-        IEnumerable<CategoryDTO> categories = await _helper.DeserializeToObject<IEnumerable<CategoryDTO>>(response)
-            ?? Enumerable.Empty<CategoryDTO>();
+        CategoryRequest request = _productFixture.GenerateValidCategoryRequest();
+        StringContent content = new(JsonSerializer.Serialize(request), Encoding.UTF8, "application/json");
 
-        return categories.FirstOrDefault()?.Id;
+        HttpResponseMessage response = await _client.PostAsync("/api/categories", content);
+        string responseBody = await response.Content.ReadAsStringAsync();
+        AddApiResponse? result = JsonConvert.DeserializeToObject<AddApiResponse>(responseBody);
+
+        return result?.Id ?? Guid.NewGuid();
     }
 
     [Fact, Priority(0)]
     public async Task AddAsync_ValidProduct_ShouldReturnSuccess()
     {
         //Arrange
-        AddProductCommand command = _productFixture.GenerateValidAddProductCommandWithTheSameValue(_categoryId);
-        StringContent content = new(JsonSerializer.Serialize(command), Encoding.UTF8, "application/json");
+        _productFixture.CategoryId = await GetCategoryIdAsync();
+        ProductRequest request = _productFixture.GenerateValidProductRequestWithTheSameValue(_productFixture.CategoryId);
+        StringContent content = new(JsonSerializer.Serialize(request), Encoding.UTF8, "application/json");
 
         //Act
         HttpResponseMessage response = await _client.PostAsync("/api/products", content);
-        AddApiResponse? result = await _helper.DeserializeToObject<AddApiResponse>(response);
+        string responseBody = await response.Content.ReadAsStringAsync();
+        AddApiResponse? result = JsonConvert.DeserializeToObject<AddApiResponse>(responseBody);
         _productFixture.ProductId = result?.Id;
 
         //Assert
@@ -66,12 +67,13 @@ public sealed class ProductsControllerTest : IClassFixture<IntegrationTestWebApp
     public async Task AddAsync_DuplicityProduct_ShouldReturnFailure()
     {
         //Arrange
-        AddProductCommand command = _productFixture.GenerateValidAddProductCommandWithTheSameValue(Guid.NewGuid());
-        StringContent content = new(JsonSerializer.Serialize(command), Encoding.UTF8, "application/json");
+        ProductRequest request = _productFixture.GenerateValidProductRequestWithTheSameValue(Guid.NewGuid());
+        StringContent content = new(JsonSerializer.Serialize(request), Encoding.UTF8, "application/json");
 
         //Act
         HttpResponseMessage response = await _client.PostAsync("/api/products", content);
-        IEnumerable<Error>? errors = await _helper.DeserializeToObject<IEnumerable<Error>>(response);
+        string responseBody = await response.Content.ReadAsStringAsync();
+        IEnumerable<Error>? errors = JsonConvert.DeserializeToObject<IEnumerable<Error>>(responseBody);
 
         //Assert
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
@@ -82,12 +84,13 @@ public sealed class ProductsControllerTest : IClassFixture<IntegrationTestWebApp
     public async Task AddAsync_InvalidProduct_ShouldReturnFailure()
     {
         //Arrange
-        AddProductCommand command = new("", "", 0, 0, "", Guid.Empty);
-        StringContent content = new(JsonSerializer.Serialize(command), Encoding.UTF8, "application/json");
+        ProductRequest request = new() { Name = "", Description = "", Value = 0, Quantity = 0, Image = "", CategoryId = Guid.Empty };
+        StringContent content = new(JsonSerializer.Serialize(request), Encoding.UTF8, "application/json");
 
         //Act
         HttpResponseMessage response = await _client.PostAsync("/api/products", content);
-        IEnumerable<Error>? errors = await _helper.DeserializeToObject<IEnumerable<Error>>(response);
+        string responseBody = await response.Content.ReadAsStringAsync();
+        IEnumerable<Error>? errors = JsonConvert.DeserializeToObject<IEnumerable<Error>>(responseBody);
 
         //Assert
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
@@ -100,14 +103,15 @@ public sealed class ProductsControllerTest : IClassFixture<IntegrationTestWebApp
     }
 
     [Theory, Priority(1), AutoData]
-    public async Task AddAsync_CategoryNotFound_ShouldReturnFailure(AddProductCommand command)
+    public async Task AddAsync_CategoryNotFound_ShouldReturnFailure(ProductRequest request)
     {
         //Arrange
-        StringContent content = new(JsonSerializer.Serialize(command), Encoding.UTF8, "application/json");
+        StringContent content = new(JsonSerializer.Serialize(request), Encoding.UTF8, "application/json");
 
         //Act
         HttpResponseMessage response = await _client.PostAsync("/api/products", content);
-        IEnumerable<Error>? errors = await _helper.DeserializeToObject<IEnumerable<Error>>(response);
+        string responseBody = await response.Content.ReadAsStringAsync();
+        IEnumerable<Error>? errors = JsonConvert.DeserializeToObject<IEnumerable<Error>>(responseBody);
 
         //Assert
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
@@ -118,14 +122,11 @@ public sealed class ProductsControllerTest : IClassFixture<IntegrationTestWebApp
     public async Task UpdateAsync_ValidProduct_ShouldReturnSuccess()
     {
         //Arrange
-        UpdateProductCommand command = _fixture.Build<UpdateProductCommand>()
-            .With(x => x.Id, _productFixture.ProductId)
-            .With(x => x.CategoryId, _categoryId)
-            .Create();
-        StringContent content = new(JsonSerializer.Serialize(command), Encoding.UTF8, "application/json");
+        ProductRequest request = _productFixture.GenerateValidProductRequestWithTheSameValue(_productFixture.CategoryId);
+        StringContent content = new(JsonSerializer.Serialize(request), Encoding.UTF8, "application/json");
 
         //Act
-        HttpResponseMessage response = await _client.PutAsync("/api/products", content);
+        HttpResponseMessage response = await _client.PutAsync($"/api/products/{_productFixture.ProductId}", content);
 
         //Assert
         response.EnsureSuccessStatusCode();
@@ -135,15 +136,13 @@ public sealed class ProductsControllerTest : IClassFixture<IntegrationTestWebApp
     public async Task UpdateAsync_DuplicityProduct_ShouldReturnFailure()
     {
         //Arrange
-        AddProductCommand addCommand = _productFixture.GenerateValidAddProductCommandWithTheSameValue(_categoryId);
-        UpdateProductCommand command = _fixture.Build<UpdateProductCommand>()
-            .With(x => x.Name, addCommand.Name)
-            .Create();
-        StringContent content = new(JsonSerializer.Serialize(command), Encoding.UTF8, "application/json");
+        ProductRequest request = _productFixture.GenerateValidProductRequestWithTheSameValue(_productFixture.CategoryId);
+        StringContent content = new(JsonSerializer.Serialize(request), Encoding.UTF8, "application/json");
 
         //Act
-        HttpResponseMessage response = await _client.PutAsync("/api/products", content);
-        IEnumerable<Error>? errors = await _helper.DeserializeToObject<IEnumerable<Error>>(response);
+        HttpResponseMessage response = await _client.PutAsync($"/api/products/{Guid.NewGuid()}", content);
+        string responseBody = await response.Content.ReadAsStringAsync();
+        IEnumerable<Error>? errors = JsonConvert.DeserializeToObject<IEnumerable<Error>>(responseBody);
 
         //Assert
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
@@ -151,14 +150,15 @@ public sealed class ProductsControllerTest : IClassFixture<IntegrationTestWebApp
     }
 
     [Theory, AutoData, Priority(2)]
-    public async Task UpdateAsync_ProductNotFound_ShouldReturnFailure(UpdateProductCommand command)
+    public async Task UpdateAsync_ProductNotFound_ShouldReturnFailure(ProductRequest request)
     {
         //Arrange
-        StringContent content = new(JsonSerializer.Serialize(command), Encoding.UTF8, "application/json");
+        StringContent content = new(JsonSerializer.Serialize(request), Encoding.UTF8, "application/json");
 
         //Act
-        HttpResponseMessage response = await _client.PutAsync("/api/products", content);
-        IEnumerable<Error>? errors = await _helper.DeserializeToObject<IEnumerable<Error>>(response);
+        HttpResponseMessage response = await _client.PutAsync($"/api/products/{Guid.NewGuid()}", content);
+        string responseBody = await response.Content.ReadAsStringAsync();
+        IEnumerable<Error>? errors = JsonConvert.DeserializeToObject<IEnumerable<Error>>(responseBody);
 
         //Assert
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
@@ -169,12 +169,13 @@ public sealed class ProductsControllerTest : IClassFixture<IntegrationTestWebApp
     public async Task UpdateAsync_InvalidProduct_ShouldReturnFailure()
     {
         //Arrange
-        UpdateProductCommand command = new(Guid.Empty, "", "", 0, 0, "", false, Guid.Empty);
-        StringContent content = new(JsonSerializer.Serialize(command), Encoding.UTF8, "application/json");
+        ProductRequest request = new() { Name = "", Description = "", Value = 0, Quantity = 0, Image = "", CategoryId = Guid.Empty };
+        StringContent content = new(JsonSerializer.Serialize(request), Encoding.UTF8, "application/json");
 
         //Act
-        HttpResponseMessage response = await _client.PutAsync("/api/products", content);
-        IEnumerable<Error>? errors = await _helper.DeserializeToObject<IEnumerable<Error>>(response);
+        HttpResponseMessage response = await _client.PutAsync($"/api/products/{Guid.Empty}", content);
+        string responseBody = await response.Content.ReadAsStringAsync();
+        IEnumerable<Error>? errors = JsonConvert.DeserializeToObject<IEnumerable<Error>>(responseBody);
 
         //Assert
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
@@ -192,7 +193,8 @@ public sealed class ProductsControllerTest : IClassFixture<IntegrationTestWebApp
     {
         //Act
         HttpResponseMessage response = await _client.GetAsync($"/api/products/{_productFixture.ProductId}");
-        ProductDTO? product = await _helper.DeserializeToObject<ProductDTO?>(response);
+        string responseBody = await response.Content.ReadAsStringAsync();
+        ProductDTO? product = JsonConvert.DeserializeToObject<ProductDTO?>(responseBody);
 
         //Assert
         product.Should().NotBeNull();
@@ -221,17 +223,188 @@ public sealed class ProductsControllerTest : IClassFixture<IntegrationTestWebApp
     [Theory, Priority(4)]
     [InlineData("/api/products")]
     [InlineData("/api/products/category/{0}")]
-    public async Task GetAsync_ValidRequest_ShouldReturnProduct(string requestUri)
+    public async Task GetAsync_ValidRequest_ShouldReturnProducts(string requestUri)
     {
         //Arrange
-        requestUri = string.Format(requestUri, _categoryId);
+        requestUri = string.Format(requestUri, _productFixture.CategoryId);
 
         //Act
         HttpResponseMessage response = await _client.GetAsync(requestUri);
-        IEnumerable<ProductDTO> products = await _helper.DeserializeToObject<IEnumerable<ProductDTO>>(response)
-            ?? Enumerable.Empty<ProductDTO>();
+        string responseBody = await response.Content.ReadAsStringAsync();
+        IEnumerable<ProductDTO>? products = JsonConvert.DeserializeToObject<IEnumerable<ProductDTO>>(responseBody);
 
         //Assert
         products.Should().Contain(x => x.Id == _productFixture.ProductId);
+    }
+
+    [Fact, Priority(4)]
+    public async Task SearchAsync_ValidRequest_ShouldReturnProducts()
+    {
+        //Arrange
+        ProductRequest request = _productFixture.GenerateValidProductRequestWithTheSameValue(Guid.NewGuid());
+
+        //Act
+        HttpResponseMessage response = await _client.GetAsync($"/api/products/search/{request.Name}");
+        string responseBody = await response.Content.ReadAsStringAsync();
+        IEnumerable<ProductDTO>? products = JsonConvert.DeserializeToObject<IEnumerable<ProductDTO>>(responseBody);
+
+        //Assert
+        products.Should().Contain(x => x.Id == _productFixture.ProductId);
+    }
+
+    [Fact, Priority(6)]
+    public async Task MakeUnavailableAsync_ValidId_ShouldReturnNoContent()
+    {
+        //Act
+        HttpResponseMessage response = await _client.PatchAsync($"/api/products/make-unavailable/{_productFixture.ProductId}", null);
+
+        //Assert
+        response.EnsureSuccessStatusCode();
+    }
+
+    [Fact, Priority(5)]
+    public async Task MakeUnavailableAsync_InvalidId_ShouldReturnFailure()
+    {
+        //Act
+        HttpResponseMessage response = await _client.PatchAsync($"/api/products/make-unavailable/{Guid.Empty}", null);
+        string responseBody = await response.Content.ReadAsStringAsync();
+        IEnumerable<Error>? errors = JsonConvert.DeserializeToObject<IEnumerable<Error>>(responseBody);
+
+        //Assert
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        errors.Should().Contain(x => x.Message == "O id do produto não pode ser inválido.");
+    }
+
+    [Fact, Priority(5)]
+    public async Task MakeUnavailableAsync_ProductNotFound_ShouldReturnFailure()
+    {
+        //Act
+        HttpResponseMessage response = await _client.PatchAsync($"/api/products/make-unavailable/{Guid.NewGuid()}", null);
+        string responseBody = await response.Content.ReadAsStringAsync();
+        IEnumerable<Error>? errors = JsonConvert.DeserializeToObject<IEnumerable<Error>>(responseBody);
+
+        //Assert
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        errors.Should().Contain(x => x.Message == "Produto não encontrado.");
+    }
+
+    [Fact, Priority(7)]
+    public async Task UpdateAsync_ProductUnavailable_ShouldReturnSuccess()
+    {
+        //Arrange
+        ProductRequest request = _productFixture.GenerateValidProductRequestWithTheSameValue(_productFixture.CategoryId);
+        StringContent content = new(JsonSerializer.Serialize(request), Encoding.UTF8, "application/json");
+
+        //Act
+        HttpResponseMessage response = await _client.PutAsync($"/api/products/{_productFixture.ProductId}", content);
+
+        //Assert
+        response.EnsureSuccessStatusCode();
+    }
+
+    [Fact, Priority(8)]
+    public async Task GetByIdAsync_ProductUnavailable_ShouldReturnProductUnavailable()
+    {
+        //Act
+        HttpResponseMessage response = await _client.GetAsync($"/api/products/{_productFixture.ProductId}");
+        string responseBody = await response.Content.ReadAsStringAsync();
+        ProductDTO? product = JsonConvert.DeserializeToObject<ProductDTO?>(responseBody);
+
+        //Assert
+        product?.Available.Should().BeFalse();
+    }
+
+    [Fact, Priority(10)]
+    public async Task MakeAvailableAsync_ValidId_ShouldReturnNoContent()
+    {
+        //Act
+        HttpResponseMessage response = await _client.PatchAsync($"/api/products/make-available/{_productFixture.ProductId}", null);
+
+        //Assert
+        response.EnsureSuccessStatusCode();
+    }
+
+    [Fact, Priority(9)]
+    public async Task MakeAvailableAsync_InvalidId_ShouldReturnFailure()
+    {
+        //Act
+        HttpResponseMessage response = await _client.PatchAsync($"/api/products/make-available/{Guid.Empty}", null);
+        string responseBody = await response.Content.ReadAsStringAsync();
+        IEnumerable<Error>? errors = JsonConvert.DeserializeToObject<IEnumerable<Error>>(responseBody);
+
+        //Assert
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        errors.Should().Contain(x => x.Message == "O id do produto não pode ser inválido.");
+    }
+
+    [Fact, Priority(9)]
+    public async Task MakeAvailableAsync_ProductNotFound_ShouldReturnFailure()
+    {
+        //Act
+        HttpResponseMessage response = await _client.PatchAsync($"/api/products/make-available/{Guid.NewGuid()}", null);
+        string responseBody = await response.Content.ReadAsStringAsync();
+        IEnumerable<Error>? errors = JsonConvert.DeserializeToObject<IEnumerable<Error>>(responseBody);
+
+        //Assert
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        errors.Should().Contain(x => x.Message == "Produto não encontrado.");
+    }
+
+    [Fact, Priority(11)]
+    public async Task GetByIdAsync_ProductAvailable_ShouldReturnProductAvailable()
+    {
+        //Act
+        HttpResponseMessage response = await _client.GetAsync($"/api/products/{_productFixture.ProductId}");
+        string responseBody = await response.Content.ReadAsStringAsync();
+        ProductDTO? product = JsonConvert.DeserializeToObject<ProductDTO?>(responseBody);
+
+        //Assert
+        product?.Available.Should().BeTrue();
+    }
+
+    [Fact, Priority(13)]
+    public async Task DeleteAsync_ValidId_ShouldReturnNoContent()
+    {
+        //Act
+        HttpResponseMessage response = await _client.DeleteAsync($"/api/products/{_productFixture.ProductId}");
+
+        //Assert
+        response.EnsureSuccessStatusCode();
+    }
+
+    [Fact, Priority(12)]
+    public async Task DeleteAsync_InvalidId_ShouldReturnFailure()
+    {
+        //Act
+        HttpResponseMessage response = await _client.DeleteAsync($"/api/products/{Guid.Empty}");
+        string responseBody = await response.Content.ReadAsStringAsync();
+        IEnumerable<Error>? errors = JsonConvert.DeserializeToObject<IEnumerable<Error>>(responseBody);
+
+        //Assert
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        errors.Should().Contain(x => x.Message == "O id do produto não pode ser inválido.");
+    }
+
+    [Fact, Priority(12)]
+    public async Task DeleteAsync_ProductNotFound_ShouldReturnFailure()
+    {
+        //Act
+        HttpResponseMessage response = await _client.DeleteAsync($"/api/products/{Guid.NewGuid()}");
+        string responseBody = await response.Content.ReadAsStringAsync();
+        IEnumerable<Error>? errors = JsonConvert.DeserializeToObject<IEnumerable<Error>>(responseBody);
+
+        //Assert
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        errors.Should().Contain(x => x.Message == "Produto não encontrado.");
+    }
+
+    [Fact, Priority(14)]
+    public async Task GetByIdAsync_ProductDeleted_ShouldReturnNoContent()
+    {
+        //Act
+        HttpResponseMessage response = await _client.GetAsync($"/api/products/{_productFixture.ProductId}");
+
+        //Assert
+        response.StatusCode.Should().Be(HttpStatusCode.NoContent);
     }
 }

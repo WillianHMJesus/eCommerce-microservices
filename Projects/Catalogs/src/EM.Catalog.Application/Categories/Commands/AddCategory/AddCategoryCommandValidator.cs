@@ -1,5 +1,4 @@
-﻿using EM.Catalog.Domain.Entities;
-using EM.Catalog.Domain.Interfaces;
+﻿using EM.Catalog.Application.Categories.Validations;
 using EM.Common.Core.ResourceManagers;
 using FluentValidation;
 
@@ -7,11 +6,11 @@ namespace EM.Catalog.Application.Categories.Commands.AddCategory;
 
 public sealed class AddCategoryCommandValidator : AbstractValidator<AddCategoryCommand>
 {
-    private readonly IReadRepository _repository;
+    private readonly ICategoryValidations _validations;
 
-    public AddCategoryCommandValidator(IReadRepository repository)
+    public AddCategoryCommandValidator(ICategoryValidations validations)
     {
-        _repository = repository;
+        _validations = validations;
 
         RuleFor(x => x.Code)
             .GreaterThan(default(short))
@@ -26,14 +25,7 @@ public sealed class AddCategoryCommandValidator : AbstractValidator<AddCategoryC
            .WithMessage(Key.CategoryDescriptionNullOrEmpty);
 
         RuleFor(x => x)
-            .MustAsync(async (_, value, cancellationToken) => await ValidateDuplicityAsync(value, cancellationToken))
+            .MustAsync(async (_, value, cancellationToken) => await _validations.ValidateDuplicityAsync(value, cancellationToken))
             .WithMessage(Key.CategoryRegisterDuplicity);
-    }
-
-    public async Task<bool> ValidateDuplicityAsync(AddCategoryCommand command, CancellationToken cancellationToken)
-    {
-        IEnumerable<Category> categories = await _repository.GetCategoriesByCodeOrName(command.Code, command.Name, cancellationToken);
-
-        return !categories.Any();
     }
 }

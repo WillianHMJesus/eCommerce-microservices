@@ -1,5 +1,4 @@
-﻿using EM.Catalog.Domain.Entities;
-using EM.Catalog.Domain.Interfaces;
+﻿using EM.Catalog.Application.Categories.Validations;
 using EM.Common.Core.ResourceManagers;
 using FluentValidation;
 
@@ -7,17 +6,15 @@ namespace EM.Catalog.Application.Categories.Commands.UpdateCategory;
 
 public sealed class UpdateCategoryCommandValidator : AbstractValidator<UpdateCategoryCommand>
 {
-    private readonly IReadRepository _repository;
+    private readonly ICategoryValidations _validations;
 
-    public UpdateCategoryCommandValidator(IReadRepository repository)
+    public UpdateCategoryCommandValidator(ICategoryValidations validations)
     {
-        _repository = repository;
+        _validations = validations;
 
         RuleFor(x => x.Id)
             .GreaterThan(Guid.Empty)
-            .WithMessage(Key.CategoryInvalidId)
-            .MustAsync(async (_, value, cancellationToken) => await ValidateCategoryIdAsync(value, cancellationToken))
-            .WithMessage(Key.CategoryNotFound);
+            .WithMessage(Key.CategoryInvalidId);
 
         RuleFor(x => x.Code)
             .GreaterThan(default(short))
@@ -31,22 +28,12 @@ public sealed class UpdateCategoryCommandValidator : AbstractValidator<UpdateCat
            .Must(x => !string.IsNullOrEmpty(x))
            .WithMessage(Key.CategoryDescriptionNullOrEmpty);
 
+        RuleFor(x => x.Id)
+            .MustAsync(async (_, value, cancellationToken) => await _validations.ValidateCategoryIdAsync(value, cancellationToken))
+            .WithMessage(Key.CategoryNotFound);
+
         RuleFor(x => x)
-            .MustAsync(async (_, value, cancellationToken) => await ValidateDuplicityAsync(value, cancellationToken))
+            .MustAsync(async (_, value, cancellationToken) => await _validations.ValidateDuplicityAsync(value, cancellationToken))
             .WithMessage(Key.CategoryRegisterDuplicity);
-    }
-
-    public async Task<bool> ValidateDuplicityAsync(UpdateCategoryCommand command, CancellationToken cancellationToken)
-    {
-        IEnumerable<Category> categories = await _repository.GetCategoriesByCodeOrName(command.Code, command.Name, cancellationToken);
-
-        return !categories.Any(x => x.Id != command.Id); 
-    }
-
-    public async Task<bool> ValidateCategoryIdAsync(Guid categoryId, CancellationToken cancellationToken)
-    {
-        Category? category = await _repository.GetCategoryByIdAsync(categoryId, cancellationToken);
-
-        return category is not null;
     }
 }

@@ -1,6 +1,8 @@
 ﻿using AutoFixture;
 using AutoFixture.Xunit2;
+using EM.Catalog.Application.Categories.Validations;
 using EM.Catalog.Application.Products.Commands.AddProduct;
+using EM.Catalog.Application.Products.Validations;
 using EM.Catalog.Domain.Entities;
 using EM.Catalog.Domain.Interfaces;
 using EM.Catalog.UnitTests.CustomAutoData;
@@ -20,14 +22,9 @@ public sealed class AddProductCommandValidatorTest
 
     [Theory, AutoProductData]
     public async Task Constructor_ValidAddProductCommand_ShouldReturnValidResult(
-        [Frozen] Mock<IReadRepository> repositoryMock,
         AddProductCommandValidator sut,
         AddProductCommand command)
     {
-        repositoryMock
-            .Setup(x => x.GetProductsByNameAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new List<Product>());
-
         ValidationResult result = await sut.ValidateAsync(command);
 
         result.IsValid.Should().BeTrue();
@@ -162,9 +159,14 @@ public sealed class AddProductCommandValidatorTest
 
     [Theory, AutoProductData]
     public async Task Constructor_DuplicityAddProductCommand_ShouldReturnInvalidResult(
+        [Frozen] Mock<IProductValidations> validationsMock,
         AddProductCommandValidator sut,
         AddProductCommand command)
     {
+        validationsMock
+            .Setup(x => x.ValidateDuplicityAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(false);
+
         ValidationResult result = await sut.ValidateAsync(command);
 
         result.IsValid.Should().BeFalse();
@@ -173,19 +175,13 @@ public sealed class AddProductCommandValidatorTest
 
     [Theory, AutoProductData]
     public async Task Constructor_NotFoundAddProductCommandCategoryId_ShouldReturnInvalidResult(
-        [Frozen] Mock<IReadRepository> repositoryMock,
+        [Frozen] Mock<ICategoryValidations> validationsMock,
         AddProductCommandValidator sut,
         AddProductCommand command)
     {
-        Category? category = null;
-
-        repositoryMock
-            .Setup(x => x.GetProductsByNameAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new List<Product>());
-
-        repositoryMock
-            .Setup(x => x.GetCategoryByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(category);
+        validationsMock
+            .Setup(x => x.ValidateCategoryIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(false);
 
         ValidationResult result = await sut.ValidateAsync(command);
 

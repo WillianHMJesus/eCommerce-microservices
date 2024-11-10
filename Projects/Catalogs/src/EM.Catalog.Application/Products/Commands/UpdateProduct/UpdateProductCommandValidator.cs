@@ -1,5 +1,5 @@
-﻿using EM.Catalog.Domain.Entities;
-using EM.Catalog.Domain.Interfaces;
+﻿using EM.Catalog.Application.Categories.Validations;
+using EM.Catalog.Application.Products.Validations;
 using EM.Common.Core.ResourceManagers;
 using FluentValidation;
 
@@ -7,17 +7,19 @@ namespace EM.Catalog.Application.Products.Commands.UpdateProduct;
 
 public sealed class UpdateProductCommandValidator : AbstractValidator<UpdateProductCommand>
 {
-    private readonly IReadRepository _repository;
+    private readonly IProductValidations _validations;
+    private readonly ICategoryValidations _categoryValidations;
 
-    public UpdateProductCommandValidator(IReadRepository repository)
+    public UpdateProductCommandValidator(
+        IProductValidations validations,
+        ICategoryValidations categoryValidations)
     {
-        _repository = repository;
+        _validations = validations;
+        _categoryValidations = categoryValidations;
 
         RuleFor(x => x.Id)
             .NotEqual(Guid.Empty)
-            .WithMessage(Key.ProductInvalidId)
-            .MustAsync(async (_, value, cancellationToken) => await ValidateProductIdAsync(value, cancellationToken))
-            .WithMessage(Key.ProductNotFound);
+            .WithMessage(Key.ProductInvalidId);
 
         RuleFor(x => x.Name)
             .Must(x => !string.IsNullOrEmpty(x))
@@ -43,33 +45,16 @@ public sealed class UpdateProductCommandValidator : AbstractValidator<UpdateProd
             .NotEqual(Guid.Empty)
             .WithMessage(Key.ProductInvalidCategoryId);
 
+        RuleFor(x => x.Id)
+            .MustAsync(async (_, value, cancellationToken) => await _validations.ValidateProductIdAsync(value, cancellationToken))
+            .WithMessage(Key.ProductNotFound);
+
         RuleFor(x => x)
-            .MustAsync(async (_, value, cancellationToken) => await ValidateDuplicityAsync(value, cancellationToken))
+            .MustAsync(async (_, value, cancellationToken) => await _validations.ValidateDuplicityAsync(value, cancellationToken))
             .WithMessage(Key.ProductRegisterDuplicity);
 
         RuleFor(x => x.CategoryId)
-            .MustAsync(async (_, value, cancellationToken) => await ValidateCategoryIdAsync(value, cancellationToken))
+            .MustAsync(async (_, value, cancellationToken) => await _categoryValidations.ValidateCategoryIdAsync(value, cancellationToken))
             .WithMessage(Key.ProductCategoryNotFound);
-    }
-
-    public async Task<bool> ValidateDuplicityAsync(UpdateProductCommand updateProductCommand, CancellationToken cancellationToken)
-    {
-        IEnumerable<Product> products = await _repository.GetProductsByNameAsync(updateProductCommand.Name, cancellationToken);
-
-        return !products.Any(x => x.Id != updateProductCommand.Id);
-    }
-
-    public async Task<bool> ValidateCategoryIdAsync(Guid categoryId, CancellationToken cancellationToken)
-    {
-        Category? category = await _repository.GetCategoryByIdAsync(categoryId, cancellationToken);
-
-        return category is not null;
-    }
-
-    public async Task<bool> ValidateProductIdAsync(Guid productId, CancellationToken cancellationToken)
-    {
-        Product? product = await _repository.GetProductByIdAsync(productId, cancellationToken);
-
-        return product is not null;
     }
 }

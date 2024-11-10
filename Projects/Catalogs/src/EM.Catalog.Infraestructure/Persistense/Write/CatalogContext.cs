@@ -14,6 +14,8 @@ public sealed class CatalogContext : DbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(CatalogContext).Assembly);
+        modelBuilder.Entity<Product>().HasQueryFilter(x => x.Active);
+        modelBuilder.Entity<Category>().HasQueryFilter(x => x.Active);
 
         base.OnModelCreating(modelBuilder);
     }

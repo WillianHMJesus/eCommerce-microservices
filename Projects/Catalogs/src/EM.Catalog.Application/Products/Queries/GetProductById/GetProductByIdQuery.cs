@@ -3,5 +3,6 @@ using EM.Catalog.Application.Products.Models;
 
 namespace EM.Catalog.Application.Products.Queries.GetProductById;
 
-public sealed record GetProductByIdQuery(Guid Id) : IQuery<ProductDTO?>
+public sealed record GetProductByIdQuery(Guid Id) 
+    : IQuery<ProductDTO?>
 { }
