@@ -1,4 +1,8 @@
-﻿using EM.Checkout.Application.UseCases.Purchase;
+﻿using AutoMapper;
+using EM.Checkout.Application.Models;
+using EM.Checkout.Application.Orders.Commands.FinishOrder;
+using EM.Common.Core.ResourceManagers;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EM.Checkout.API.Controllers;
@@ -7,21 +11,25 @@ namespace EM.Checkout.API.Controllers;
 [ApiController]
 public sealed class OrdersController : BaseController
 {
-    private readonly IPurchaseUseCase _purchaseUseCase;
+    private readonly IMediator _mediator;
+    private readonly IMapper _mapper;
 
-    public OrdersController(IPurchaseUseCase purchaseUseCase)
+    public OrdersController(
+        IMediator mediator, 
+        IMapper mapper)
     {
-        _purchaseUseCase = purchaseUseCase;
+        _mediator = mediator;
+        _mapper = mapper;
     }
 
     [HttpPost("Purchase")]
-    public async Task<IActionResult> Purchase(PurchaseRequest purchaseRequest, CancellationToken cancellationToken)
+    public async Task<IActionResult> Purchase(FinishOrderRequest request, CancellationToken cancellationToken)
     {
-        _purchaseUseCase.SetPresenter(this);
-        purchaseRequest.UserId = GetUserId();
+        FinishOrderCommand command = _mapper.Map<FinishOrderCommand>((request, GetUserId()));
+        Result result = await _mediator.Send(command, cancellationToken);
 
-        await _purchaseUseCase.ExecuteAsync(purchaseRequest, cancellationToken);
-
-        return _actionResult;
+        return !result.Success ?
+            BadRequest(result.Errors) :
+            Accepted();
     }
 }

@@ -12,9 +12,14 @@ public sealed class OrderEntityTypeConfiguration : IEntityTypeConfiguration<Orde
 
         builder.HasKey(x => x.Id);
 
+        builder.Property(x => x.Number)
+            .IsRequired()
+            .HasColumnType("varchar")
+            .HasMaxLength(50);
+
         builder.Property(x => x.OrderStatus)
             .IsRequired()
-            .HasConversion<int>();
+            .HasConversion<short>();
 
         builder.Ignore(x => x.Amount);
     }
