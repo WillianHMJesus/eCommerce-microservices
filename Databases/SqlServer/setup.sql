@@ -4,10 +4,9 @@ use [Authentication];
 
 create table [Users](
 	[Id] uniqueidentifier not null,
-	[Name] smallint not null,
-	[Email] varchar(50) not null,
-	[Password] varchar(100) not null,
-	[Active] bit not null,
+	[UserName] varchar(50) not null,
+	[EmailAddress] varchar(100) not null,
+	[PasswordHash] nvarchar(200) not null,
 
 	constraint [PK_Users] primary key ([Id])
 );
@@ -15,57 +14,25 @@ go
 
 create table [Profiles](
 	[Id] uniqueidentifier not null,
-	[Name] smallint not null,
-	[Active] bit not null,
+	[Name] varchar(50) not null,
 
 	constraint [PK_Profiles] primary key ([Id])
 );
 go
 
-insert into [Profiles] ([Id], [Name], [Active]) values (newid(), 'Manager', 1);
-go
-
-insert into [Profiles] ([Id], [Name], [Active]) values (newid(), 'Customer', 1);
-go
-
 create table [Roles](
 	[Id] uniqueidentifier not null,
-	[Name] smallint not null,
-	[Active] bit not null,
+	[Name] varchar(50) not null,
 
 	constraint [PK_Roles] primary key ([Id])
 );
-go
-
-insert into [Roles] ([Id], [Name], [Active]) values (newid(), 'AddCategory', 1);
-go
-
-insert into [Roles] ([Id], [Name], [Active]) values (newid(), 'DeleteCategory', 1);
-go
-
-insert into [Roles] ([Id], [Name], [Active]) values (newid(), 'UpdateCategory', 1);
-go
-
-insert into [Roles] ([Id], [Name], [Active]) values (newid(), 'AddProduct', 1);
-go
-
-insert into [Roles] ([Id], [Name], [Active]) values (newid(), 'DeleteProduct', 1);
-go
-
-insert into [Roles] ([Id], [Name], [Active]) values (newid(), 'UpdateProduct', 1);
-go
-
-insert into [Roles] ([Id], [Name], [Active]) values (newid(), 'MakeAvailableProduct', 1);
-go
-
-insert into [Roles] ([Id], [Name], [Active]) values (newid(), 'MakeUnavailableProduct', 1);
 go
 
 create table [User_Profiles](
 	[UserId] uniqueidentifier not null,
 	[ProfileId] uniqueidentifier not null,
 
-	constraint [PK_Profiles] primary key ([UserId], [ProfileId]),
+	constraint [PK_User_Profiles] primary key ([UserId], [ProfileId]),
 	constraint [FK_User_Profiles_Users] foreign key ([UserId]) references [Users] ([Id]),
 	constraint [FK_User_Profiles_Profiles] foreign key ([ProfileId]) references [Profiles] ([Id])
 );
@@ -75,10 +42,67 @@ create table [Profile_Roles](
 	[ProfileId] uniqueidentifier not null,
 	[RoleId] uniqueidentifier not null,
 
-	constraint [PK_Roles] primary key ([ProfileId], [RoleId]),
+	constraint [PK_Profile_Roles] primary key ([ProfileId], [RoleId]),
 	constraint [FK_Profile_Roles_Profiles] foreign key ([ProfileId]) references [Profiles] ([Id]),
 	constraint [FK_Profile_Roles_Roles] foreign key ([RoleId]) references [Roles] ([Id])
 );
+go
+
+declare @userId uniqueidentifier = newid();
+declare @managerProfileId uniqueidentifier = newid();
+declare @roleId uniqueidentifier = newid();
+
+insert into [Users] ([Id], [UserName], [EmailAddress], [PasswordHash]) values (@userId, 'Manager User', 'user@manager.com', 'AQAAAAIAAYagAAAAEOBNuPrPU4BM5FT3EYNE1VOQlV8BY2GxLkdc3aYrqWdo8ldQSlfzoaaMNnwaCTrYlA==');
+
+insert into [Profiles] ([Id], [Name]) values (@managerProfileId, 'Manager');
+
+insert into [User_Profiles] ([UserId], [ProfileId]) values (@userId, @managerProfileId);
+
+insert into [Profiles] ([Id], [Name]) values (newid(), 'Customer');
+
+insert into [Roles] ([Id], [Name]) values (@roleId, 'AddUser');
+
+insert into [Profile_Roles] ([ProfileId], [RoleId]) values (@managerProfileId, @roleId);
+set @roleId = newid();
+
+insert into [Roles] ([Id], [Name]) values (@roleId, 'AddCategory');
+
+insert into [Profile_Roles] ([ProfileId], [RoleId]) values (@managerProfileId, @roleId);
+set @roleId = newid();
+
+insert into [Roles] ([Id], [Name]) values (@roleId, 'DeleteCategory');
+
+insert into [Profile_Roles] ([ProfileId], [RoleId]) values (@managerProfileId, @roleId);
+set @roleId = newid();
+
+insert into [Roles] ([Id], [Name]) values (@roleId, 'UpdateCategory');
+
+insert into [Profile_Roles] ([ProfileId], [RoleId]) values (@managerProfileId, @roleId);
+set @roleId = newid();
+
+insert into [Roles] ([Id], [Name]) values (@roleId, 'AddProduct');
+
+insert into [Profile_Roles] ([ProfileId], [RoleId]) values (@managerProfileId, @roleId);
+set @roleId = newid();
+
+insert into [Roles] ([Id], [Name]) values (@roleId, 'DeleteProduct');
+
+insert into [Profile_Roles] ([ProfileId], [RoleId]) values (@managerProfileId, @roleId);
+set @roleId = newid();
+
+insert into [Roles] ([Id], [Name]) values (@roleId, 'UpdateProduct');
+
+insert into [Profile_Roles] ([ProfileId], [RoleId]) values (@managerProfileId, @roleId);
+set @roleId = newid();
+
+insert into [Roles] ([Id], [Name]) values (@roleId, 'MakeAvailableProduct');
+
+insert into [Profile_Roles] ([ProfileId], [RoleId]) values (@managerProfileId, @roleId);
+set @roleId = newid();
+
+insert into [Roles] ([Id], [Name]) values (@roleId, 'MakeUnavailableProduct');
+
+insert into [Profile_Roles] ([ProfileId], [RoleId]) values (@managerProfileId, @roleId);
 go
 
 create database [Catalog];
