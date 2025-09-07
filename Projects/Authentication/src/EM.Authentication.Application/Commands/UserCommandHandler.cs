@@ -1,5 +1,6 @@
 ﻿using EM.Authentication.Application.Commands.AddUser;
 using EM.Authentication.Application.Commands.AuthenticateUser;
+using EM.Authentication.Application.Commands.ChangeUserPassword;
 using EM.Authentication.Application.JwtBearer;
 using EM.Authentication.Application.Mappers;
 using EM.Authentication.Domain;
@@ -20,7 +21,8 @@ public sealed class UserCommandHandler(
     IJwtBearerService jwtBearerService,
     IConfiguration configuration) :
     ICommandHandler<AddUserCommand>,
-    ICommandHandler<AuthenticateUserCommand>
+    ICommandHandler<AuthenticateUserCommand>,
+    ICommandHandler<ChangeUserPasswordCommand>
 {
     public async Task<Result> Handle(AddUserCommand request, CancellationToken cancellationToken)
     {
@@ -39,7 +41,7 @@ public sealed class UserCommandHandler(
 
         if (!await unitOfWork.CommitAsync(cancellationToken))
         {
-            return Result.CreateResponseWithErrors([new Error("ApplicationError", User.ErrorAddingUser)]);
+            return Result.CreateResponseWithErrors([new Error("ApplicationError", User.ErrorSavingUser)]);
         }
 
         return Result.CreateResponseWithData(user.Id);
@@ -49,22 +51,46 @@ public sealed class UserCommandHandler(
     {
         User? user = await repository.GetByEmailAsync(request.EmailAddress, cancellationToken);
 
-        if (user is null)
+        if (!ValidateUserAuthenticity(user, request.Password))
         {
             return Result.CreateResponseWithErrors([new Error("ApplicationError", User.EmailAddressOrPasswordIncorrect)]);
         }
 
-        var resultVerifyHashedPassword = passwordHasher.VerifyHashedPassword(this, user!.PasswordHash, request.Password);
-        if (resultVerifyHashedPassword is PasswordVerificationResult.Failed)
-        {
-            return Result.CreateResponseWithErrors([new Error("ApplicationError", User.EmailAddressOrPasswordIncorrect)]);
-        }
-
-        var response = mapper.Map(user);
-        response.AccessToken = jwtBearerService.GenerateToken(user);
+        var response = mapper.Map(user!);
+        response.AccessToken = jwtBearerService.GenerateToken(user!);
         response.ExpirationToken = DateTime.UtcNow.AddMinutes(configuration.GetValue<int>("Jwt:ExpirationInMinutes"));
-        response.RefreshToken = jwtBearerService.GenerateRefreshToken(user);
+        response.RefreshToken = jwtBearerService.GenerateRefreshToken(user!);
 
         return Result.CreateResponseWithData(response);
+    }
+
+    public async Task<Result> Handle(ChangeUserPasswordCommand request, CancellationToken cancellationToken)
+    {
+        User? user = await repository.GetByEmailAsync(request.EmailAddress, cancellationToken);
+
+        if (!ValidateUserAuthenticity(user, request.OldPassword))
+        {
+            return Result.CreateResponseWithErrors([new Error("ApplicationError", User.EmailAddressOrPasswordIncorrect)]);
+        }
+
+        string passwordHash = passwordHasher.HashPassword(this, request.NewPassword);
+        user!.ChangePasswordHash(passwordHash);
+        
+        repository.Update(user);
+
+        if (!await unitOfWork.CommitAsync(cancellationToken))
+        {
+            return Result.CreateResponseWithErrors([new Error("ApplicationError", User.ErrorSavingUser)]);
+        }
+
+        return Result.CreateResponseWithData(user.Id);
+    }
+
+    private bool ValidateUserAuthenticity(User? user, string password)
+    {
+        if (user is null) return false;
+
+        var resultVerifyHashedPassword = passwordHasher.VerifyHashedPassword(this, user.PasswordHash, password);
+        return resultVerifyHashedPassword is not PasswordVerificationResult.Failed;
     }
 }

@@ -2,6 +2,7 @@
 using EM.Authentication.API.Users.RequestModels;
 using EM.Authentication.Application.Commands.AddUser;
 using EM.Authentication.Application.Commands.AuthenticateUser;
+using EM.Authentication.Application.Commands.ChangeUserPassword;
 using Microsoft.AspNetCore.Mvc;
 using WH.SharedKernel.Mediator;
 
@@ -23,6 +24,10 @@ public class UserEndpoints : ICarterModule
 
         group.MapPost("oauth", AuthenticateUserAsync)
             .WithName("Oauth");
+
+        group.MapPut("users/change-password", ChangeUserPasswordAsync)
+            .WithName("ChangeUserPassword")
+            .RequireAuthorization();
     }
 
     public static async Task<IResult> AddCustomerAsync(
@@ -68,6 +73,23 @@ public class UserEndpoints : ICarterModule
         var command = new AuthenticateUserCommand(
             request.EmailAddress,
             request.Password);
+
+        var result = await mediator.Send(command);
+
+        return result.Success
+            ? Results.Ok(result.Data)
+            : Results.BadRequest(result.Errors);
+    }
+
+    public static async Task<IResult> ChangeUserPasswordAsync(
+        ChangeUserPasswordRequest request,
+        [FromServices] IMediator mediator)
+    {
+        var command = new ChangeUserPasswordCommand(
+            request.EmailAddress,
+            request.OldPassword,
+            request.NewPassword,
+            request.ConfirmPassword);
 
         var result = await mediator.Send(command);
 

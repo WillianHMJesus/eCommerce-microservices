@@ -13,7 +13,7 @@ public sealed class User : BaseEntity, IAggregateRoot
     public const string InvalidPassword = "The password is invalid";
     public const string PasswordDifferent = "The password is different from the confirmation";
     public const string ProfileNull = "The user profile cannot be null";
-    public const string ErrorAddingUser = "An error occurred while adding the user";
+    public const string ErrorSavingUser = "An error occurred while saving the user";
     public const string EmailAddressOrPasswordIncorrect = "The email address or password is incorrect";
     public static readonly string UserNameMaxLenghtError = $"The username cannot be greater then {UserNameMaxLenght}";
 
@@ -30,7 +30,7 @@ public sealed class User : BaseEntity, IAggregateRoot
 
     public string UserName { get; init; } = "";
     public Email Email { get; init; } = default!;
-    public string PasswordHash { get; init; } = "";
+    public string PasswordHash { get; private set; } = "";
     public IList<Profile> Profiles { get; private set; } = new List<Profile>();
 
     public override void Validate()
@@ -49,5 +49,11 @@ public sealed class User : BaseEntity, IAggregateRoot
             return;
 
         Profiles.Add(profile);
+    }
+
+    public void ChangePasswordHash(string passwordHash)
+    {
+        AssertionConcern.ValidateNullOrWhiteSpace(passwordHash, PasswordHashNullOrEmpty);
+        PasswordHash = passwordHash;
     }
 }
