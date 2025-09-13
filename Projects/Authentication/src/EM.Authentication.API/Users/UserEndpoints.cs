@@ -8,7 +8,7 @@ using WH.SharedKernel.Mediator;
 
 namespace EM.Authentication.API.Users;
 
-public class UserEndpoints : ICarterModule
+public sealed class UserEndpoints : ICarterModule
 {
     public void AddRoutes(IEndpointRouteBuilder app)
     {
@@ -30,7 +30,7 @@ public class UserEndpoints : ICarterModule
             .RequireAuthorization();
     }
 
-    public static async Task<IResult> AddCustomerAsync(
+    private static async Task<IResult> AddCustomerAsync(
         AddCustomerRequest request,
         [FromServices] IMediator mediator)
     {
@@ -48,7 +48,7 @@ public class UserEndpoints : ICarterModule
             : Results.BadRequest(result.Errors);
     }
 
-    public static async Task<IResult> AddUserAsync(
+    private static async Task<IResult> AddUserAsync(
         AddUserRequest request,
         [FromServices] IMediator mediator)
     {
@@ -66,7 +66,7 @@ public class UserEndpoints : ICarterModule
             : Results.BadRequest(result.Errors);
     }
 
-    public static async Task<IResult> AuthenticateUserAsync(
+    private static async Task<IResult> AuthenticateUserAsync(
         AuthenticateUserRequest request,
         [FromServices] IMediator mediator)
     {
@@ -81,7 +81,7 @@ public class UserEndpoints : ICarterModule
             : Results.BadRequest(result.Errors);
     }
 
-    public static async Task<IResult> ChangeUserPasswordAsync(
+    private static async Task<IResult> ChangeUserPasswordAsync(
         ChangeUserPasswordRequest request,
         [FromServices] IMediator mediator)
     {

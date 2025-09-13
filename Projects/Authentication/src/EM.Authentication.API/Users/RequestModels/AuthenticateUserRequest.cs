@@ -1,6 +1,6 @@
 ﻿namespace EM.Authentication.API.Users.RequestModels;
 
-public class AuthenticateUserRequest
+public sealed class AuthenticateUserRequest
 {
     public string EmailAddress { get; set; } = "";
     public string Password { get; set; } = "";

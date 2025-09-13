@@ -1,6 +1,6 @@
 ﻿namespace EM.Authentication.API.Users.RequestModels;
 
-public record ChangeUserPasswordRequest
+public sealed record ChangeUserPasswordRequest
 {
     public string EmailAddress { get; set; } = "";
     public string OldPassword { get; set; } = "";

@@ -1,12 +1,10 @@
 ﻿using EM.Authentication.Application.Commands.AddUser;
 using EM.Authentication.Application.Commands.AuthenticateUser;
 using EM.Authentication.Application.Commands.ChangeUserPassword;
-using EM.Authentication.Application.JwtBearer;
 using EM.Authentication.Application.Mappers;
+using EM.Authentication.Application.Providers;
 using EM.Authentication.Domain;
 using EM.Authentication.Domain.Entities;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Configuration;
 using WH.SharedKernel;
 using WH.SharedKernel.Mediator;
 using WH.SharedKernel.ResourceManagers;
@@ -15,11 +13,10 @@ namespace EM.Authentication.Application.Commands;
 
 public sealed class UserCommandHandler(
     IUserRepository repository,
-    IPasswordHasher<UserCommandHandler> passwordHasher,
     IUserMapper mapper,
     IUnitOfWork unitOfWork,
-    IJwtBearerService jwtBearerService,
-    IConfiguration configuration) :
+    IPasswordProvider passwordProvider,
+    ITokenProvider tokenProvider) :
     ICommandHandler<AddUserCommand>,
     ICommandHandler<AuthenticateUserCommand>,
     ICommandHandler<ChangeUserPasswordCommand>
@@ -33,7 +30,7 @@ public sealed class UserCommandHandler(
             return Result.CreateResponseWithErrors([new Error("ApplicationError", Profile.ProfileNotFound)]);
         }
 
-        string passwordHash = passwordHasher.HashPassword(this, request.Password);
+        string passwordHash = passwordProvider.HashPassword(request.Password);
         User user = mapper.Map(request, passwordHash);
         user.AddProfile(profile!);
 
@@ -57,9 +54,9 @@ public sealed class UserCommandHandler(
         }
 
         var response = mapper.Map(user!);
-        response.AccessToken = jwtBearerService.GenerateToken(user!);
-        response.ExpirationToken = DateTime.UtcNow.AddMinutes(configuration.GetValue<int>("Jwt:ExpirationInMinutes"));
-        response.RefreshToken = jwtBearerService.GenerateRefreshToken(user!);
+        response.AccessToken = tokenProvider.Generate(user!);
+        response.ExpirationToken = tokenProvider.GetTokenExpiration(response.AccessToken);
+        response.RefreshToken = tokenProvider.GenerateRefreshToken(user!);
 
         return Result.CreateResponseWithData(response);
     }
@@ -73,7 +70,7 @@ public sealed class UserCommandHandler(
             return Result.CreateResponseWithErrors([new Error("ApplicationError", User.EmailAddressOrPasswordIncorrect)]);
         }
 
-        string passwordHash = passwordHasher.HashPassword(this, request.NewPassword);
+        string passwordHash = passwordProvider.HashPassword(request.NewPassword);
         user!.ChangePasswordHash(passwordHash);
         
         repository.Update(user);
@@ -90,7 +87,6 @@ public sealed class UserCommandHandler(
     {
         if (user is null) return false;
 
-        var resultVerifyHashedPassword = passwordHasher.VerifyHashedPassword(this, user.PasswordHash, password);
-        return resultVerifyHashedPassword is not PasswordVerificationResult.Failed;
+        return passwordProvider.VerifyHashedPassword(user.PasswordHash, password);
     }
 }

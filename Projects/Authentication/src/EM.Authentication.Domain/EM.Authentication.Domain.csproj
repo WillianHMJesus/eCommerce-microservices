@@ -10,15 +10,4 @@
     <PackageReference Include="WH.SharedKernel" Version="1.0.3" />
   </ItemGroup>
 
-  <PropertyGroup>
-	<AssemblyName>EM.Authentication.Domain</AssemblyName>
-	<RootNamespace>EM.Authentication.Domain</RootNamespace>
-  </PropertyGroup>
-
-  <ItemGroup>
-	<AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
-	  <_Parameter1>EM.Authentication.Application</_Parameter1>
-	</AssemblyAttribute>
-  </ItemGroup>
-
 </Project>

@@ -1,6 +1,6 @@
 ﻿namespace EM.Authentication.API.Users.RequestModels;
 
-public record AddUserRequest
+public sealed record AddUserRequest
 {
     public string UserName { get; set; } = "";
     public string EmailAddress { get; set; } = "";

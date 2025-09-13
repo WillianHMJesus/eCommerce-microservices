@@ -1,6 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using FluentValidation;
-using EM.Authentication.Application.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using WH.SharedKernel;
 using EM.Authentication.Domain;
@@ -8,8 +7,9 @@ using EM.Authentication.Infraestructure.Repositories;
 using EM.Authentication.Infraestructure;
 using WH.SharedKernel.Mediator;
 using WH.Extensions.Microsoft.DependencyInjection;
-using EM.Authentication.Infraestructure.JwtBearer;
 using EM.Authentication.Application.Mappers;
+using EM.Authentication.Infraestructure.Providers;
+using EM.Authentication.Application.Providers;
 
 namespace EM.Authentication.API.DependencyInjection;
 
@@ -30,8 +30,10 @@ public static class ServiceCollectionExtensions
 
         services.AddValidatorsFromAssembly(applicationAssembly);
 
+
+        services.AddScoped<IPasswordProvider, PasswordProvider>();
+        services.AddScoped<ITokenProvider, JwtBearerProvider>();
         services.AddScoped(typeof(IPasswordHasher<>), typeof(PasswordHasher<>));
-        services.AddScoped<IJwtBearerService, JwtBearerService>();
         services.AddScoped<IUserMapper, UserMapper>();
 
         services.AddDbContext<AuthenticationContext>(options => options.UseSqlServer(configuration.GetConnectionString("Authentication")));

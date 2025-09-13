@@ -1,16 +1,18 @@
-﻿using EM.Authentication.Application.JwtBearer;
+﻿using EM.Authentication.Application.Providers;
 using EM.Authentication.Domain;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using JwtRegisteredClaimNames = System.IdentityModel.Tokens.Jwt.JwtRegisteredClaimNames;
 
-namespace EM.Authentication.Infraestructure.JwtBearer;
+namespace EM.Authentication.Infraestructure.Providers;
 
-public sealed class JwtBearerService(IConfiguration configuration) : IJwtBearerService
+public sealed class JwtBearerProvider(IConfiguration configuration) : ITokenProvider
 {
-    public string GenerateToken(User user)
+    public string Generate(User user)
     {
         var tokenDescriptor = new SecurityTokenDescriptor
         {
@@ -48,6 +50,27 @@ public sealed class JwtBearerService(IConfiguration configuration) : IJwtBearerS
         var handler = new JsonWebTokenHandler();
 
         return handler.CreateToken(tokenDescriptor);
+    }
+
+    public DateTime GetTokenExpiration(string accessToken)
+    {
+        var handler = new JwtSecurityTokenHandler();
+        var jsonToken = handler.ReadToken(accessToken) as JwtSecurityToken;
+
+        if (jsonToken == null)
+        {
+            return default;
+        }
+
+        var expirationClaim = jsonToken.Claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Exp);
+
+        if (expirationClaim != null && long.TryParse(expirationClaim.Value, out long expTimestamp))
+        {
+            var dateTimeOffset = DateTimeOffset.FromUnixTimeSeconds(expTimestamp);
+            return dateTimeOffset.UtcDateTime;
+        }
+
+        return default;
     }
 
     private SigningCredentials GetCredentialSecretKey()
