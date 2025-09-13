@@ -7,10 +7,10 @@ using Xunit;
 
 namespace EM.Authentication.UnitTests.Application.Commands.AuthenticateUser;
 
-#pragma warning disable CS8625
 public sealed class AuthenticateUserCommandValidatorTests
 {
     [Theory, AutoUserData]
+    [Trait("Test", "Constructor:ValidAuthenticateUserCommand")]
     public async Task Constructor_ValidAuthenticateUserCommand_ShouldReturnValidResult(
         AuthenticateUserCommandValidator sut,
         AuthenticateUserCommand command)
@@ -24,14 +24,13 @@ public sealed class AuthenticateUserCommandValidatorTests
     }
 
     [Theory, AutoUserData]
+    [Trait("Test", "Constructor:FieldsWithDefaultValues")]
     public async Task Constructor_FieldsWithDefaultValues_ShouldReturnInvalidResult(
-        AuthenticateUserCommandValidator sut)
+        AuthenticateUserCommandValidator sut,
+        AuthenticateUserCommand commandDefaultValues)
     {
-        //Arrange
-        var command = new AuthenticateUserCommand(default, default);
-
-        //Act
-        var result = await sut.ValidateAsync(command);
+        //Arrange & Act
+        var result = await sut.ValidateAsync(commandDefaultValues);
 
         //Assert
         result.IsValid.Should().BeFalse();
@@ -40,14 +39,13 @@ public sealed class AuthenticateUserCommandValidatorTests
     }
 
     [Theory, AutoUserData]
+    [Trait("Test", "Constructor:FieldsWithNullValues")]
     public async Task Constructor_FieldsWithNullValues_ShouldReturnInvalidResult(
-        AuthenticateUserCommandValidator sut)
+        AuthenticateUserCommandValidator sut,
+        AuthenticateUserCommand commandNullValues)
     {
-        //Arrange
-        var command = new AuthenticateUserCommand(null, null);
-
-        //Act
-        var result = await sut.ValidateAsync(command);
+        //Arrange & Act
+        var result = await sut.ValidateAsync(commandNullValues);
 
         //Assert
         result.IsValid.Should().BeFalse();
@@ -55,4 +53,3 @@ public sealed class AuthenticateUserCommandValidatorTests
         result.Errors.Should().Contain(x => x.ErrorMessage == User.PasswordNullOrEmpty);
     }
 }
-#pragma warning restore CS8625

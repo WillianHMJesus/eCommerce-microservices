@@ -5,9 +5,9 @@ using EM.Authentication.Domain.Entities;
 using EM.Authentication.Domain.ValueObjects;
 using EM.Authentication.UnitTests.Fixtures;
 
-namespace EM.Authentication.UnitTests.AutoCustomData;
+namespace EM.Authentication.UnitTests.SpecimenBuilders;
 
-public class CustomSpecimenBuilder : ISpecimenBuilder
+public class StringSpecimenBuilder : ISpecimenBuilder
 {
     private readonly Faker _faker = new();
     private readonly string _password = PasswordFixture.GeneratePassword(12);

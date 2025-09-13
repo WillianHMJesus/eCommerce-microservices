@@ -11,6 +11,7 @@ namespace EM.Authentication.UnitTests.Domain.Entities;
 public sealed class ProfileTests
 {
     [Theory, AutoData]
+    [Trait("Test", "Validate:ValidProfile")]
     public void Validate_ValidProfile_ShouldNotReturnDomainException(string profileName)
     {
         //Arrange & Act
@@ -21,6 +22,7 @@ public sealed class ProfileTests
     }
 
     [Fact]
+    [Trait("Test", "Validate:EmptyProfileName")]
     public void Validate_EmptyProfileName_ShouldReturnDomainException()
     {
         //Arrange & Act
@@ -33,6 +35,7 @@ public sealed class ProfileTests
     }
 
     [Fact]
+    [Trait("Test", "Validate:NullProfileName")]
     public void Validate_NullProfileName_ShouldReturnDomainException()
     {
         //Arrange & Act
@@ -45,6 +48,7 @@ public sealed class ProfileTests
     }
 
     [Theory, AutoUserData]
+    [Trait("Test", "Validate:ProfileNameLongerThanMaxLenght")]
     public void Validate_ProfileNameLongerThanMaxLenght_ShouldReturnDomainException(string profileNameGreaterThanMaxLenght)
     {
         //Arrange & Act

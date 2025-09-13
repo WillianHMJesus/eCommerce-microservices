@@ -2,12 +2,12 @@
 using EM.Authentication.Application.Commands;
 using EM.Authentication.Application.Commands.AddUser;
 using EM.Authentication.Application.Commands.AuthenticateUser;
+using EM.Authentication.Application.Commands.ChangeUserPassword;
+using EM.Authentication.Application.Providers;
 using EM.Authentication.Domain;
 using EM.Authentication.Domain.Entities;
 using EM.Authentication.UnitTests.AutoCustomData;
 using FluentAssertions;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Configuration;
 using Moq;
 using WH.SharedKernel;
 using Xunit;
@@ -17,7 +17,8 @@ namespace EM.Authentication.UnitTests.Application.Commands;
 public sealed class UserCommandHandlerTests
 {
     [Theory, AutoUserData]
-    public async Task Handle_AddNewUser_ShouldAddUserAndReturnSuccess(
+    [Trait("Test", "AddUser:AddNewUser")]
+    public async Task AddUser_AddNewUser_ShouldAddUserAndReturnSuccess(
         [Frozen] Mock<IUserRepository> repositoryMock,
         [Frozen] Mock<IUnitOfWork> unitOfWorkMock,
         UserCommandHandler sut,
@@ -35,7 +36,8 @@ public sealed class UserCommandHandlerTests
     }
 
     [Theory, AutoUserData]
-    public async Task Handle_ProfileNotFound_ShouldNotAddUserAndReturnFailure(
+    [Trait("Test", "AddUser:ProfileNotFound")]
+    public async Task AddUser_ProfileNotFound_ShouldNotAddUserAndReturnFailure(
         [Frozen] Mock<IUserRepository> repositoryMock,
         [Frozen] Mock<IUnitOfWork> unitOfWorkMock,
         UserCommandHandler sut,
@@ -56,7 +58,8 @@ public sealed class UserCommandHandlerTests
     }
 
     [Theory, AutoUserData]
-    public async Task Handle_ReturnFalseCommit_ShouldNotAddUserAndReturnFailure(
+    [Trait("Test", "AddUser:ReturnFalseCommit")]
+    public async Task AddUser_ReturnFalseCommit_ShouldNotAddUserAndReturnFailure(
         [Frozen] Mock<IUserRepository> repositoryMock,
         [Frozen] Mock<IUnitOfWork> unitOfWorkMock,
         UserCommandHandler sut,
@@ -73,25 +76,16 @@ public sealed class UserCommandHandlerTests
         repositoryMock.Verify(x => x.AddAsync(It.IsAny<User>(), It.IsAny<CancellationToken>()), Times.Once);
         unitOfWorkMock.Verify(x => x.CommitAsync(It.IsAny<CancellationToken>()), Times.Once);
         result.Success.Should().BeFalse();
-        result.Errors.Should().Contain(x => x.Message == User.ErrorAddingUser);
+        result.Errors.Should().Contain(x => x.Message == User.ErrorSavingUser);
     }
 
     [Theory, AutoUserData]
-    public async Task Handle_AuthenticateUser_ShouldReturnSuccess(
-        [Frozen] Mock<IPasswordHasher<UserCommandHandler>> passwordHasherMock,
-        [Frozen] Mock<IConfigurationSection> configurationSectionMock,
-        [Frozen] Mock<IConfiguration> configurationMock,
+    [Trait("Test", "AuthenticateUser:ValidUserAuthentication")]
+    public async Task AuthenticateUser_ValidUserAuthentication_ShouldReturnSuccess(
         UserCommandHandler sut,
         AuthenticateUserCommand command)
     {
-        //Arrange
-        passwordHasherMock.Setup(x => x.VerifyHashedPassword(It.IsAny<UserCommandHandler>(), It.IsAny<string>(), It.IsAny<string>()))
-            .Returns(PasswordVerificationResult.Success);
-
-        configurationSectionMock.Setup(s => s.Value).Returns("360");
-        configurationMock.Setup(x => x.GetSection("Jwt:ExpirationInMinutes")).Returns(configurationSectionMock.Object);
-
-        //Act
+        //Arrange & Act
         var result = await sut.Handle(command, CancellationToken.None);
 
         //Assert
@@ -99,7 +93,8 @@ public sealed class UserCommandHandlerTests
     }
 
     [Theory, AutoUserData]
-    public async Task Handle_UserNotFound_ShouldReturnFailure(
+    [Trait("Test", "AuthenticateUser:UserNotFound")]
+    public async Task AuthenticateUser_UserNotFound_ShouldReturnFailure(
         [Frozen] Mock<IUserRepository> repositoryMock,
         UserCommandHandler sut,
         AuthenticateUserCommand command)
@@ -117,14 +112,15 @@ public sealed class UserCommandHandlerTests
     }
 
     [Theory, AutoUserData]
-    public async Task Handle_IncorrectPassword_ShouldReturnFailure(
-        [Frozen] Mock<IPasswordHasher<UserCommandHandler>> passwordHasherMock,
+    [Trait("Test", "AuthenticateUser:IncorrectPassword")]
+    public async Task AuthenticateUser_IncorrectPassword_ShouldReturnFailure(
+        [Frozen] Mock<IPasswordProvider> passwordProviderMock,
         UserCommandHandler sut,
         AuthenticateUserCommand command)
     {
         //Arrange
-        passwordHasherMock.Setup(x => x.VerifyHashedPassword(It.IsAny<UserCommandHandler>(), It.IsAny<string>(), It.IsAny<string>()))
-            .Returns(PasswordVerificationResult.Failed);
+        passwordProviderMock.Setup(x => x.VerifyHashedPassword(It.IsAny<string>(), It.IsAny<string>()))
+            .Returns(false);
 
         //Act
         var result = await sut.Handle(command, CancellationToken.None);
@@ -132,5 +128,84 @@ public sealed class UserCommandHandlerTests
         //Assert
         result.Success.Should().BeFalse();
         result.Errors.Should().Contain(x => x.Message == User.EmailAddressOrPasswordIncorrect);
+    }
+
+    [Theory, AutoUserData]
+    [Trait("Test", "ChangeUserPassword:ValidUserChangePassword")]
+    public async Task ChangeUserPassword_ValidUserChangePassword_ShouldChangeUserPasswordAndReturnSuccess(
+        [Frozen] Mock<IUserRepository> repositoryMock,
+        [Frozen] Mock<IUnitOfWork> unitOfWorkMock,
+        UserCommandHandler sut,
+        ChangeUserPasswordCommand command,
+        User user)
+    {
+        //Arrange & Act
+        var result = await sut.Handle(command, CancellationToken.None);
+
+        //Assert
+        repositoryMock.Verify(x => x.Update(It.IsAny<User>()), Times.Once);
+        unitOfWorkMock.Verify(x => x.CommitAsync(It.IsAny<CancellationToken>()), Times.Once);
+        result.Success.Should().BeTrue();
+        result.Data.Should().Be(user.Id);
+    }
+
+    [Theory, AutoUserData]
+    [Trait("Test", "ChangeUserPassword:UserNotFound")]
+    public async Task ChangeUserPassword_UserNotFound_ShouldReturnFailure(
+        [Frozen] Mock<IUserRepository> repositoryMock,
+        UserCommandHandler sut,
+        ChangeUserPasswordCommand command)
+    {
+        //Arrange
+        repositoryMock.Setup(x => x.GetByEmailAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(null as User);
+
+        //Act
+        var result = await sut.Handle(command, CancellationToken.None);
+
+        //Assert
+        result.Success.Should().BeFalse();
+        result.Errors.Should().Contain(x => x.Message == User.EmailAddressOrPasswordIncorrect);
+    }
+
+    [Theory, AutoUserData]
+    [Trait("Test", "ChangeUserPassword:IncorrectPassword")]
+    public async Task ChangeUserPassword_IncorrectPassword_ShouldReturnFailure(
+        [Frozen] Mock<IPasswordProvider> passwordProviderMock,
+        UserCommandHandler sut,
+        ChangeUserPasswordCommand command)
+    {
+        //Arrange
+        passwordProviderMock.Setup(x => x.VerifyHashedPassword(It.IsAny<string>(), It.IsAny<string>()))
+            .Returns(false);
+
+        //Act
+        var result = await sut.Handle(command, CancellationToken.None);
+
+        //Assert
+        result.Success.Should().BeFalse();
+        result.Errors.Should().Contain(x => x.Message == User.EmailAddressOrPasswordIncorrect);
+    }
+
+    [Theory, AutoUserData]
+    [Trait("Test", "ChangeUserPassword:ReturnFalseCommit")]
+    public async Task ChangeUserPassword_ReturnFalseCommit_ShouldNotAddUserAndReturnFailure(
+        [Frozen] Mock<IUserRepository> repositoryMock,
+        [Frozen] Mock<IUnitOfWork> unitOfWorkMock,
+        UserCommandHandler sut,
+        ChangeUserPasswordCommand command)
+    {
+        //Arrange
+        unitOfWorkMock.Setup(x => x.CommitAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(false);
+
+        //Arrange & Act
+        var result = await sut.Handle(command, CancellationToken.None);
+
+        //Assert
+        repositoryMock.Verify(x => x.Update(It.IsAny<User>()), Times.Once);
+        unitOfWorkMock.Verify(x => x.CommitAsync(It.IsAny<CancellationToken>()), Times.Once);
+        result.Success.Should().BeFalse();
+        result.Errors.Should().Contain(x => x.Message == User.ErrorSavingUser);
     }
 }

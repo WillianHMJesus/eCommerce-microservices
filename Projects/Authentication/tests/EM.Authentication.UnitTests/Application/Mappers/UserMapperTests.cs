@@ -11,6 +11,7 @@ namespace EM.Authentication.UnitTests.Application.Mappers;
 public sealed class UserMapperTests
 {
     [Theory, AutoUserData]
+    [Trait("Test", "Map:UserToUserResponse")]
     public void Map_UserToUserResponse_ShouldReturnValidUserResponse(
         UserMapper sut,
         User user)
@@ -25,6 +26,7 @@ public sealed class UserMapperTests
     }
 
     [Theory, AutoUserData]
+    [Trait("Test", "Map:AddUserCommandToUser")]
     public void Map_AddUserCommandToUser_ShouldReturnValidUser(
         UserMapper sut,
         AddUserCommand command,

@@ -12,6 +12,7 @@ namespace EM.Authentication.UnitTests.Domain.ValueObjects;
 public sealed class EmailTests
 {
     [Theory, AutoUserData]
+    [Trait("Test", "Validate:ValidEmail")]
     public void Validate_ValidEmail_ShouldNotReturnDomainException(string emailAddress)
     {
         //Arrange & Act
@@ -22,6 +23,7 @@ public sealed class EmailTests
     }
 
     [Fact]
+    [Trait("Test", "Validate:EmptyEmailAddress")]
     public void Validate_EmptyEmailAddress_ShouldReturnDomainException()
     {
         //Arrange & Act
@@ -34,6 +36,7 @@ public sealed class EmailTests
     }
 
     [Fact]
+    [Trait("Test", "Validate:NullEmailAddress")]
     public void Validate_NullEmailAddress_ShouldReturnDomainException()
     {
         //Arrange & Act
@@ -46,6 +49,7 @@ public sealed class EmailTests
     }
 
     [Theory, AutoUserData]
+    [Trait("Test", "Validate:EmailAddressLongerThanMaxLenght")]
     public void Validate_EmailAddressLongerThanMaxLenght_ShouldReturnDomainException(string emailAddressGreaterThanMaxLenght)
     {
         //Arrange & Act
@@ -58,6 +62,7 @@ public sealed class EmailTests
     }
 
     [Theory, AutoUserData]
+    [Trait("Test", "Validate:InvalidEmailAddress")]
     public void Validate_InvalidEmailAddress_ShouldReturnDomainException(string invalidEmail)
     {
         //Arrange & Act
@@ -70,6 +75,7 @@ public sealed class EmailTests
     }
 
     [Theory, AutoUserData]
+    [Trait("Test", "Emails:WithSameEmailAddress")]
     public void Emails_WithSameEmailAddress_ShouldBeEqual(string emailAddress)
     {
         // Arrange
@@ -81,6 +87,7 @@ public sealed class EmailTests
     }
 
     [Theory, AutoUserData]
+    [Trait("Test", "Emails:WithDifferentEmailAddress")]
     public void Emails_WithDifferentEmailAddress_ShouldNotBeEqual(MailAddress originalMail, MailAddress comparisonMail)
     {
         // Arrange
@@ -92,7 +99,8 @@ public sealed class EmailTests
     }
 
     [Theory, AutoUserData]
-    public void GetEqualityComponents_ShouldReturn_EmailAddress(string emailAddress)
+    [Trait("Test", "GetEqualityComponents:ValidEmail")]
+    public void GetEqualityComponents_ValidEmail_ShouldReturnEmailAddress(string emailAddress)
     {
         // Arrange
         var email = new Email(emailAddress);

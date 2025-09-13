@@ -1,29 +1,22 @@
-﻿using AutoFixture.Xunit2;
-using EM.Authentication.Application.Commands.AddUser;
+﻿using EM.Authentication.Application.Commands.ChangeUserPassword;
 using EM.Authentication.Domain;
-using EM.Authentication.Domain.Entities;
 using EM.Authentication.Domain.ValueObjects;
 using EM.Authentication.UnitTests.AutoCustomData;
 using FluentAssertions;
-using Moq;
 using Xunit;
 
-namespace EM.Authentication.UnitTests.Application.Commands.AddUser;
+namespace EM.Authentication.UnitTests.Application.Commands.ChangeUserPassword;
 
-public sealed class AddUserCommandValidatorTests
+#pragma warning disable CS8625
+public sealed class ChangeUserPasswordCommandValidatorTests
 {
     [Theory, AutoUserData]
-    [Trait("Test", "Constructor:ValidAddUserCommand")]
-    public async Task Constructor_ValidAddUserCommand_ShouldReturnValidResult(
-        [Frozen] Mock<IUserRepository> repositoryMock,
-        AddUserCommandValidator sut,
-        AddUserCommand command)
+    [Trait("Test", "Constructor:ValidChangeUserPasswordCommand")]
+    public async Task Constructor_ValidChangeUserPasswordCommand_ShouldReturnValidResult(
+        ChangeUserPasswordCommandValidator sut,
+        ChangeUserPasswordCommand command)
     {
-        //Arrange 
-        repositoryMock.Setup(x => x.GetByEmailAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(null as User);
-
-        //Act
+        //Arrange & Act
         var result = await sut.ValidateAsync(command);
 
         //Assert
@@ -34,57 +27,54 @@ public sealed class AddUserCommandValidatorTests
     [Theory, AutoUserData]
     [Trait("Test", "Constructor:FieldsWithDefaultValues")]
     public async Task Constructor_FieldsWithDefaultValues_ShouldReturnInvalidResult(
-        AddUserCommandValidator sut,
-        AddUserCommand commandDefaultValues)
+        ChangeUserPasswordCommandValidator sut,
+        ChangeUserPasswordCommand commandDefaultValues)
     {
         //Arrange & Act
         var result = await sut.ValidateAsync(commandDefaultValues);
 
         //Assert
         result.IsValid.Should().BeFalse();
-        result.Errors.Should().Contain(x => x.ErrorMessage == User.UserNameNullOrEmpty);
         result.Errors.Should().Contain(x => x.ErrorMessage == Email.EmailAddressNullOrEmpty);
         result.Errors.Should().Contain(x => x.ErrorMessage == User.PasswordNullOrEmpty);
-        result.Errors.Should().Contain(x => x.ErrorMessage == Profile.ProfileNameNullOrEmpty);
+        result.Errors.Where(x => x.ErrorMessage == User.PasswordNullOrEmpty).Count().Should().Be(2);
     }
 
     [Theory, AutoUserData]
     [Trait("Test", "Constructor:FieldsWithNullValues")]
     public async Task Constructor_FieldsWithNullValues_ShouldReturnInvalidResult(
-        AddUserCommandValidator sut,
-        AddUserCommand commandNullValues)
+        ChangeUserPasswordCommandValidator sut,
+        ChangeUserPasswordCommand commandNullValues)
     {
         //Arrange & Act
         var result = await sut.ValidateAsync(commandNullValues);
 
         //Assert
         result.IsValid.Should().BeFalse();
-        result.Errors.Should().Contain(x => x.ErrorMessage == User.UserNameNullOrEmpty);
         result.Errors.Should().Contain(x => x.ErrorMessage == Email.EmailAddressNullOrEmpty);
         result.Errors.Should().Contain(x => x.ErrorMessage == User.PasswordNullOrEmpty);
-        result.Errors.Should().Contain(x => x.ErrorMessage == Profile.ProfileNameNullOrEmpty);
+        result.Errors.Where(x => x.ErrorMessage == User.PasswordNullOrEmpty).Count().Should().Be(2);
     }
 
     [Theory, AutoUserData]
-    [Trait("Test", "Constructor:UserNameAndEmailAddressGreaterThanMaxLenght")]
-    public async Task Constructor_UserNameAndEmailAddressGreaterThanMaxLenght_ShouldReturnInvalidResult(
-        AddUserCommandValidator sut,
-        AddUserCommand commandGreaterThanMaxLenght)
+    [Trait("Test", "Constructor:EmailAddressGreaterThanMaxLenght")]
+    public async Task Constructor_EmailAddressGreaterThanMaxLenght_ShouldReturnInvalidResult(
+        ChangeUserPasswordCommandValidator sut,
+        ChangeUserPasswordCommand commandGreaterThanMaxLenght)
     {
         //Arrange & Act
         var result = await sut.ValidateAsync(commandGreaterThanMaxLenght);
 
         //Assert
         result.IsValid.Should().BeFalse();
-        result.Errors.Should().Contain(x => x.ErrorMessage == User.UserNameMaxLenghtError);
         result.Errors.Should().Contain(x => x.ErrorMessage == Email.EmailAddressMaxLenghtError);
     }
 
     [Theory, AutoUserData]
     [Trait("Test", "Constructor:InvalidEmailAddressAndPassword")]
     public async Task Constructor_InvalidEmailAddressAndPassword_ShouldReturnInvalidResult(
-        AddUserCommandValidator sut,
-        AddUserCommand invalidCommand)
+        ChangeUserPasswordCommandValidator sut,
+        ChangeUserPasswordCommand invalidCommand)
     {
         //Arrange & Act
         var result = await sut.ValidateAsync(invalidCommand);
@@ -98,8 +88,8 @@ public sealed class AddUserCommandValidatorTests
     [Theory, AutoUserData]
     [Trait("Test", "Constructor:PasswordDifferentConfirmPassword")]
     public async Task Constructor_PasswordDifferentConfirmPassword_ShouldReturnInvalidResult(
-        AddUserCommandValidator sut,
-        AddUserCommand commandPasswordDifferent)
+        ChangeUserPasswordCommandValidator sut,
+        ChangeUserPasswordCommand commandPasswordDifferent)
     {
         //Arrange & Act
         var result = await sut.ValidateAsync(commandPasswordDifferent);
@@ -108,24 +98,5 @@ public sealed class AddUserCommandValidatorTests
         result.IsValid.Should().BeFalse();
         result.Errors.Should().Contain(x => x.ErrorMessage == User.PasswordDifferent);
     }
-
-    [Theory, AutoUserData]
-    [Trait("Test", "Constructor:EmailAddressAlreadyRegistered")]
-    public async Task Constructor_EmailAddressAlreadyRegistered_ShouldReturnInvalidResult(
-        [Frozen] Mock<IUserRepository> repositoryMock,
-        AddUserCommandValidator sut,
-        AddUserCommand command,
-        User user)
-    {
-        //Arrange 
-        repositoryMock.Setup(x => x.GetByEmailAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(user);
-
-        //Arrange & Act
-        var result = await sut.ValidateAsync(command);
-
-        //Assert
-        result.IsValid.Should().BeFalse();
-        result.Errors.Should().Contain(x => x.ErrorMessage == Email.EmailAddressHasAlreadyBeenRegistered);
-    }
 }
+#pragma warning restore CS8625

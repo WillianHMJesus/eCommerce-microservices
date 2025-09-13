@@ -18,12 +18,14 @@ public sealed class IntegrationTestWebAppFactory
         .WithPassword("Passw0rd")
         .Build();
 
+    public IntegrationTestWebAppFactory()
+    {
+        
+    }
+
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
-        builder.ConfigureTestServices(services =>
-        {
-            ConfigMsSqlContainer(services);
-        });
+        builder.ConfigureTestServices(ConfigMsSqlContainer);
     }
 
     public async Task InitializeAsync()

@@ -11,6 +11,7 @@ namespace EM.Authentication.UnitTests.Domain.Entities;
 public sealed class RoleTests
 {
     [Theory, AutoData]
+    [Trait("Test", "Validate:ValidRole")]
     public void Validate_ValidRole_ShouldNotReturnDomainException(string roleName)
     {
         //Arrange & Act
@@ -21,6 +22,7 @@ public sealed class RoleTests
     }
 
     [Fact]
+    [Trait("Test", "Validate:EmptyRoleName")]
     public void Validate_EmptyRoleName_ShouldReturnDomainException()
     {
         //Arrange & Act
@@ -33,6 +35,7 @@ public sealed class RoleTests
     }
 
     [Fact]
+    [Trait("Test", "Validate:NullRoleName")]
     public void Validate_NullRoleName_ShouldReturnDomainException()
     {
         //Arrange & Act
@@ -45,6 +48,7 @@ public sealed class RoleTests
     }
 
     [Theory, AutoUserData]
+    [Trait("Test", "Validate:RoleNameLongerThanMaxLenght")]
     public void Validate_RoleNameLongerThanMaxLenght_ShouldReturnDomainException(string roleNameGreaterThanMaxLenght)
     {
         //Arrange & Act

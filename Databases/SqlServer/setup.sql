@@ -52,6 +52,8 @@ declare @userId uniqueidentifier = newid();
 declare @managerProfileId uniqueidentifier = newid();
 declare @roleId uniqueidentifier = newid();
 
+insert into [Users] ([Id], [UserName], [EmailAddress], [PasswordHash]) values (newid(), 'Customer User', 'user@customer.com', 'AQAAAAIAAYagAAAAEOBNuPrPU4BM5FT3EYNE1VOQlV8BY2GxLkdc3aYrqWdo8ldQSlfzoaaMNnwaCTrYlA==');
+
 insert into [Users] ([Id], [UserName], [EmailAddress], [PasswordHash]) values (@userId, 'Manager User', 'user@manager.com', 'AQAAAAIAAYagAAAAEOBNuPrPU4BM5FT3EYNE1VOQlV8BY2GxLkdc3aYrqWdo8ldQSlfzoaaMNnwaCTrYlA==');
 
 insert into [Profiles] ([Id], [Name]) values (@managerProfileId, 'Manager');
