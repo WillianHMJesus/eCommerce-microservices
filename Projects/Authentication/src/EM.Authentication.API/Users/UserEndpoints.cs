@@ -1,8 +1,10 @@
 ﻿using Carter;
 using EM.Authentication.API.Users.RequestModels;
 using EM.Authentication.Application.Commands.AddUser;
-using EM.Authentication.Application.Commands.AuthenticateUser;
 using EM.Authentication.Application.Commands.ChangeUserPassword;
+using EM.Authentication.Application.Commands.ResetUserPassword;
+using EM.Authentication.Application.Commands.SendUserToken;
+using EM.Authentication.Application.Commands.ValidateUserToken;
 using Microsoft.AspNetCore.Mvc;
 using WH.SharedKernel.Mediator;
 
@@ -12,26 +14,35 @@ public sealed class UserEndpoints : ICarterModule
 {
     public void AddRoutes(IEndpointRouteBuilder app)
     {
-        var group = app.MapGroup("api")
+        var group = app.MapGroup("api/users")
             .WithOpenApi();
 
-        group.MapPost("users/customer-profile", AddCustomerAsync)
+        group.MapPost("customer-profile", AddCustomerAsync)
             .WithName("AddCustomer");
 
-        group.MapPost("users", AddUserAsync)
+        group.MapPost("", AddUserAsync)
             .WithName("AddUser")
             .RequireAuthorization("AddUser");
 
-        group.MapPost("oauth", AuthenticateUserAsync)
-            .WithName("Oauth");
-
-        group.MapPut("users/change-password", ChangeUserPasswordAsync)
+        group.MapPut("change-password", ChangeUserPasswordAsync)
             .WithName("ChangeUserPassword")
+            .RequireAuthorization();
+
+        group.MapPost("send-token", SendUserTokenAsync)
+            .WithName("SendUserToken")
+            .RequireAuthorization();
+
+        group.MapPost("validate-token", ValidateUserTokenAsync)
+            .WithName("ValidateUserToken")
+            .RequireAuthorization();
+
+        group.MapPost("reset-password", ResetUserPasswordAsync)
+            .WithName("ResetUserPassword")
             .RequireAuthorization();
     }
 
     private static async Task<IResult> AddCustomerAsync(
-        AddCustomerRequest request,
+        [FromBody] AddCustomerRequest request,
         [FromServices] IMediator mediator)
     {
         var command = new AddUserCommand(
@@ -49,7 +60,7 @@ public sealed class UserEndpoints : ICarterModule
     }
 
     private static async Task<IResult> AddUserAsync(
-        AddUserRequest request,
+        [FromBody] AddUserRequest request,
         [FromServices] IMediator mediator)
     {
         var command = new AddUserCommand(
@@ -66,13 +77,15 @@ public sealed class UserEndpoints : ICarterModule
             : Results.BadRequest(result.Errors);
     }
 
-    private static async Task<IResult> AuthenticateUserAsync(
-        AuthenticateUserRequest request,
+    private static async Task<IResult> ChangeUserPasswordAsync(
+        [FromBody] ChangeUserPasswordRequest request,
         [FromServices] IMediator mediator)
     {
-        var command = new AuthenticateUserCommand(
+        var command = new ChangeUserPasswordCommand(
             request.EmailAddress,
-            request.Password);
+            request.OldPassword,
+            request.NewPassword,
+            request.ConfirmPassword);
 
         var result = await mediator.Send(command);
 
@@ -81,13 +94,40 @@ public sealed class UserEndpoints : ICarterModule
             : Results.BadRequest(result.Errors);
     }
 
-    private static async Task<IResult> ChangeUserPasswordAsync(
-        ChangeUserPasswordRequest request,
+    private static async Task<IResult> SendUserTokenAsync(
+        [FromBody] SendUserTokenRequest request,
         [FromServices] IMediator mediator)
     {
-        var command = new ChangeUserPasswordCommand(
-            request.EmailAddress,
-            request.OldPassword,
+        var command = new SendUserTokenCommand(request.EmailAddress);
+
+        var result = await mediator.Send(command);
+
+        return result.Success
+            ? Results.Ok(result.Data)
+            : Results.BadRequest(result.Errors);
+    }
+
+    private static async Task<IResult> ValidateUserTokenAsync(
+        [FromBody] ValidateUserTokenRequest request,
+        [FromServices] IMediator mediator)
+    {
+        var command = new ValidateUserTokenCommand(
+            request.UserTokenId,
+            request.Token);
+
+        var result = await mediator.Send(command);
+
+        return result.Success
+            ? Results.Ok(result.Data)
+            : Results.BadRequest(result.Errors);
+    }
+
+    private static async Task<IResult> ResetUserPasswordAsync(
+        [FromBody] ResetPasswordRequest request,
+        [FromServices] IMediator mediator)
+    {
+        var command = new ResetUserPasswordCommand(
+            request.UserTokenId,
             request.NewPassword,
             request.ConfirmPassword);
 

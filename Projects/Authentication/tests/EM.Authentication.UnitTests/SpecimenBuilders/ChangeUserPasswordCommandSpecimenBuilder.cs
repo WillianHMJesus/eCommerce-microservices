@@ -2,8 +2,8 @@
 using AutoFixture.Kernel;
 using EM.Authentication.Application.Commands.ChangeUserPassword;
 using EM.Authentication.Domain.ValueObjects;
-using EM.Authentication.UnitTests.Fixtures;
 using Bogus;
+using EM.Authentication.UnitTests.Fixtures;
 
 namespace EM.Authentication.UnitTests.SpecimenBuilders;
 

@@ -29,8 +29,11 @@ public sealed class AutoUserDataAttribute : AutoDataAttribute
 
         fixture.Register(() => addCustomerRequest);
         fixture.Customizations.Add(new AddUserRequestSpecimenBuilder(fixture));
-        fixture.Customizations.Add(new AuthenticateUserRequestSpecimenBuilder(fixture));
+        fixture.Customizations.Add(new OauthRequestSpecimenBuilder(fixture));
         fixture.Customizations.Add(new ChangeUserPasswordRequestSpecimenBuilder(fixture));
+        fixture.Customizations.Add(new SendUserTokenRequestSpecimenBuilder());
+        fixture.Customizations.Add(new ValidateUserTokenRequestSpecimenBuilder());
+        fixture.Customizations.Add(new ResetPasswordRequestSpecimenBuilder());
 
         return fixture;
     }

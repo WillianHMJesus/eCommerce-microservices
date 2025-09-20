@@ -12,6 +12,19 @@ create table [Users](
 );
 go
 
+create table [User_Tokens](
+	[Id] uniqueidentifier not null,
+	[UserId] uniqueidentifier not null,
+	[TokenHash] varchar(200) not null,
+	[CreatedAt] datetime not null,
+	[ExpiresAt] datetime not null,
+	[ValidatedAt] datetime null,
+
+	constraint [PK_User_Tokens] primary key ([Id]),
+	constraint [FK_User_Tokens_Users] foreign key ([UserId]) references [Users] ([Id])
+);
+go
+
 create table [Profiles](
 	[Id] uniqueidentifier not null,
 	[Name] varchar(50) not null,
@@ -52,7 +65,7 @@ declare @userId uniqueidentifier = newid();
 declare @managerProfileId uniqueidentifier = newid();
 declare @roleId uniqueidentifier = newid();
 
-insert into [Users] ([Id], [UserName], [EmailAddress], [PasswordHash]) values (newid(), 'Customer User', 'user@customer.com', 'AQAAAAIAAYagAAAAEOBNuPrPU4BM5FT3EYNE1VOQlV8BY2GxLkdc3aYrqWdo8ldQSlfzoaaMNnwaCTrYlA==');
+
 
 insert into [Users] ([Id], [UserName], [EmailAddress], [PasswordHash]) values (@userId, 'Manager User', 'user@manager.com', 'AQAAAAIAAYagAAAAEOBNuPrPU4BM5FT3EYNE1VOQlV8BY2GxLkdc3aYrqWdo8ldQSlfzoaaMNnwaCTrYlA==');
 
@@ -106,6 +119,24 @@ insert into [Roles] ([Id], [Name]) values (@roleId, 'MakeUnavailableProduct');
 
 insert into [Profile_Roles] ([ProfileId], [RoleId]) values (@managerProfileId, @roleId);
 go
+
+-------------------------------------------------------------Registers to Integration Tests----------------------------------------------------------------------------------------------------
+
+declare @customerUserId uniqueidentifier = newid();
+declare @userTokenId uniqueidentifier = 'c0b4e59f-bbce-4f63-a6ba-9dffd0fdc171';
+declare @userTokenIdExpired uniqueidentifier = '6bd97845-3e70-469c-8cb9-5192b027a2b4';
+declare @userTokenIdValidated uniqueidentifier = '2a20862f-1dce-451e-9e81-bd755bab25fe';
+declare @userTokenIdNotValidated uniqueidentifier = 'f6cdc732-908a-4e0d-9d7c-1e04d1512bf9';
+
+insert into [Users] ([Id], [UserName], [EmailAddress], [PasswordHash]) values (@customerUserId, 'Customer User', 'user@customer.com', 'AQAAAAIAAYagAAAAEOBNuPrPU4BM5FT3EYNE1VOQlV8BY2GxLkdc3aYrqWdo8ldQSlfzoaaMNnwaCTrYlA==');
+
+insert into [User_Tokens] ([Id], [UserId], [TokenHash], [CreatedAt], [ExpiresAt], [ValidatedAt]) values (@userTokenId, @customerUserId, 'AQAAAAIAAYagAAAAECOCEEzJv1tfpSju+poNMn2hqAXx8ah2ACSTWw3+R5ldjz+iQTe6R1+50+jyAYxkCQ==', '2025-09-20 00:38', '2035-09-20 00:38', null);
+
+insert into [User_Tokens] ([Id], [UserId], [TokenHash], [CreatedAt], [ExpiresAt], [ValidatedAt]) values (@userTokenIdExpired, @customerUserId, 'AQAAAAIAAYagAAAAECOCEEzJv1tfpSju+poNMn2hqAXx8ah2ACSTWw3+R5ldjz+iQTe6R1+50+jyAYxkCQ==', '2025-09-20 00:38', '2025-09-20 00:39', null);
+
+insert into [User_Tokens] ([Id], [UserId], [TokenHash], [CreatedAt], [ExpiresAt], [ValidatedAt]) values (@userTokenIdValidated, @customerUserId, 'AQAAAAIAAYagAAAAECOCEEzJv1tfpSju+poNMn2hqAXx8ah2ACSTWw3+R5ldjz+iQTe6R1+50+jyAYxkCQ==', '2025-09-20 00:38', '2035-09-20 00:38', '2025-09-20 00:39');
+
+insert into [User_Tokens] ([Id], [UserId], [TokenHash], [CreatedAt], [ExpiresAt], [ValidatedAt]) values (@userTokenIdNotValidated, @customerUserId, 'AQAAAAIAAYagAAAAECOCEEzJv1tfpSju+poNMn2hqAXx8ah2ACSTWw3+R5ldjz+iQTe6R1+50+jyAYxkCQ==', '2025-09-20 00:38', '2035-09-20 00:38', null);
 
 create database [Catalog];
 go

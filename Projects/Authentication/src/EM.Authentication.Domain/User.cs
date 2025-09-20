@@ -15,7 +15,7 @@ public sealed class User : BaseEntity, IAggregateRoot
     public const string ProfileNull = "The user profile cannot be null";
     public const string ErrorSavingUser = "An error occurred while saving the user";
     public const string EmailAddressOrPasswordIncorrect = "The email address or password is incorrect";
-    public static readonly string UserNameMaxLenghtError = $"The username cannot be greater then {UserNameMaxLenght}";
+    public static readonly string UserNameMaxLenghtError = $"The username cannot be greater than {UserNameMaxLenght}";
 
     private User() { }
 
@@ -36,6 +36,7 @@ public sealed class User : BaseEntity, IAggregateRoot
     public override void Validate()
     {
         Email.Validate();
+
         AssertionConcern.ValidateNullOrEmpty(UserName, UserNameNullOrEmpty);
         AssertionConcern.ValidateMaxLength(UserName, UserNameMaxLenght, UserNameMaxLenghtError);
         AssertionConcern.ValidateNullOrWhiteSpace(PasswordHash, PasswordHashNullOrEmpty);

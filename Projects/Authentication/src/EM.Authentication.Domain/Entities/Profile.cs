@@ -8,7 +8,7 @@ public sealed class Profile : BaseEntity
     public const string NameNullOrEmpty = "The profile name cannot be null or empty";
     public const string ProfileNameNullOrEmpty = "The profile name cannot be null or empty";
     public const string ProfileNotFound = "The user profile not found";
-    public static readonly string NameMaxLenghtError = $"The profile name cannot be greater then {NameMaxLenght}";
+    public static readonly string NameMaxLenghtError = $"The profile name cannot be greater than {NameMaxLenght}";
 
     public Profile(string name)
     {

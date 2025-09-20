@@ -11,14 +11,19 @@ public sealed class UserRepository(AuthenticationContext context) : IUserReposit
         await context.Users.AddAsync(user, cancellationToken);
     }
 
-    public void Delete(User user)
+    public async Task AddTokenAsync(UserToken userToken, CancellationToken cancellationToken)
     {
-        context.Users.Remove(user);
+        await context.UserTokens.AddAsync(userToken, cancellationToken);
     }
 
     public void Update(User user)
     {
         context.Users.Update(user);
+    }
+
+    public void UpdateToken(UserToken userToken)
+    {
+        context.UserTokens.Update(userToken);
     }
 
     public async Task<User?> GetByEmailAsync(string emailAddress, CancellationToken cancellationToken)
@@ -33,5 +38,12 @@ public sealed class UserRepository(AuthenticationContext context) : IUserReposit
     {
         return await context.Profiles
             .FirstOrDefaultAsync(x => x.Name == profileName, cancellationToken);
+    }
+
+    public async Task<UserToken?> GetTokenByIdAsync(Guid id, CancellationToken cancellationToken)
+    {
+        return await context.UserTokens
+            .Include(x => x.User)
+            .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
     }
 }

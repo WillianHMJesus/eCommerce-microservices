@@ -1,6 +1,6 @@
-﻿namespace EM.Authentication.API.Users.RequestModels;
+﻿namespace EM.Authentication.API.Oauth.RequestModels;
 
-public sealed class AuthenticateUserRequest
+public class OauthRequest
 {
     public string EmailAddress { get; set; } = "";
     public string Password { get; set; } = "";

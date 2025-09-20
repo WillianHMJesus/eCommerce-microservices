@@ -1,11 +1,11 @@
 ﻿using AutoFixture;
 using AutoFixture.Kernel;
 using Bogus;
-using EM.Authentication.API.Users.RequestModels;
+using EM.Authentication.API.Oauth.RequestModels;
 
 namespace EM.Authentication.IntegrationTests.SpecimenBuilders;
 
-public sealed class AuthenticateUserRequestSpecimenBuilder(IFixture fixture) : ISpecimenBuilder
+public sealed class OauthRequestSpecimenBuilder(IFixture fixture) : ISpecimenBuilder
 {
     private readonly Faker _faker = new();
     public const string EmailAddress = "user@manager.com";
@@ -13,13 +13,13 @@ public sealed class AuthenticateUserRequestSpecimenBuilder(IFixture fixture) : I
 
     public object Create(object request, ISpecimenContext context)
     {
-        if (!request.ToString()!.Contains(nameof(AuthenticateUserRequest)))
+        if (!request.ToString()!.Contains(nameof(OauthRequest)))
         {
             return new NoSpecimen();
         }
 
-        string AuthenticateUserRequestStringType = "EM.Authentication.API.Users.RequestModels.AuthenticateUserRequest ";
-        string parameterName = request?.ToString()?.Replace(AuthenticateUserRequestStringType, "").Trim() ?? "";
+        string OauthRequestStringType = "EM.Authentication.API.Oauth.RequestModels.OauthRequest ";
+        string parameterName = request?.ToString()?.Replace(OauthRequestStringType, "").Trim() ?? "";
 
         return parameterName.ToLower() switch
         {
@@ -32,32 +32,32 @@ public sealed class AuthenticateUserRequestSpecimenBuilder(IFixture fixture) : I
         };
     }
 
-    private AuthenticateUserRequest GetRequest() =>
-        fixture.Build<AuthenticateUserRequest>()
+    private OauthRequest GetRequest() =>
+        fixture.Build<OauthRequest>()
             .With(x => x.EmailAddress, EmailAddress)
             .With(x => x.Password, Password)
             .Create();
 
-    private AuthenticateUserRequest GetRequestDefaultValues() =>
-        fixture.Build<AuthenticateUserRequest>()
+    private OauthRequest GetRequestDefaultValues() =>
+        fixture.Build<OauthRequest>()
             .With(x => x.EmailAddress, default(string))
             .With(x => x.Password, default(string))
             .Create();
 
-    private AuthenticateUserRequest GetRequestNullValues() =>
-        fixture.Build<AuthenticateUserRequest>()
+    private OauthRequest GetRequestNullValues() =>
+        fixture.Build<OauthRequest>()
             .With(x => x.EmailAddress, null as string)
             .With(x => x.Password, null as string)
             .Create();
     
-    private AuthenticateUserRequest GetRequestUserNotFound() =>
-        fixture.Build<AuthenticateUserRequest>()
+    private OauthRequest GetRequestUserNotFound() =>
+        fixture.Build<OauthRequest>()
             .With(x => x.EmailAddress, _faker.Internet.Email())
             .With(x => x.Password, Password)
             .Create();
 
-    private AuthenticateUserRequest GetIncorrectPassword() =>
-    fixture.Build<AuthenticateUserRequest>()
+    private OauthRequest GetIncorrectPassword() =>
+    fixture.Build<OauthRequest>()
             .With(x => x.EmailAddress, EmailAddress)
             .With(x => x.Password, _faker.Internet.Password())
             .Create();

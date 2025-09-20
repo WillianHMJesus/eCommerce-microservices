@@ -5,14 +5,15 @@ using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 using JwtRegisteredClaimNames = System.IdentityModel.Tokens.Jwt.JwtRegisteredClaimNames;
 
 namespace EM.Authentication.Infraestructure.Providers;
 
-public sealed class JwtBearerProvider(IConfiguration configuration) : ITokenProvider
+public sealed class TokenProvider(IConfiguration configuration) : ITokenProvider
 {
-    public string Generate(User user)
+    public string GenerateJwtToken(User user)
     {
         var tokenDescriptor = new SecurityTokenDescriptor
         {
@@ -36,7 +37,7 @@ public sealed class JwtBearerProvider(IConfiguration configuration) : ITokenProv
         return handler.CreateToken(tokenDescriptor);
     }
 
-    public string GenerateRefreshToken(User user)
+    public string GenerateJwtRefreshToken(User user)
     {
         var tokenDescriptor = new SecurityTokenDescriptor
         {
@@ -52,7 +53,7 @@ public sealed class JwtBearerProvider(IConfiguration configuration) : ITokenProv
         return handler.CreateToken(tokenDescriptor);
     }
 
-    public DateTime GetTokenExpiration(string accessToken)
+    public DateTime GetJwtTokenExpiration(string accessToken)
     {
         var handler = new JwtSecurityTokenHandler();
         var jsonToken = handler.ReadToken(accessToken) as JwtSecurityToken;
@@ -71,6 +72,25 @@ public sealed class JwtBearerProvider(IConfiguration configuration) : ITokenProv
         }
 
         return default;
+    }
+
+    public string GenerateSecurityToken()
+    {
+        short length = 6;
+        char[] Chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789".ToCharArray();
+        StringBuilder tokenBuilder = new StringBuilder(length);
+
+        using var rng = RandomNumberGenerator.Create();
+        byte[] data = new byte[4];
+
+        for (int i = 0; i < length; i++)
+        {
+            rng.GetBytes(data);
+            uint num = BitConverter.ToUInt32(data, 0);
+            tokenBuilder.Append(Chars[num % Chars.Length]);
+        }
+
+        return tokenBuilder.ToString();
     }
 
     private SigningCredentials GetCredentialSecretKey()

@@ -6,7 +6,7 @@ public sealed class Role : BaseEntity
 {
     public const int NameMaxLenght = 50;
     public const string NameNullOrEmpty = "The role name cannot be null or empty";
-    public static readonly string NameMaxLenghtError = $"The role name cannot be greater then {NameMaxLenght}";
+    public static readonly string NameMaxLenghtError = $"The role name cannot be greater than {NameMaxLenght}";
 
     public Role(string name)
     {

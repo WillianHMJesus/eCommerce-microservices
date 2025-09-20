@@ -8,7 +8,7 @@ public sealed class Email : ValueObject
     public const string EmailAddressNullOrEmpty = "The email address cannot be null or empty";
     public const string InvalidEmailAddress = "The email address is invalid";
     public const string EmailAddressHasAlreadyBeenRegistered = "The email address has already been registered";
-    public static readonly string EmailAddressMaxLenghtError = $"The email address cannot be greater then {EmailAddressMaxLenght}";
+    public static readonly string EmailAddressMaxLenghtError = $"The email address cannot be greater than {EmailAddressMaxLenght}";
 
     public Email(string emailAddress)
     {

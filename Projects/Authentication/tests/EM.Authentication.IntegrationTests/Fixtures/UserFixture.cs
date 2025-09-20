@@ -1,4 +1,4 @@
-﻿using EM.Authentication.API.Users.RequestModels;
+﻿using EM.Authentication.API.Oauth.RequestModels;
 using Xunit;
 
 namespace EM.Authentication.IntegrationTests.Fixtures;
@@ -14,14 +14,14 @@ public sealed class UserFixture : BaseFixture
 
     public string AccessToken { get; set; } = "";
 
-    public static AuthenticateUserRequest GetManagerAuthenticateRequest() =>
+    public static OauthRequest GetManagerAuthenticateRequest() =>
         new()
         {
             EmailAddress = ManagerEmailAddress,
             Password = Password
         };
 
-    public static AuthenticateUserRequest GetCustomerAuthenticateRequest() =>
+    public static OauthRequest GetCustomerAuthenticateRequest() =>
         new()
         {
             EmailAddress = CustomerEmailAddress,
