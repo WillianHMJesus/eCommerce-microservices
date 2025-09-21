@@ -1,11 +1,11 @@
-﻿using AutoFixture.Kernel;
+﻿using AutoFixture;
+using AutoFixture.Kernel;
 using Bogus;
 using EM.Authentication.API.Users.RequestModels;
 
 namespace EM.Authentication.IntegrationTests.SpecimenBuilders;
 
-#pragma warning disable CS8625
-public sealed class SendUserTokenRequestSpecimenBuilder : ISpecimenBuilder
+public sealed class SendUserTokenRequestSpecimenBuilder(IFixture fixture) : ISpecimenBuilder
 {
     public const string EmailAddress = "user@manager.com";
     private readonly Faker _faker = new();
@@ -22,12 +22,31 @@ public sealed class SendUserTokenRequestSpecimenBuilder : ISpecimenBuilder
 
         return parameterName.ToLower() switch
         {
-            "request" => new SendUserTokenRequest { EmailAddress = EmailAddress },
-            "requestdefaultemailaddress" => new SendUserTokenRequest { EmailAddress = default },
-            "requestnullemailaddress" => new SendUserTokenRequest { EmailAddress = null },
-            "requestusernotfound" => new SendUserTokenRequest { EmailAddress = _faker.Internet.Email() },
+            "request" => GetRequest(),
+            "requestdefaultemailaddress" => GetRequestDefaultEmailAddress(),
+            "requestnullemailaddress" => GetRequestNullEmailAddress(),
+            "requestusernotfound" => GetRequestUserNotFound(),
             _ => new NoSpecimen()
         };
     }
+
+    private SendUserTokenRequest GetRequest() =>
+        fixture.Build<SendUserTokenRequest>()
+            .With(x => x.EmailAddress, EmailAddress)
+            .Create();
+
+    private SendUserTokenRequest GetRequestDefaultEmailAddress() =>
+        fixture.Build<SendUserTokenRequest>()
+            .With(x => x.EmailAddress, default(string))
+            .Create();
+
+    private SendUserTokenRequest GetRequestNullEmailAddress() =>
+        fixture.Build<SendUserTokenRequest>()
+            .With(x => x.EmailAddress, null as string)
+            .Create();
+
+    private SendUserTokenRequest GetRequestUserNotFound() =>
+        fixture.Build<SendUserTokenRequest>()
+            .With(x => x.EmailAddress, _faker.Internet.Email())
+            .Create();
 }
-#pragma warning restore CS8625

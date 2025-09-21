@@ -2,14 +2,14 @@
 using System.Text;
 using WH.SharedKernel.ResourceManagers;
 
-namespace EM.Authentication.IntegrationTests.Fixtures;
+namespace EM.Authentication.IntegrationTests;
 
-public class BaseFixture
+internal static class Mapper
 {
-    public StringContent MapObjectToStringContent(object request) =>
+    public static StringContent MapObjectToStringContent(object request) =>
         new(JsonConvert.SerializeObject(request), Encoding.UTF8, "application/json");
 
-    public async Task<IEnumerable<Error>?> MapHttpResponseMessageToErrors(HttpResponseMessage response)
+    public static async Task<IEnumerable<Error>?> MapHttpResponseMessageToErrors(HttpResponseMessage response)
     {
         string responseString = await response.Content.ReadAsStringAsync();
 

@@ -13,12 +13,12 @@ public sealed class OauthEndpoints : ICarterModule
         var group = app.MapGroup("api")
             .WithOpenApi();
 
-        group.MapPost("oauth", OauthAsync)
-            .WithName("Oauth");
+        group.MapPost("oauth", AuthenticateAsync)
+            .WithName("Authenticate");
     }
 
-    private static async Task<IResult> OauthAsync(
-        [FromBody] OauthRequest request,
+    private static async Task<IResult> AuthenticateAsync(
+        [FromBody] CredentialsRequest request,
         [FromServices] IMediator mediator)
     {
         var command = new AuthenticateUserCommand(

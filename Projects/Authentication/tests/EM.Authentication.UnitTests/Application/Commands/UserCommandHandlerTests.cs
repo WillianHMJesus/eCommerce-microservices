@@ -336,6 +336,29 @@ public sealed class UserCommandHandlerTests
     }
 
     [Theory, AutoUserData]
+    [Trait("Test", "ValidateUserToken:InvalidToken")]
+    public async Task ValidateUserToken_InvalidToken_ShouldReturnFailure(
+        [Frozen] Mock<IUserRepository> repositoryMock,
+        [Frozen] Mock<IUnitOfWork> unitOfWorkMock,
+        [Frozen] Mock<IPasswordProvider> passwordProviderMock,
+        UserCommandHandler sut,
+        ValidateUserTokenCommand command)
+    {
+        //Arrange
+        passwordProviderMock.Setup(x => x.VerifyHashedPassword(It.IsAny<string>(), It.IsAny<string>()))
+            .Returns(false);
+
+        //Act
+        var result = await sut.Handle(command, CancellationToken.None);
+
+        //Assert
+        repositoryMock.Verify(x => x.Update(It.IsAny<User>()), Times.Never);
+        unitOfWorkMock.Verify(x => x.CommitAsync(It.IsAny<CancellationToken>()), Times.Never);
+        result.Success.Should().BeFalse();
+        result.Errors.Should().Contain(x => x.Message == UserToken.InvalidToken);
+    }
+
+    [Theory, AutoUserData]
     [Trait("Test", "ValidateUserToken:ReturnFalseCommit")]
     public async Task ValidateUserToken_ReturnFalseCommit_ShouldReturnFailure(
         [Frozen] Mock<IUserRepository> repositoryMock,

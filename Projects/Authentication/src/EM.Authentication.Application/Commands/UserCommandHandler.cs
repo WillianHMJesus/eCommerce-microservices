@@ -129,6 +129,11 @@ public sealed class UserCommandHandler(
             return Result.CreateResponseWithErrors([new Error("ApplicationError", UserToken.UserTokenExpired)]);
         }
 
+        if (!passwordProvider.VerifyHashedPassword(userToken.TokenHash, request.Token))
+        {
+            return Result.CreateResponseWithErrors([new Error("ApplicationError", UserToken.InvalidToken)]);
+        }
+
         userToken.SetValidation();
         repository.UpdateToken(userToken);
 

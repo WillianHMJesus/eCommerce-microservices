@@ -2,33 +2,28 @@
 using EM.Authentication.Domain;
 using EM.Authentication.Domain.ValueObjects;
 using EM.Authentication.IntegrationTests.AutoCustomData;
-using EM.Authentication.IntegrationTests.Fixtures;
 using FluentAssertions;
 using System.Net;
 using Xunit;
 
-namespace EM.Authentication.IntegrationTests;
+namespace EM.Authentication.IntegrationTests.EndpointsTests;
 
-[Collection(nameof(UserCollection))]
-public sealed class OauthEndpointsTests : IClassFixture<IntegrationTestWebAppFactory>
+[Collection(nameof(SharedTestCollection))]
+public sealed class OauthEndpointsTests
 {
     private readonly HttpClient _client;
-    private readonly UserFixture _fixture;
 
-    public OauthEndpointsTests(
-        IntegrationTestWebAppFactory factory,
-        UserFixture fixture)
+    public OauthEndpointsTests(IntegrationTestWebAppFactory factory)
     {
         _client = factory.CreateClient();
-        _fixture = fixture;
     }
 
     [Theory, AutoUserData]
     [Trait("Test", "OauthAsync:ValidUser")]
-    public async Task OauthAsync_ValidUser_ShouldReturnStatusCodeOk(OauthRequest request)
+    public async Task OauthAsync_ValidUser_ShouldReturnStatusCodeOk(CredentialsRequest request)
     {
         //Arrange
-        var content = _fixture.MapObjectToStringContent(request);
+        var content = Mapper.MapObjectToStringContent(request);
 
         //Act
         HttpResponseMessage response = await _client.PostAsync("/api/oauth", content);
@@ -40,16 +35,16 @@ public sealed class OauthEndpointsTests : IClassFixture<IntegrationTestWebAppFac
 
     [Theory, AutoUserData]
     [Trait("Test", "OauthAsync:DefaultValues")]
-    public async Task OauthAsync_DefaultValues_ShouldReturnStatusCodeBadRequest(OauthRequest requestDefaultValues)
+    public async Task OauthAsync_DefaultValues_ShouldReturnStatusCodeBadRequest(CredentialsRequest requestDefaultValues)
     {
         //Arrange
-        var content = _fixture.MapObjectToStringContent(requestDefaultValues);
+        var content = Mapper.MapObjectToStringContent(requestDefaultValues);
 
         //Act
         HttpResponseMessage response = await _client.PostAsync("/api/oauth", content);
 
         //Assert
-        var errors = await _fixture.MapHttpResponseMessageToErrors(response);
+        var errors = await Mapper.MapHttpResponseMessageToErrors(response);
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
         errors.Should().Contain(x => x.Message == Email.EmailAddressNullOrEmpty);
         errors.Should().Contain(x => x.Message == User.PasswordNullOrEmpty);
@@ -57,16 +52,16 @@ public sealed class OauthEndpointsTests : IClassFixture<IntegrationTestWebAppFac
 
     [Theory, AutoUserData]
     [Trait("Test", "OauthAsync:NullValues")]
-    public async Task OauthAsync_NullValues_ShouldReturnStatusCodeBadRequest(OauthRequest requestNullValues)
+    public async Task OauthAsync_NullValues_ShouldReturnStatusCodeBadRequest(CredentialsRequest requestNullValues)
     {
         //Arrange
-        var content = _fixture.MapObjectToStringContent(requestNullValues);
+        var content = Mapper.MapObjectToStringContent(requestNullValues);
 
         //Act
         HttpResponseMessage response = await _client.PostAsync("/api/oauth", content);
 
         //Assert
-        var errors = await _fixture.MapHttpResponseMessageToErrors(response);
+        var errors = await Mapper.MapHttpResponseMessageToErrors(response);
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
         errors.Should().Contain(x => x.Message == Email.EmailAddressNullOrEmpty);
         errors.Should().Contain(x => x.Message == User.PasswordNullOrEmpty);
@@ -74,32 +69,32 @@ public sealed class OauthEndpointsTests : IClassFixture<IntegrationTestWebAppFac
 
     [Theory, AutoUserData]
     [Trait("Test", "OauthAsync:UserNotFound")]
-    public async Task OauthAsync_UserNotFound_ShouldReturnStatusCodeBadRequest(OauthRequest requestUserNotFound)
+    public async Task OauthAsync_UserNotFound_ShouldReturnStatusCodeBadRequest(CredentialsRequest requestUserNotFound)
     {
         //Arrange
-        var content = _fixture.MapObjectToStringContent(requestUserNotFound);
+        var content = Mapper.MapObjectToStringContent(requestUserNotFound);
 
         //Act
         HttpResponseMessage response = await _client.PostAsync("/api/oauth", content);
 
         //Assert
-        var errors = await _fixture.MapHttpResponseMessageToErrors(response);
+        var errors = await Mapper.MapHttpResponseMessageToErrors(response);
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
         errors.Should().Contain(x => x.Message == User.EmailAddressOrPasswordIncorrect);
     }
 
     [Theory, AutoUserData]
     [Trait("Test", "OauthAsync:IncorrectPassword")]
-    public async Task OauthAsync_IncorrectPassword_ShouldReturnStatusCodeBadRequest(OauthRequest requestIncorrectPassword)
+    public async Task OauthAsync_IncorrectPassword_ShouldReturnStatusCodeBadRequest(CredentialsRequest requestIncorrectPassword)
     {
         //Arrange
-        var content = _fixture.MapObjectToStringContent(requestIncorrectPassword);
+        var content = Mapper.MapObjectToStringContent(requestIncorrectPassword);
 
         //Act
         HttpResponseMessage response = await _client.PostAsync("/api/oauth", content);
 
         //Assert
-        var errors = await _fixture.MapHttpResponseMessageToErrors(response);
+        var errors = await Mapper.MapHttpResponseMessageToErrors(response);
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
         errors.Should().Contain(x => x.Message == User.EmailAddressOrPasswordIncorrect);
     }

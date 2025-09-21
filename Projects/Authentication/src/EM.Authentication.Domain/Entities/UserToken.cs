@@ -15,6 +15,7 @@ public sealed class UserToken : BaseEntity
     public const string InvalidUser = "The user is invalid";
     public const string ErrorSavingUserToken = "An error occurred while saving the user token";
     public const string UserTokenExpired = "The user token is expired";
+    public const string InvalidToken = "The token is invalid";
 
     public UserToken(Guid userId, string tokenHash, DateTime createdAt, DateTime expiresAt)
     {

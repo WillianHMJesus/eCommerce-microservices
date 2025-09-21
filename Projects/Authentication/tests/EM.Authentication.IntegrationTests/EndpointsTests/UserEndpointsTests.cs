@@ -5,32 +5,36 @@ using EM.Authentication.Domain;
 using EM.Authentication.Domain.Entities;
 using EM.Authentication.Domain.ValueObjects;
 using EM.Authentication.IntegrationTests.AutoCustomData;
-using EM.Authentication.IntegrationTests.Fixtures;
 using FluentAssertions;
 using Newtonsoft.Json;
 using System.Net;
 using Xunit;
 
-namespace EM.Authentication.IntegrationTests;
+namespace EM.Authentication.IntegrationTests.EndpointsTests;
 
-[Collection(nameof(UserCollection))]
-public sealed class UserEndpointsTests : IClassFixture<IntegrationTestWebAppFactory>
+[Collection(nameof(SharedTestCollection))]
+public sealed class UserEndpointsTests
 {
     private readonly HttpClient _client;
-    private readonly UserFixture _fixture;
 
-    public UserEndpointsTests(
-        IntegrationTestWebAppFactory factory,
-        UserFixture fixture)
+    public const string ManagerEmailAddress = "user@manager.com";
+    public const string CustomerEmailAddress = "user@customer.com";
+    public const string Password = "123456Abc*";
+
+    public UserEndpointsTests(IntegrationTestWebAppFactory factory)
     {
         _client = factory.CreateClient();
-        _fixture = fixture;
 
-        if (string.IsNullOrEmpty(fixture.AccessToken))
-            fixture.AccessToken = GetManagerAccessToken().Result;
+        if (!factory.TokenIsValid)
+        {
+            var userResponse = GetManagerUserAuthentication().Result;
+            ArgumentNullException.ThrowIfNull(userResponse, nameof(userResponse));
+
+            factory.SetUserResponse(userResponse);
+        }
 
         _client.DefaultRequestHeaders.Clear();
-        _client.DefaultRequestHeaders.Add("Authorization", $"Bearer {fixture.AccessToken}");
+        _client.DefaultRequestHeaders.Add("Authorization", $"Bearer {factory.AccessToken}");
     }
 
     #region AddCustomer
@@ -39,7 +43,7 @@ public sealed class UserEndpointsTests : IClassFixture<IntegrationTestWebAppFact
     public async Task AddCustomerAsync_ValidCustomer_ShouldReturnStatusCodeOk(AddCustomerRequest request)
     {
         //Arrange
-        var content = _fixture.MapObjectToStringContent(request);
+        var content = Mapper.MapObjectToStringContent(request);
 
         //Act
         HttpResponseMessage response = await _client.PostAsync("/api/users/customer-profile", content);
@@ -56,7 +60,7 @@ public sealed class UserEndpointsTests : IClassFixture<IntegrationTestWebAppFact
     public async Task AddUserAsync_ValidUser_ShouldReturnStatusCodeOk(AddUserRequest request)
     {
         //Arrange
-        var content = _fixture.MapObjectToStringContent(request);
+        var content = Mapper.MapObjectToStringContent(request);
 
         //Act
         HttpResponseMessage response = await _client.PostAsync("/api/users", content);
@@ -72,7 +76,7 @@ public sealed class UserEndpointsTests : IClassFixture<IntegrationTestWebAppFact
     {
         //Arrange
         _client.DefaultRequestHeaders.Clear();
-        var content = _fixture.MapObjectToStringContent(request);
+        var content = Mapper.MapObjectToStringContent(request);
 
         //Act
         HttpResponseMessage response = await _client.PostAsync("/api/users", content);
@@ -86,11 +90,12 @@ public sealed class UserEndpointsTests : IClassFixture<IntegrationTestWebAppFact
     public async Task AddUserAsync_AccessTokenForbidden_ShouldReturnStatusCodeForbidden(AddUserRequest request)
     {
         //Arrange
-        var content = _fixture.MapObjectToStringContent(request);
-        string accessToken = await GetCustomerAccessToken();
+        var content = Mapper.MapObjectToStringContent(request);
+        var userResponse = await GetCustomerUserAuthentication();
+        ArgumentNullException.ThrowIfNull(userResponse, nameof(userResponse));
 
         _client.DefaultRequestHeaders.Clear();
-        _client.DefaultRequestHeaders.Add("Authorization", $"Bearer {accessToken}");
+        _client.DefaultRequestHeaders.Add("Authorization", $"Bearer {userResponse.AccessToken}");
 
         //Act
         HttpResponseMessage response = await _client.PostAsync("/api/users", content);
@@ -104,13 +109,13 @@ public sealed class UserEndpointsTests : IClassFixture<IntegrationTestWebAppFact
     public async Task AddUserAsync_DefaultValues_ShouldReturnStatusCodeBadRequest(AddUserRequest requestDefaultValues)
     {
         //Arrange
-        var content = _fixture.MapObjectToStringContent(requestDefaultValues);
+        var content = Mapper.MapObjectToStringContent(requestDefaultValues);
 
         //Act
         HttpResponseMessage response = await _client.PostAsync("/api/users", content);
 
         //Assert
-        var errors = await _fixture.MapHttpResponseMessageToErrors(response);
+        var errors = await Mapper.MapHttpResponseMessageToErrors(response);
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
         errors.Should().Contain(x => x.Message == User.UserNameNullOrEmpty);
         errors.Should().Contain(x => x.Message == Email.EmailAddressNullOrEmpty);
@@ -123,13 +128,13 @@ public sealed class UserEndpointsTests : IClassFixture<IntegrationTestWebAppFact
     public async Task AddUserAsync_NullValues_ShouldReturnStatusCodeBadRequest(AddUserRequest requestNullValues)
     {
         //Arrange
-        var content = _fixture.MapObjectToStringContent(requestNullValues);
+        var content = Mapper.MapObjectToStringContent(requestNullValues);
 
         //Act
         HttpResponseMessage response = await _client.PostAsync("/api/users", content);
 
         //Assert
-        var errors = await _fixture.MapHttpResponseMessageToErrors(response);
+        var errors = await Mapper.MapHttpResponseMessageToErrors(response);
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
         errors.Should().Contain(x => x.Message == User.UserNameNullOrEmpty);
         errors.Should().Contain(x => x.Message == Email.EmailAddressNullOrEmpty);
@@ -142,13 +147,13 @@ public sealed class UserEndpointsTests : IClassFixture<IntegrationTestWebAppFact
     public async Task AddUserAsync_UserNameAndEmailAddressLargerThanMaxLenght_ShouldReturnStatusCodeBadRequest(AddUserRequest requestGreaterThanMaxLenght)
     {
         //Arrange
-        var content = _fixture.MapObjectToStringContent(requestGreaterThanMaxLenght);
+        var content = Mapper.MapObjectToStringContent(requestGreaterThanMaxLenght);
 
         //Act
         HttpResponseMessage response = await _client.PostAsync("/api/users", content);
 
         //Assert
-        var errors = await _fixture.MapHttpResponseMessageToErrors(response);
+        var errors = await Mapper.MapHttpResponseMessageToErrors(response);
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
         errors.Should().Contain(x => x.Message == User.UserNameMaxLenghtError);
         errors.Should().Contain(x => x.Message == Email.EmailAddressMaxLenghtError);
@@ -159,13 +164,13 @@ public sealed class UserEndpointsTests : IClassFixture<IntegrationTestWebAppFact
     public async Task AddUserAsync_InvalidUserNameAndEmailAddress_ShouldReturnStatusCodeBadRequest(AddUserRequest invalidRequest)
     {
         //Arrange
-        var content = _fixture.MapObjectToStringContent(invalidRequest);
+        var content = Mapper.MapObjectToStringContent(invalidRequest);
 
         //Act
         HttpResponseMessage response = await _client.PostAsync("/api/users", content);
 
         //Assert
-        var errors = await _fixture.MapHttpResponseMessageToErrors(response);
+        var errors = await Mapper.MapHttpResponseMessageToErrors(response);
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
         errors.Should().Contain(x => x.Message == Email.InvalidEmailAddress);
         errors.Should().Contain(x => x.Message == User.InvalidPassword);
@@ -176,13 +181,13 @@ public sealed class UserEndpointsTests : IClassFixture<IntegrationTestWebAppFact
     public async Task AddUserAsync_DifferentPasswords_ShouldReturnStatusCodeBadRequest(AddUserRequest requestPasswordDifferent)
     {
         //Arrange
-        var content = _fixture.MapObjectToStringContent(requestPasswordDifferent);
+        var content = Mapper.MapObjectToStringContent(requestPasswordDifferent);
 
         //Act
         HttpResponseMessage response = await _client.PostAsync("/api/users", content);
 
         //Assert
-        var errors = await _fixture.MapHttpResponseMessageToErrors(response);
+        var errors = await Mapper.MapHttpResponseMessageToErrors(response);
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
         errors.Should().Contain(x => x.Message == User.PasswordDifferent);
     }
@@ -192,13 +197,13 @@ public sealed class UserEndpointsTests : IClassFixture<IntegrationTestWebAppFact
     public async Task AddUserAsync_ProfileNameNotFound_ShouldReturnStatusCodeBadRequest(AddUserRequest requestProfileNameNotFound)
     {
         //Arrange
-        var content = _fixture.MapObjectToStringContent(requestProfileNameNotFound);
+        var content = Mapper.MapObjectToStringContent(requestProfileNameNotFound);
 
         //Act
         HttpResponseMessage response = await _client.PostAsync("/api/users", content);
 
         //Assert
-        var errors = await _fixture.MapHttpResponseMessageToErrors(response);
+        var errors = await Mapper.MapHttpResponseMessageToErrors(response);
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
         errors.Should().Contain(x => x.Message == Profile.ProfileNotFound);
     }
@@ -210,7 +215,7 @@ public sealed class UserEndpointsTests : IClassFixture<IntegrationTestWebAppFact
     public async Task ChangeUserPasswordAsync_ValidPassword_ShouldReturnStatusCodeOk(ChangeUserPasswordRequest request)
     {
         //Arrange
-        var content = _fixture.MapObjectToStringContent(request);
+        var content = Mapper.MapObjectToStringContent(request);
 
         //Act
         HttpResponseMessage response = await _client.PutAsync("/api/users/change-password", content);
@@ -226,7 +231,7 @@ public sealed class UserEndpointsTests : IClassFixture<IntegrationTestWebAppFact
     {
         //Arrange
         _client.DefaultRequestHeaders.Clear();
-        var content = _fixture.MapObjectToStringContent(request);
+        var content = Mapper.MapObjectToStringContent(request);
 
         //Act
         HttpResponseMessage response = await _client.PutAsync("/api/users/change-password", content);
@@ -240,13 +245,13 @@ public sealed class UserEndpointsTests : IClassFixture<IntegrationTestWebAppFact
     public async Task ChangeUserPasswordAsync_DefaultValues_ShouldReturnStatusCodeBadRequest(ChangeUserPasswordRequest requestDefaultValues)
     {
         //Arrange
-        var content = _fixture.MapObjectToStringContent(requestDefaultValues);
+        var content = Mapper.MapObjectToStringContent(requestDefaultValues);
 
         //Act
         HttpResponseMessage response = await _client.PutAsync("/api/users/change-password", content);
 
         //Assert
-        var errors = await _fixture.MapHttpResponseMessageToErrors(response);
+        var errors = await Mapper.MapHttpResponseMessageToErrors(response);
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
         errors.Should().Contain(x => x.Message == Email.EmailAddressNullOrEmpty);
         errors.Should().Contain(x => x.Message == User.PasswordNullOrEmpty);
@@ -257,13 +262,13 @@ public sealed class UserEndpointsTests : IClassFixture<IntegrationTestWebAppFact
     public async Task ChangeUserPasswordAsync_NullValues_ShouldReturnStatusCodeBadRequest(ChangeUserPasswordRequest requestNullValues)
     {
         //Arrange
-        var content = _fixture.MapObjectToStringContent(requestNullValues);
+        var content = Mapper.MapObjectToStringContent(requestNullValues);
 
         //Act
         HttpResponseMessage response = await _client.PutAsync("/api/users/change-password", content);
 
         //Assert
-        var errors = await _fixture.MapHttpResponseMessageToErrors(response);
+        var errors = await Mapper.MapHttpResponseMessageToErrors(response);
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
         errors.Should().Contain(x => x.Message == Email.EmailAddressNullOrEmpty);
         errors.Should().Contain(x => x.Message == User.PasswordNullOrEmpty);
@@ -274,13 +279,13 @@ public sealed class UserEndpointsTests : IClassFixture<IntegrationTestWebAppFact
     public async Task ChangeUserPasswordAsync_EmailAddressLargerThanMaxLenght_ShouldReturnStatusCodeBadRequest(ChangeUserPasswordRequest requestGreaterThanMaxLenght)
     {
         //Arrange
-        var content = _fixture.MapObjectToStringContent(requestGreaterThanMaxLenght);
+        var content = Mapper.MapObjectToStringContent(requestGreaterThanMaxLenght);
 
         //Act
         HttpResponseMessage response = await _client.PutAsync("/api/users/change-password", content);
 
         //Assert
-        var errors = await _fixture.MapHttpResponseMessageToErrors(response);
+        var errors = await Mapper.MapHttpResponseMessageToErrors(response);
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
         errors.Should().Contain(x => x.Message == Email.EmailAddressMaxLenghtError);
     }
@@ -290,13 +295,13 @@ public sealed class UserEndpointsTests : IClassFixture<IntegrationTestWebAppFact
     public async Task ChangeUserPasswordAsync_InvalidEmailAddressAndPassword_ShouldReturnStatusCodeBadRequest(ChangeUserPasswordRequest invalidRequest)
     {
         //Arrange
-        var content = _fixture.MapObjectToStringContent(invalidRequest);
+        var content = Mapper.MapObjectToStringContent(invalidRequest);
 
         //Act
         HttpResponseMessage response = await _client.PutAsync("/api/users/change-password", content);
 
         //Assert
-        var errors = await _fixture.MapHttpResponseMessageToErrors(response);
+        var errors = await Mapper.MapHttpResponseMessageToErrors(response);
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
         errors.Should().Contain(x => x.Message == Email.InvalidEmailAddress);
         errors.Should().Contain(x => x.Message == User.InvalidPassword);
@@ -307,13 +312,13 @@ public sealed class UserEndpointsTests : IClassFixture<IntegrationTestWebAppFact
     public async Task ChangeUserPasswordAsync_DifferentPasswords_ShouldReturnStatusCodeBadRequest(ChangeUserPasswordRequest requestPasswordDifferent)
     {
         //Arrange
-        var content = _fixture.MapObjectToStringContent(requestPasswordDifferent);
+        var content = Mapper.MapObjectToStringContent(requestPasswordDifferent);
 
         //Act
         HttpResponseMessage response = await _client.PutAsync("/api/users/change-password", content);
 
         //Assert
-        var errors = await _fixture.MapHttpResponseMessageToErrors(response);
+        var errors = await Mapper.MapHttpResponseMessageToErrors(response);
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
         errors.Should().Contain(x => x.Message == User.PasswordDifferent);
     }
@@ -323,13 +328,13 @@ public sealed class UserEndpointsTests : IClassFixture<IntegrationTestWebAppFact
     public async Task ChangeUserPasswordAsync_UserNotFound_ShouldReturnStatusCodeBadRequest(ChangeUserPasswordRequest requestUserNotFound)
     {
         //Arrange
-        var content = _fixture.MapObjectToStringContent(requestUserNotFound);
+        var content = Mapper.MapObjectToStringContent(requestUserNotFound);
 
         //Act
         HttpResponseMessage response = await _client.PutAsync("/api/users/change-password", content);
 
         //Assert
-        var errors = await _fixture.MapHttpResponseMessageToErrors(response);
+        var errors = await Mapper.MapHttpResponseMessageToErrors(response);
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
         errors.Should().Contain(x => x.Message == User.EmailAddressOrPasswordIncorrect);
     }
@@ -339,13 +344,13 @@ public sealed class UserEndpointsTests : IClassFixture<IntegrationTestWebAppFact
     public async Task ChangeUserPasswordAsync_IncorrectPassword_ShouldReturnStatusCodeBadRequest(ChangeUserPasswordRequest requestIncorrectPassword)
     {
         //Arrange
-        var content = _fixture.MapObjectToStringContent(requestIncorrectPassword);
+        var content = Mapper.MapObjectToStringContent(requestIncorrectPassword);
 
         //Act
         HttpResponseMessage response = await _client.PutAsync("/api/users/change-password", content);
 
         //Assert
-        var errors = await _fixture.MapHttpResponseMessageToErrors(response);
+        var errors = await Mapper.MapHttpResponseMessageToErrors(response);
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
         errors.Should().Contain(x => x.Message == User.EmailAddressOrPasswordIncorrect);
     }
@@ -353,58 +358,59 @@ public sealed class UserEndpointsTests : IClassFixture<IntegrationTestWebAppFact
 
     #region SendUserToken
     [Theory, AutoUserData]
-    [Trait("Test", "ChangeUserPasswordAsync:ValidEmailAddress")]
-    public async Task SendUserTokenAsync_ValidEmailAddress_ShouldReturnStatusCodeOk(SendUserTokenRequest request)
+    [Trait("Test", "SendUserTokenAsync:ValidEmailAddress")]
+     public async Task SendUserTokenAsync_ValidEmailAddress_ShouldReturnStatusCodeOk(SendUserTokenRequest request)
     {
         //Arrange
-        var content = _fixture.MapObjectToStringContent(request);
+        var content = Mapper.MapObjectToStringContent(request);
 
         //Act
         HttpResponseMessage response = await _client.PostAsync("/api/users/send-token", content);
 
         //Assert
+        Console.WriteLine("Response test", response.Content.ReadAsStringAsync());
         response.EnsureSuccessStatusCode();
         response.StatusCode.Should().Be(HttpStatusCode.OK);
     }
 
     [Theory, AutoUserData]
-    [Trait("Test", "ChangeUserPasswordAsync:DefaultEmailAddress")]
+    [Trait("Test", "SendUserTokenAsync:DefaultEmailAddress")]
     public async Task SendUserTokenAsync_DefaultEmailAddress_ShouldReturnStatusCodeBadRequest(SendUserTokenRequest requestDefaultEmailAddress)
     {
         //Arrange
-        var content = _fixture.MapObjectToStringContent(requestDefaultEmailAddress);
+        var content = Mapper.MapObjectToStringContent(requestDefaultEmailAddress);
 
         //Act
         HttpResponseMessage response = await _client.PostAsync("/api/users/send-token", content);
 
         //Assert
-        var errors = await _fixture.MapHttpResponseMessageToErrors(response);
+        var errors = await Mapper.MapHttpResponseMessageToErrors(response);
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
         errors.Should().Contain(x => x.Message == Email.EmailAddressNullOrEmpty);
     }
 
     [Theory, AutoUserData]
-    [Trait("Test", "ChangeUserPasswordAsync:NullEmailAddress")]
+    [Trait("Test", "SendUserTokenAsync:NullEmailAddress")]
     public async Task SendUserTokenAsync_NullEmailAddress_ShouldReturnStatusCodeBadRequest(SendUserTokenRequest requestNullEmailAddress)
     {
         //Arrange
-        var content = _fixture.MapObjectToStringContent(requestNullEmailAddress);
+        var content = Mapper.MapObjectToStringContent(requestNullEmailAddress);
 
         //Act
         HttpResponseMessage response = await _client.PostAsync("/api/users/send-token", content);
 
         //Assert
-        var errors = await _fixture.MapHttpResponseMessageToErrors(response);
+        var errors = await Mapper.MapHttpResponseMessageToErrors(response);
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
         errors.Should().Contain(x => x.Message == Email.EmailAddressNullOrEmpty);
     }
 
     [Theory, AutoUserData]
-    [Trait("Test", "ChangeUserPasswordAsync:UserNotFound")]
+    [Trait("Test", "SendUserTokenAsync:UserNotFound")]
     public async Task SendUserTokenAsync_UserNotFound_ShouldReturnStatusCodeOk(SendUserTokenRequest requestUserNotFound)
     {
         //Arrange
-        var content = _fixture.MapObjectToStringContent(requestUserNotFound);
+        var content = Mapper.MapObjectToStringContent(requestUserNotFound);
 
         //Act
         HttpResponseMessage response = await _client.PostAsync("/api/users/send-token", content);
@@ -421,7 +427,7 @@ public sealed class UserEndpointsTests : IClassFixture<IntegrationTestWebAppFact
     public async Task ValidateUserTokenAsync_ValidUserToken_ShouldReturnStatusCodeOk(ValidateUserTokenRequest request)
     {
         //Arrange
-        var content = _fixture.MapObjectToStringContent(request);
+        var content = Mapper.MapObjectToStringContent(request);
 
         //Act
         HttpResponseMessage response = await _client.PostAsync("/api/users/validate-token", content);
@@ -436,13 +442,13 @@ public sealed class UserEndpointsTests : IClassFixture<IntegrationTestWebAppFact
     public async Task ValidateUserTokenAsync_UserTokenNotFound_ShouldReturnStatusCodeBadRequest(ValidateUserTokenRequest requestUserTokenNotFound)
     {
         //Arrange
-        var content = _fixture.MapObjectToStringContent(requestUserTokenNotFound);
+        var content = Mapper.MapObjectToStringContent(requestUserTokenNotFound);
 
         //Act
         HttpResponseMessage response = await _client.PostAsync("/api/users/validate-token", content);
 
         //Assert
-        var errors = await _fixture.MapHttpResponseMessageToErrors(response);
+        var errors = await Mapper.MapHttpResponseMessageToErrors(response);
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
         errors.Should().Contain(x => x.Message == UserToken.UserTokenNotFound);
     }
@@ -452,15 +458,31 @@ public sealed class UserEndpointsTests : IClassFixture<IntegrationTestWebAppFact
     public async Task ValidateUserTokenAsync_UserTokenExpired_ShouldReturnStatusCodeBadRequest(ValidateUserTokenRequest requestUserTokenExpired)
     {
         //Arrange
-        var content = _fixture.MapObjectToStringContent(requestUserTokenExpired);
+        var content = Mapper.MapObjectToStringContent(requestUserTokenExpired);
 
         //Act
         HttpResponseMessage response = await _client.PostAsync("/api/users/validate-token", content);
 
         //Assert
-        var errors = await _fixture.MapHttpResponseMessageToErrors(response);
+        var errors = await Mapper.MapHttpResponseMessageToErrors(response);
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
         errors.Should().Contain(x => x.Message == UserToken.UserTokenExpired);
+    }
+
+    [Theory, AutoUserData]
+    [Trait("Test", "ValidateUserTokenAsync:InvalidToken")]
+    public async Task ValidateUserTokenAsync_InvalidToken_ShouldReturnStatusCodeBadRequest(ValidateUserTokenRequest requestInvalidToken)
+    {
+        //Arrange
+        var content = Mapper.MapObjectToStringContent(requestInvalidToken);
+
+        //Act
+        HttpResponseMessage response = await _client.PostAsync("/api/users/validate-token", content);
+
+        //Assert
+        var errors = await Mapper.MapHttpResponseMessageToErrors(response);
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        errors.Should().Contain(x => x.Message == UserToken.InvalidToken);
     }
     #endregion
 
@@ -470,7 +492,7 @@ public sealed class UserEndpointsTests : IClassFixture<IntegrationTestWebAppFact
     public async Task ResetUserPasswordAsync_ValidUserToken_ShouldReturnStatusCodeOk(ResetPasswordRequest request)
     {
         //Arrange
-        var content = _fixture.MapObjectToStringContent(request);
+        var content = Mapper.MapObjectToStringContent(request);
 
         //Act
         HttpResponseMessage response = await _client.PostAsync("/api/users/reset-password", content);
@@ -485,13 +507,13 @@ public sealed class UserEndpointsTests : IClassFixture<IntegrationTestWebAppFact
     public async Task ResetUserPasswordAsync_DefaultNewPassword_ShouldReturnStatusCodeBadRequest(ResetPasswordRequest requestDefaultNewPassword)
     {
         //Arrange
-        var content = _fixture.MapObjectToStringContent(requestDefaultNewPassword);
+        var content = Mapper.MapObjectToStringContent(requestDefaultNewPassword);
 
         //Act
         HttpResponseMessage response = await _client.PostAsync("/api/users/reset-password", content);
 
         //Assert
-        var errors = await _fixture.MapHttpResponseMessageToErrors(response);
+        var errors = await Mapper.MapHttpResponseMessageToErrors(response);
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
         errors.Should().Contain(x => x.Message == User.PasswordNullOrEmpty);
     }
@@ -501,13 +523,13 @@ public sealed class UserEndpointsTests : IClassFixture<IntegrationTestWebAppFact
     public async Task ResetUserPasswordAsync_NullNewPassword_ShouldReturnStatusCodeBadRequest(ResetPasswordRequest requestNullNewPassword)
     {
         //Arrange
-        var content = _fixture.MapObjectToStringContent(requestNullNewPassword);
+        var content = Mapper.MapObjectToStringContent(requestNullNewPassword);
 
         //Act
         HttpResponseMessage response = await _client.PostAsync("/api/users/reset-password", content);
 
         //Assert
-        var errors = await _fixture.MapHttpResponseMessageToErrors(response);
+        var errors = await Mapper.MapHttpResponseMessageToErrors(response);
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
         errors.Should().Contain(x => x.Message == User.PasswordNullOrEmpty);
     }
@@ -517,13 +539,13 @@ public sealed class UserEndpointsTests : IClassFixture<IntegrationTestWebAppFact
     public async Task ResetUserPasswordAsync_InvalidNewPassword_ShouldReturnStatusCodeBadRequest(ResetPasswordRequest requestInvalidNewPassword)
     {
         //Arrange
-        var content = _fixture.MapObjectToStringContent(requestInvalidNewPassword);
+        var content = Mapper.MapObjectToStringContent(requestInvalidNewPassword);
 
         //Act
         HttpResponseMessage response = await _client.PostAsync("/api/users/reset-password", content);
 
         //Assert
-        var errors = await _fixture.MapHttpResponseMessageToErrors(response);
+        var errors = await Mapper.MapHttpResponseMessageToErrors(response);
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
         errors.Should().Contain(x => x.Message == User.InvalidPassword);
     }
@@ -533,13 +555,13 @@ public sealed class UserEndpointsTests : IClassFixture<IntegrationTestWebAppFact
     public async Task ResetUserPasswordAsync_DifferentPasswords_ShouldReturnStatusCodeBadRequest(ResetPasswordRequest requestDifferentPasswords)
     {
         //Arrange
-        var content = _fixture.MapObjectToStringContent(requestDifferentPasswords);
+        var content = Mapper.MapObjectToStringContent(requestDifferentPasswords);
 
         //Act
         HttpResponseMessage response = await _client.PostAsync("/api/users/reset-password", content);
 
         //Assert
-        var errors = await _fixture.MapHttpResponseMessageToErrors(response);
+        var errors = await Mapper.MapHttpResponseMessageToErrors(response);
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
         errors.Should().Contain(x => x.Message == User.PasswordDifferent);
     }
@@ -549,13 +571,13 @@ public sealed class UserEndpointsTests : IClassFixture<IntegrationTestWebAppFact
     public async Task ResetUserPasswordAsync_UserTokenNotFound_ShouldReturnStatusCodeBadRequest(ResetPasswordRequest requestUserTokenNotFound)
     {
         //Arrange
-        var content = _fixture.MapObjectToStringContent(requestUserTokenNotFound);
+        var content = Mapper.MapObjectToStringContent(requestUserTokenNotFound);
 
         //Act
         HttpResponseMessage response = await _client.PostAsync("/api/users/reset-password", content);
 
         //Assert
-        var errors = await _fixture.MapHttpResponseMessageToErrors(response);
+        var errors = await Mapper.MapHttpResponseMessageToErrors(response);
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
         errors.Should().Contain(x => x.Message == UserToken.UserTokenNotFound);
     }
@@ -565,35 +587,50 @@ public sealed class UserEndpointsTests : IClassFixture<IntegrationTestWebAppFact
     public async Task ResetUserPasswordAsync_UserTokenNotValidated_ShouldReturnStatusCodeBadRequest(ResetPasswordRequest requestUserTokenNotValidated)
     {
         //Arrange
-        var content = _fixture.MapObjectToStringContent(requestUserTokenNotValidated);
+        var content = Mapper.MapObjectToStringContent(requestUserTokenNotValidated);
 
         //Act
         HttpResponseMessage response = await _client.PostAsync("/api/users/reset-password", content);
 
         //Assert
-        var errors = await _fixture.MapHttpResponseMessageToErrors(response);
+        var errors = await Mapper.MapHttpResponseMessageToErrors(response);
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
         errors.Should().Contain(x => x.Message == UserToken.UserTokenNotValidated);
     }
     #endregion
 
-    #region GetAccessToken
-    private async Task<string> GetManagerAccessToken()
-        => await GetAccessToken(UserFixture.GetManagerAuthenticateRequest());
-
-    private async Task<string> GetCustomerAccessToken()
-        => await GetAccessToken(UserFixture.GetCustomerAuthenticateRequest());
-
-    private async Task<string> GetAccessToken(OauthRequest request)
+    #region GetUserAuthentication
+    private async Task<UserResponse?> GetManagerUserAuthentication()
     {
-        var content = _fixture.MapObjectToStringContent(request);
+        var request = new CredentialsRequest
+        {
+            EmailAddress = ManagerEmailAddress,
+            Password = Password
+        };
+
+        return await GetUserAuthentication(request);
+    }
+
+    private async Task<UserResponse?> GetCustomerUserAuthentication()
+    {
+        var request = new CredentialsRequest
+        {
+            EmailAddress = CustomerEmailAddress,
+            Password = Password
+        };
+
+        return await GetUserAuthentication(request);
+    }
+
+    private async Task<UserResponse?> GetUserAuthentication(CredentialsRequest request)
+    {
+        var content = Mapper.MapObjectToStringContent(request);
         HttpResponseMessage response = await _client.PostAsync("/api/oauth", content);
         response.EnsureSuccessStatusCode();
 
         string responseBody = await response.Content.ReadAsStringAsync();
-        UserResponse user = JsonConvert.DeserializeObject<UserResponse>(responseBody) ?? default!;
-
-        return user.AccessToken;
+        
+        return JsonConvert.DeserializeObject<UserResponse>(responseBody);
     }
     #endregion
 }

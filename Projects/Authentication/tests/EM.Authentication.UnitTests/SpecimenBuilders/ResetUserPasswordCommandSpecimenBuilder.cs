@@ -1,12 +1,12 @@
-﻿using AutoFixture.Kernel;
+﻿using AutoFixture;
+using AutoFixture.Kernel;
 using Bogus;
 using EM.Authentication.Application.Commands.ResetUserPassword;
 using EM.Authentication.UnitTests.Fixtures;
 
 namespace EM.Authentication.UnitTests.SpecimenBuilders;
 
-#pragma warning disable CS8625
-public class ResetUserPasswordCommandSpecimenBuilder : ISpecimenBuilder
+public class ResetUserPasswordCommandSpecimenBuilder(IFixture fixture) : ISpecimenBuilder
 {
     private readonly Faker _faker = new();
     private readonly string _password = PasswordFixture.GeneratePassword(12);
@@ -23,13 +23,42 @@ public class ResetUserPasswordCommandSpecimenBuilder : ISpecimenBuilder
 
         return parameterName.ToLower() switch
         {
-            "command" => new ResetUserPasswordCommand(Guid.NewGuid(), _password, _password),
-            "commandnewdefaultpassword" => new ResetUserPasswordCommand(Guid.NewGuid(), default, _password),
-            "commandnewnullpassword" => new ResetUserPasswordCommand(Guid.NewGuid(), null, _password),
-            "commandnewinvalidapassword" => new ResetUserPasswordCommand(Guid.NewGuid(), _faker.Lorem.Word(), _password),
-            "commandpassworddifferent" => new ResetUserPasswordCommand(Guid.NewGuid(), _password, PasswordFixture.GeneratePassword(12)),
+            "command" => GetCommand(),
+            "commandnewdefaultpassword" => GetCommandDefaultNewPassword(),
+            "commandnewnullpassword" => GetCommandNullNewPassword(),
+            "commandnewinvalidapassword" => GetCommandInvalidPassword(),
+            "commandpassworddifferent" => GetCommandPasswordDifferent(),
             _ => new NoSpecimen()
         };
     }
+
+    private ResetUserPasswordCommand GetCommand() =>
+        fixture.Build<ResetUserPasswordCommand>()
+            .With(x => x.NewPassword, _password)
+            .With(x => x.ConfirmPassword, _password)
+            .Create();
+
+    private ResetUserPasswordCommand GetCommandDefaultNewPassword() =>
+        fixture.Build<ResetUserPasswordCommand>()
+            .With(x => x.NewPassword, default(string))
+            .With(x => x.ConfirmPassword, default(string))
+            .Create();
+
+    private ResetUserPasswordCommand GetCommandNullNewPassword() =>
+        fixture.Build<ResetUserPasswordCommand>()
+            .With(x => x.NewPassword, null as string)
+            .With(x => x.ConfirmPassword, null as string)
+            .Create();
+
+    private ResetUserPasswordCommand GetCommandInvalidPassword() =>
+        fixture.Build<ResetUserPasswordCommand>()
+            .With(x => x.NewPassword, _faker.Lorem.Word())
+            .With(x => x.ConfirmPassword, _password)
+            .Create();
+
+    private ResetUserPasswordCommand GetCommandPasswordDifferent() =>
+        fixture.Build<ResetUserPasswordCommand>()
+            .With(x => x.NewPassword, _password)
+            .With(x => x.ConfirmPassword, PasswordFixture.GeneratePassword(12))
+            .Create();
 }
-#pragma warning restore CS8625

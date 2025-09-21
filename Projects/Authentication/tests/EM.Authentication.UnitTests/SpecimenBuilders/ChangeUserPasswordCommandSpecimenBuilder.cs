@@ -7,7 +7,6 @@ using EM.Authentication.UnitTests.Fixtures;
 
 namespace EM.Authentication.UnitTests.SpecimenBuilders;
 
-#pragma warning disable CS8625
 public class ChangeUserPasswordCommandSpecimenBuilder(IFixture fixture) : ISpecimenBuilder
 {
     private readonly Faker _faker = new();
@@ -26,8 +25,8 @@ public class ChangeUserPasswordCommandSpecimenBuilder(IFixture fixture) : ISpeci
         return parameterName.ToLower() switch
         {
             "command" => GetCommand(),
-            "commanddefaultvalues" => new ChangeUserPasswordCommand(default, default, default, default),
-            "commandnullvalues" => new ChangeUserPasswordCommand(null, null, null, null),
+            "commanddefaultvalues" => GetCommandDefaultValues(),
+            "commandnullvalues" => GetCommandNullValues(),
             "commandgreaterthanmaxlenght" => GetCommandGreaterThanMaxLenght(),
             "invalidcommand" => GetInvalidCommand(),
             "commandpassworddifferent" => GetCommandPasswordDifferent(),
@@ -40,6 +39,20 @@ public class ChangeUserPasswordCommandSpecimenBuilder(IFixture fixture) : ISpeci
             .With(x => x.EmailAddress, _faker.Internet.Email())
             .With(x => x.NewPassword, _password)
             .With(x => x.ConfirmPassword, _password)
+            .Create();
+
+    private ChangeUserPasswordCommand GetCommandDefaultValues() =>
+        fixture.Build<ChangeUserPasswordCommand>()
+            .With(x => x.EmailAddress, default(string))
+            .With(x => x.OldPassword, default(string))
+            .With(x => x.NewPassword, default(string))
+            .Create();
+
+    private ChangeUserPasswordCommand GetCommandNullValues() =>
+        fixture.Build<ChangeUserPasswordCommand>()
+            .With(x => x.EmailAddress, null as string)
+            .With(x => x.OldPassword, null as string)
+            .With(x => x.NewPassword, null as string)
             .Create();
 
     private ChangeUserPasswordCommand GetCommandGreaterThanMaxLenght() =>
@@ -63,4 +76,3 @@ public class ChangeUserPasswordCommandSpecimenBuilder(IFixture fixture) : ISpeci
             .With(x => x.ConfirmPassword, PasswordFixture.GeneratePassword(12))
             .Create();
 }
-#pragma warning restore CS8625

@@ -1,12 +1,11 @@
-﻿using AutoFixture.Kernel;
+﻿using AutoFixture;
+using AutoFixture.Kernel;
 using Bogus;
 using EM.Authentication.API.Users.RequestModels;
 
 namespace EM.Authentication.IntegrationTests.SpecimenBuilders;
 
-#pragma warning disable CS8625
-
-public sealed class ResetPasswordRequestSpecimenBuilder : ISpecimenBuilder
+public sealed class ResetPasswordRequestSpecimenBuilder(IFixture fixture) : ISpecimenBuilder
 {
     private static readonly Faker _faker = new();
     private static readonly Guid UserTokenId = Guid.Parse("2a20862f-1dce-451e-9e81-bd755bab25fe");
@@ -25,15 +24,63 @@ public sealed class ResetPasswordRequestSpecimenBuilder : ISpecimenBuilder
 
         return parameterName.ToLower() switch
         {
-            "request" => new ResetPasswordRequest { UserTokenId = UserTokenId, NewPassword = NewPassword, ConfirmPassword = NewPassword },
-            "requestdefaultnewpassword" => new ResetPasswordRequest { UserTokenId = UserTokenId, NewPassword = default, ConfirmPassword = default },
-            "requestnullnewpassword" => new ResetPasswordRequest { UserTokenId = UserTokenId, NewPassword = null, ConfirmPassword = null },
-            "requestinvalidnewpassword" => new ResetPasswordRequest { UserTokenId = UserTokenId, NewPassword = _faker.Lorem.Word(), ConfirmPassword = _faker.Lorem.Word() },
-            "requestdifferentpasswords" => new ResetPasswordRequest { UserTokenId = UserTokenId, NewPassword = NewPassword, ConfirmPassword = _faker.Lorem.Word() },
-            "requestusertokennotfound" => new ResetPasswordRequest { UserTokenId = Guid.NewGuid(), NewPassword = NewPassword, ConfirmPassword = NewPassword },
-            "requestusertokennotvalidated" => new ResetPasswordRequest { UserTokenId = UserTokenIdNotValidated, NewPassword = NewPassword, ConfirmPassword = NewPassword },
+            "request" => GetRequest(),
+            "requestdefaultnewpassword" => GetRequestDefaultNewPassword(),
+            "requestnullnewpassword" => GetRequestNullNewPassword(),
+            "requestinvalidnewpassword" => GetInvalidNewPassword(),
+            "requestdifferentpasswords" => GetDifferentPasswords(),
+            "requestusertokennotfound" => GetUserTokenNotFound(),
+            "requestusertokennotvalidated" => GetUserTokenNotValidated(),
             _ => new NoSpecimen()
         };
     }
+
+    private ResetPasswordRequest GetRequest() =>
+        fixture.Build<ResetPasswordRequest>()
+            .With(x => x.UserTokenId, UserTokenId)
+            .With(x => x.NewPassword, NewPassword)
+            .With(x => x.ConfirmPassword, NewPassword)
+            .Create();
+
+    private ResetPasswordRequest GetRequestDefaultNewPassword() =>
+        fixture.Build<ResetPasswordRequest>()
+            .With(x => x.UserTokenId, UserTokenId)
+            .With(x => x.NewPassword, default(string))
+            .With(x => x.ConfirmPassword, default(string))
+            .Create();
+
+    private ResetPasswordRequest GetRequestNullNewPassword() =>
+        fixture.Build<ResetPasswordRequest>()
+            .With(x => x.UserTokenId, UserTokenId)
+            .With(x => x.NewPassword, null as string)
+            .With(x => x.ConfirmPassword, null as string)
+            .Create();
+
+    private ResetPasswordRequest GetInvalidNewPassword() =>
+        fixture.Build<ResetPasswordRequest>()
+            .With(x => x.UserTokenId, UserTokenId)
+            .With(x => x.NewPassword, _faker.Lorem.Word())
+            .With(x => x.ConfirmPassword, NewPassword)
+            .Create();
+
+    private ResetPasswordRequest GetDifferentPasswords() =>
+        fixture.Build<ResetPasswordRequest>()
+            .With(x => x.UserTokenId, UserTokenId)
+            .With(x => x.NewPassword, NewPassword)
+            .With(x => x.ConfirmPassword, _faker.Lorem.Word())
+            .Create();
+
+    private ResetPasswordRequest GetUserTokenNotFound() =>
+        fixture.Build<ResetPasswordRequest>()
+            .With(x => x.UserTokenId, Guid.NewGuid())
+            .With(x => x.NewPassword, NewPassword)
+            .With(x => x.ConfirmPassword, NewPassword)
+            .Create();
+
+    private ResetPasswordRequest GetUserTokenNotValidated() =>
+        fixture.Build<ResetPasswordRequest>()
+            .With(x => x.UserTokenId, UserTokenIdNotValidated)
+            .With(x => x.NewPassword, NewPassword)
+            .With(x => x.ConfirmPassword, NewPassword)
+            .Create();
 }
-#pragma warning restore CS8625

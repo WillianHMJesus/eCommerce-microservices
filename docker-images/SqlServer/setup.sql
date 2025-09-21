@@ -65,8 +65,6 @@ declare @userId uniqueidentifier = newid();
 declare @managerProfileId uniqueidentifier = newid();
 declare @roleId uniqueidentifier = newid();
 
-
-
 insert into [Users] ([Id], [UserName], [EmailAddress], [PasswordHash]) values (@userId, 'Manager User', 'user@manager.com', 'AQAAAAIAAYagAAAAEOBNuPrPU4BM5FT3EYNE1VOQlV8BY2GxLkdc3aYrqWdo8ldQSlfzoaaMNnwaCTrYlA==');
 
 insert into [Profiles] ([Id], [Name]) values (@managerProfileId, 'Manager');
@@ -128,7 +126,9 @@ declare @userTokenIdExpired uniqueidentifier = '6bd97845-3e70-469c-8cb9-5192b027
 declare @userTokenIdValidated uniqueidentifier = '2a20862f-1dce-451e-9e81-bd755bab25fe';
 declare @userTokenIdNotValidated uniqueidentifier = 'f6cdc732-908a-4e0d-9d7c-1e04d1512bf9';
 
-insert into [Users] ([Id], [UserName], [EmailAddress], [PasswordHash]) values (@customerUserId, 'Customer User', 'user@customer.com', 'AQAAAAIAAYagAAAAEOBNuPrPU4BM5FT3EYNE1VOQlV8BY2GxLkdc3aYrqWdo8ldQSlfzoaaMNnwaCTrYlA==');
+insert into [Users] ([Id], [UserName], [EmailAddress], [PasswordHash]) values (newid(), 'Customer User', 'user@customer.com', 'AQAAAAIAAYagAAAAEOBNuPrPU4BM5FT3EYNE1VOQlV8BY2GxLkdc3aYrqWdo8ldQSlfzoaaMNnwaCTrYlA==');
+
+insert into [Users] ([Id], [UserName], [EmailAddress], [PasswordHash]) values (@customerUserId, 'Customer User', 'resetpassword@customer.com', 'AQAAAAIAAYagAAAAEOBNuPrPU4BM5FT3EYNE1VOQlV8BY2GxLkdc3aYrqWdo8ldQSlfzoaaMNnwaCTrYlA==');
 
 insert into [User_Tokens] ([Id], [UserId], [TokenHash], [CreatedAt], [ExpiresAt], [ValidatedAt]) values (@userTokenId, @customerUserId, 'AQAAAAIAAYagAAAAECOCEEzJv1tfpSju+poNMn2hqAXx8ah2ACSTWw3+R5ldjz+iQTe6R1+50+jyAYxkCQ==', '2025-09-20 00:38', '2035-09-20 00:38', null);
 
@@ -137,6 +137,8 @@ insert into [User_Tokens] ([Id], [UserId], [TokenHash], [CreatedAt], [ExpiresAt]
 insert into [User_Tokens] ([Id], [UserId], [TokenHash], [CreatedAt], [ExpiresAt], [ValidatedAt]) values (@userTokenIdValidated, @customerUserId, 'AQAAAAIAAYagAAAAECOCEEzJv1tfpSju+poNMn2hqAXx8ah2ACSTWw3+R5ldjz+iQTe6R1+50+jyAYxkCQ==', '2025-09-20 00:38', '2035-09-20 00:38', '2025-09-20 00:39');
 
 insert into [User_Tokens] ([Id], [UserId], [TokenHash], [CreatedAt], [ExpiresAt], [ValidatedAt]) values (@userTokenIdNotValidated, @customerUserId, 'AQAAAAIAAYagAAAAECOCEEzJv1tfpSju+poNMn2hqAXx8ah2ACSTWw3+R5ldjz+iQTe6R1+50+jyAYxkCQ==', '2025-09-20 00:38', '2035-09-20 00:38', null);
+
+-------------------------------------------------------------Registers to Integration Tests----------------------------------------------------------------------------------------------------
 
 create database [Catalog];
 go

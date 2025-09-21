@@ -1,11 +1,11 @@
-﻿using AutoFixture.Kernel;
+﻿using AutoFixture;
+using AutoFixture.Kernel;
 using Bogus;
 using EM.Authentication.Application.Commands.SendUserToken;
 
 namespace EM.Authentication.UnitTests.SpecimenBuilders;
 
-#pragma warning disable CS8625
-public class SendUserTokenCommandSpecimenBuilder : ISpecimenBuilder
+public class SendUserTokenCommandSpecimenBuilder(IFixture fixture) : ISpecimenBuilder
 {
     private readonly Faker _faker = new();
 
@@ -21,11 +21,25 @@ public class SendUserTokenCommandSpecimenBuilder : ISpecimenBuilder
 
         return parameterName.ToLower() switch
         {
-            "command" => new SendUserTokenCommand(_faker.Internet.Email()),
-            "commanddefaultemailaddress" => new SendUserTokenCommand(default),
-            "commandnullemailaddress" => new SendUserTokenCommand(null),
+            "command" => GetCommand(),
+            "commanddefaultemailaddress" => GetCommandDefaultEmailAddress(),
+            "commandnullemailaddress" => GetCommandNullEmailAddress(),
             _ => new NoSpecimen()
         };
     }
+
+    private SendUserTokenCommand GetCommand() =>
+        fixture.Build<SendUserTokenCommand>()
+            .With(x => x.EmailAddress, _faker.Internet.Email())
+            .Create();
+
+    private SendUserTokenCommand GetCommandDefaultEmailAddress() =>
+        fixture.Build<SendUserTokenCommand>()
+            .With(x => x.EmailAddress, default(string))
+            .Create();
+
+    private SendUserTokenCommand GetCommandNullEmailAddress() =>
+        fixture.Build<SendUserTokenCommand>()
+            .With(x => x.EmailAddress, null as string)
+            .Create();
 }
-#pragma warning restore CS8625

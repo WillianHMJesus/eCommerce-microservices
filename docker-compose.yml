@@ -2,7 +2,7 @@ services:
 
   mssql:
     container_name: mssql
-    build: ./Databases/SqlServer
+    build: ./docker-images/SqlServer
     restart: always
     networks:
       - database
@@ -11,7 +11,7 @@ services:
 
   mongodb:
     container_name: mongodb
-    build: ./Databases/MongoDb
+    build: ./docker-images/MongoDb
     restart: always
     networks:
       - nosql
@@ -20,7 +20,7 @@ services:
 
   rabbitmq:
     container_name: rabbitmq
-    build: ./BrokersMessage/RabbitMq
+    build: ./docker-images/RabbitMq
     restart: always
     networks:
       - message-broker
