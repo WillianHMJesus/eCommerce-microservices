@@ -28,6 +28,23 @@ services:
       - 5672:5672
       - 15672:15672
 
+  authentication-api:
+    container_name: authentication-api
+    image: ${DOCKER_REGISTRY-}authentication-api
+    restart: always
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+    networks:
+      - application
+      - database
+    ports:
+      - "7234:7234"
+    build:
+      context: ./Projects/Authentication
+      dockerfile: ./Dockerfile
+    depends_on:
+      - mssql
+
   catalog-api:
     container_name: catalog-api
     image: ${DOCKER_REGISTRY-}catalog-api
