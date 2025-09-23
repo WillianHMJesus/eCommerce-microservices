@@ -1,4 +1,5 @@
-﻿using EM.Authentication.API.Oauth.RequestModels;
+﻿using Docker.DotNet.Models;
+using EM.Authentication.API.Oauth.RequestModels;
 using EM.Authentication.API.Users.RequestModels;
 using EM.Authentication.Application;
 using EM.Authentication.Domain;
@@ -76,6 +77,24 @@ public sealed class UserEndpointsTests
     {
         //Arrange
         _client.DefaultRequestHeaders.Clear();
+        var content = Mapper.MapObjectToStringContent(request);
+
+        //Act
+        HttpResponseMessage response = await _client.PostAsync("/api/users", content);
+
+        //Assert
+        response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+    }
+
+    [Theory, AutoUserData]
+    [Trait("Test", "AddUserAsync:InvalidAccessToken")]
+    public async Task AddUserAsync_InvalidAccessToken_ShouldReturnStatusCodeUnauthorized(
+        AddUserRequest request,
+        string invalidAccessToken)
+    {
+        //Arrange
+        _client.DefaultRequestHeaders.Clear();
+        _client.DefaultRequestHeaders.Add("Authorization", $"Bearer {invalidAccessToken}");
         var content = Mapper.MapObjectToStringContent(request);
 
         //Act
@@ -241,6 +260,24 @@ public sealed class UserEndpointsTests
     }
 
     [Theory, AutoUserData]
+    [Trait("Test", "ChangeUserPasswordAsync:InvalidAccessToken")]
+    public async Task ChangeUserPasswordAsync_InvalidAccessToken_ShouldReturnStatusCodeUnauthorized(
+        ChangeUserPasswordRequest request,
+        string invalidAccessToken)
+    {
+        //Arrange
+        _client.DefaultRequestHeaders.Clear();
+        _client.DefaultRequestHeaders.Add("Authorization", $"Bearer {invalidAccessToken}");
+        var content = Mapper.MapObjectToStringContent(request);
+
+        //Act
+        HttpResponseMessage response = await _client.PutAsync("/api/users/change-password", content);
+
+        //Assert
+        response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+    }
+
+    [Theory, AutoUserData]
     [Trait("Test", "ChangeUserPasswordAsync:DefaultValues")]
     public async Task ChangeUserPasswordAsync_DefaultValues_ShouldReturnStatusCodeBadRequest(ChangeUserPasswordRequest requestDefaultValues)
     {
@@ -368,9 +405,41 @@ public sealed class UserEndpointsTests
         HttpResponseMessage response = await _client.PostAsync("/api/users/send-token", content);
 
         //Assert
-        Console.WriteLine("Response test", response.Content.ReadAsStringAsync());
         response.EnsureSuccessStatusCode();
         response.StatusCode.Should().Be(HttpStatusCode.OK);
+    }
+
+    [Theory, AutoUserData]
+    [Trait("Test", "SendUserTokenAsync:WithoutAccessToken")]
+    public async Task SendUserTokenAsync_WithoutAccessToken_ShouldReturnStatusCodeUnauthorized(SendUserTokenRequest request)
+    {
+        //Arrange
+        _client.DefaultRequestHeaders.Clear();
+        var content = Mapper.MapObjectToStringContent(request);
+
+        //Act
+        HttpResponseMessage response = await _client.PostAsync("/api/users/send-token", content);
+
+        //Assert
+        response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+    }
+
+    [Theory, AutoUserData]
+    [Trait("Test", "SendUserTokenAsync:InvalidAccessToken")]
+    public async Task SendUserTokenAsync_InvalidAccessToken_ShouldReturnStatusCodeUnauthorized(
+        SendUserTokenRequest request,
+        string invalidAccessToken)
+    {
+        //Arrange
+        _client.DefaultRequestHeaders.Clear();
+        _client.DefaultRequestHeaders.Add("Authorization", $"Bearer {invalidAccessToken}");
+        var content = Mapper.MapObjectToStringContent(request);
+
+        //Act
+        HttpResponseMessage response = await _client.PostAsync("/api/users/send-token", content);
+
+        //Assert
+        response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
     }
 
     [Theory, AutoUserData]
@@ -438,6 +507,39 @@ public sealed class UserEndpointsTests
     }
 
     [Theory, AutoUserData]
+    [Trait("Test", "ValidateUserTokenAsync:WithoutAccessToken")]
+    public async Task ValidateUserTokenAsync_WithoutAccessToken_ShouldReturnStatusCodeUnauthorized(ValidateUserTokenRequest request)
+    {
+        //Arrange
+        _client.DefaultRequestHeaders.Clear();
+        var content = Mapper.MapObjectToStringContent(request);
+
+        //Act
+        HttpResponseMessage response = await _client.PostAsync("/api/users/validate-token", content);
+
+        //Assert
+        response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+    }
+
+    [Theory, AutoUserData]
+    [Trait("Test", "ValidateUserTokenAsync:InvalidAccessToken")]
+    public async Task ValidateUserTokenAsync_InvalidAccessToken_ShouldReturnStatusCodeUnauthorized(
+        ValidateUserTokenRequest request,
+        string invalidAccessToken)
+    {
+        //Arrange
+        _client.DefaultRequestHeaders.Clear();
+        _client.DefaultRequestHeaders.Add("Authorization", $"Bearer {invalidAccessToken}");
+        var content = Mapper.MapObjectToStringContent(request);
+
+        //Act
+        HttpResponseMessage response = await _client.PostAsync("/api/users/validate-token", content);
+
+        //Assert
+        response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+    }
+
+    [Theory, AutoUserData]
     [Trait("Test", "ValidateUserTokenAsync:UserTokenNotFound")]
     public async Task ValidateUserTokenAsync_UserTokenNotFound_ShouldReturnStatusCodeBadRequest(ValidateUserTokenRequest requestUserTokenNotFound)
     {
@@ -500,6 +602,39 @@ public sealed class UserEndpointsTests
         //Assert
         response.EnsureSuccessStatusCode();
         response.StatusCode.Should().Be(HttpStatusCode.OK);
+    }
+
+    [Theory, AutoUserData]
+    [Trait("Test", "ResetUserPasswordAsync:WithoutAccessToken")]
+    public async Task ResetUserPasswordAsync_WithoutAccessToken_ShouldReturnStatusCodeUnauthorized(ResetPasswordRequest request)
+    {
+        //Arrange
+        _client.DefaultRequestHeaders.Clear();
+        var content = Mapper.MapObjectToStringContent(request);
+
+        //Act
+        HttpResponseMessage response = await _client.PostAsync("/api/users/reset-password", content);
+
+        //Assert
+        response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+    }
+
+    [Theory, AutoUserData]
+    [Trait("Test", "ResetUserPasswordAsync:InvalidAccessToken")]
+    public async Task ResetUserPasswordAsync_InvalidAccessToken_ShouldReturnStatusCodeUnauthorized(
+        ResetPasswordRequest request,
+        string invalidAccessToken)
+    {
+        //Arrange
+        _client.DefaultRequestHeaders.Clear();
+        _client.DefaultRequestHeaders.Add("Authorization", $"Bearer {invalidAccessToken}");
+        var content = Mapper.MapObjectToStringContent(request);
+
+        //Act
+        HttpResponseMessage response = await _client.PostAsync("/api/users/reset-password", content);
+
+        //Assert
+        response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
     }
 
     [Theory, AutoUserData]
