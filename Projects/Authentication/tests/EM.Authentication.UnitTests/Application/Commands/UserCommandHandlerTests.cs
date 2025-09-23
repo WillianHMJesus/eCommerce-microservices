@@ -3,6 +3,7 @@ using EM.Authentication.Application.Commands;
 using EM.Authentication.Application.Commands.AddUser;
 using EM.Authentication.Application.Commands.AuthenticateUser;
 using EM.Authentication.Application.Commands.ChangeUserPassword;
+using EM.Authentication.Application.Commands.RefreshUserToken;
 using EM.Authentication.Application.Commands.ResetUserPassword;
 using EM.Authentication.Application.Commands.SendUserToken;
 using EM.Authentication.Application.Commands.ValidateUserToken;
@@ -464,5 +465,37 @@ public sealed class UserCommandHandlerTests
         unitOfWorkMock.Verify(x => x.CommitAsync(It.IsAny<CancellationToken>()), Times.Once);
         result.Success.Should().BeFalse();
         result.Errors.Should().Contain(x => x.Message == User.ErrorSavingUser);
+    }
+
+    [Theory, AutoUserData]
+    [Trait("Test", "RefreshUserToken:ValidRefreshUserToken")]
+    public async Task RefreshUserToken_ValidRefreshUserToken_ShouldReturnSuccess(
+        UserCommandHandler sut,
+        RefreshUserTokenCommand command)
+    {
+        //Arrange & Act
+        var result = await sut.Handle(command, CancellationToken.None);
+
+        //Assert
+        result.Success.Should().BeTrue();
+    }
+
+    [Theory, AutoUserData]
+    [Trait("Test", "RefreshUserToken:UserNotFount")]
+    public async Task RefreshUserToken_UserNotFount_ShouldReturnFailure(
+        [Frozen] Mock<IUserRepository> repositoryMock,
+        UserCommandHandler sut,
+        RefreshUserTokenCommand command)
+    {
+        //Arrange
+        repositoryMock.Setup(x => x.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(null as User);
+
+        //Act
+        var result = await sut.Handle(command, CancellationToken.None);
+
+        //Assert
+        result.Success.Should().BeFalse();
+        result.Errors.Should().Contain(x => x.Message == User.UserNotFound);
     }
 }

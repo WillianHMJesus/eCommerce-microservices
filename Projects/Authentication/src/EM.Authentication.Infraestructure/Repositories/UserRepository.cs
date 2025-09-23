@@ -26,6 +26,11 @@ public sealed class UserRepository(AuthenticationContext context) : IUserReposit
         context.UserTokens.Update(userToken);
     }
 
+    public async Task<User?> GetByIdAsync(Guid id, CancellationToken cancellationToken)
+    {
+        return await context.Users.FindAsync(id, cancellationToken);
+    }
+
     public async Task<User?> GetByEmailAsync(string emailAddress, CancellationToken cancellationToken)
     {
         return await context.Users

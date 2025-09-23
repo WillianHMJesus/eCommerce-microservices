@@ -15,6 +15,7 @@ public sealed class User : BaseEntity, IAggregateRoot
     public const string ProfileNull = "The user profile cannot be null";
     public const string ErrorSavingUser = "An error occurred while saving the user";
     public const string EmailAddressOrPasswordIncorrect = "The email address or password is incorrect";
+    public const string UserNotFound = "The user is not found";
     public static readonly string UserNameMaxLenghtError = $"The username cannot be greater than {UserNameMaxLenght}";
 
     private User() { }

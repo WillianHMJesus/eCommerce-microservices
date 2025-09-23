@@ -1,6 +1,7 @@
 ﻿using EM.Authentication.Application.Commands.AddUser;
 using EM.Authentication.Application.Commands.AuthenticateUser;
 using EM.Authentication.Application.Commands.ChangeUserPassword;
+using EM.Authentication.Application.Commands.RefreshUserToken;
 using EM.Authentication.Application.Commands.ResetUserPassword;
 using EM.Authentication.Application.Commands.SendUserToken;
 using EM.Authentication.Application.Commands.ValidateUserToken;
@@ -27,7 +28,8 @@ public sealed class UserCommandHandler(
     ICommandHandler<ChangeUserPasswordCommand>,
     ICommandHandler<SendUserTokenCommand>,
     ICommandHandler<ValidateUserTokenCommand>,
-    ICommandHandler<ResetUserPasswordCommand>
+    ICommandHandler<ResetUserPasswordCommand>,
+    ICommandHandler<RefreshUserTokenCommand>
 {
     public async Task<Result> Handle(AddUserCommand request, CancellationToken cancellationToken)
     {
@@ -169,6 +171,23 @@ public sealed class UserCommandHandler(
         }
 
         return Result.CreateResponseWithData();
+    }
+
+    public async Task<Result> Handle(RefreshUserTokenCommand request, CancellationToken cancellationToken)
+    {
+        User? user = await repository.GetByIdAsync(request.UserId, cancellationToken);
+
+        if (user is null)
+        {
+            return Result.CreateResponseWithErrors([new Error("ApplicationError", User.UserNotFound)]);
+        }
+
+        var response = mapper.Map(user!);
+        response.AccessToken = tokenProvider.GenerateJwtToken(user!);
+        response.TokenExpiration = tokenProvider.GetJwtTokenExpiration(response.AccessToken);
+        response.RefreshToken = tokenProvider.GenerateJwtRefreshToken(user!);
+
+        return Result.CreateResponseWithData(response);
     }
 
     private bool ValidateUserAuthenticity(User? user, string password)

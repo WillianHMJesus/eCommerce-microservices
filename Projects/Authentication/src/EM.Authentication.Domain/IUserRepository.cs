@@ -9,6 +9,7 @@ public interface IUserRepository : IRepository<User>
     Task AddTokenAsync(UserToken userToken, CancellationToken cancellationToken);
     void Update(User user);
     void UpdateToken(UserToken userToken);
+    Task<User?> GetByIdAsync(Guid id,  CancellationToken cancellationToken);
     Task<User?> GetByEmailAsync(string emailAddress, CancellationToken cancellationToken);
     Task<Profile?> GetProfileByNameAsync(string profileName, CancellationToken cancellationToken);
     Task<UserToken?> GetTokenByIdAsync(Guid id, CancellationToken cancellationToken);
