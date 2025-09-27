@@ -5,7 +5,6 @@ using EM.Authentication.Application.Commands.RefreshUserToken;
 using EM.Authentication.Application.Commands.ResetUserPassword;
 using EM.Authentication.Application.Commands.SendUserToken;
 using EM.Authentication.Application.Commands.ValidateUserToken;
-using EM.Authentication.Application.Mappers;
 using EM.Authentication.Application.Providers;
 using EM.Authentication.Domain;
 using EM.Authentication.Domain.Entities;
@@ -13,16 +12,17 @@ using EM.Authentication.Domain.Notifications;
 using WH.SharedKernel;
 using WH.SharedKernel.Mediator;
 using WH.SharedKernel.ResourceManagers;
+using WH.SimpleMapper;
 
 namespace EM.Authentication.Application.Commands;
 
 public sealed class UserCommandHandler(
     IUserRepository repository,
-    IUserMapper mapper,
     IUnitOfWork unitOfWork,
     IPasswordProvider passwordProvider,
     ITokenProvider tokenProvider,
-    IUserEmailNotification emailService) :
+    IUserEmailNotification emailService,
+    IMapper mapper) :
     ICommandHandler<AddUserCommand>,
     ICommandHandler<AuthenticateUserCommand>,
     ICommandHandler<ChangeUserPasswordCommand>,
@@ -41,7 +41,7 @@ public sealed class UserCommandHandler(
         }
 
         string passwordHash = passwordProvider.HashPassword(request.Password);
-        User user = mapper.Map(request, passwordHash);
+        User user = mapper.Map<(AddUserCommand, string), User>((request, passwordHash));
         user.AddProfile(profile!);
 
         await repository.AddAsync(user, cancellationToken);
@@ -63,7 +63,7 @@ public sealed class UserCommandHandler(
             return Result.CreateResponseWithErrors([new Error("ApplicationError", User.EmailAddressOrPasswordIncorrect)]);
         }
 
-        var response = mapper.Map(user!);
+        var response = mapper.Map<User, UserResponse>(user!);
         response.AccessToken = tokenProvider.GenerateJwtToken(user!);
         response.TokenExpiration = tokenProvider.GetJwtTokenExpiration(response.AccessToken);
         response.RefreshToken = tokenProvider.GenerateJwtRefreshToken(user!);
@@ -104,7 +104,8 @@ public sealed class UserCommandHandler(
 
         var token = tokenProvider.GenerateSecurityToken();
         var tokenHash = passwordProvider.HashPassword(token);
-        var userToken = mapper.Map(user.Id, tokenHash, UserToken.SecurityTokenExpirationTimeInMinutes);
+        var userToken = mapper.Map<(Guid UserId, string TokenHash, short MinutesExpire), UserToken>(
+            (user.Id, tokenHash, UserToken.SecurityTokenExpirationTimeInMinutes));
 
         await repository.AddTokenAsync(userToken, cancellationToken);
 
@@ -182,7 +183,7 @@ public sealed class UserCommandHandler(
             return Result.CreateResponseWithErrors([new Error("ApplicationError", User.UserNotFound)]);
         }
 
-        var response = mapper.Map(user!);
+        var response = mapper.Map<User, UserResponse>(user!);
         response.AccessToken = tokenProvider.GenerateJwtToken(user!);
         response.TokenExpiration = tokenProvider.GetJwtTokenExpiration(response.AccessToken);
         response.RefreshToken = tokenProvider.GenerateJwtRefreshToken(user!);

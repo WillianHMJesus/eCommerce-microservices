@@ -102,6 +102,7 @@ public sealed class OauthEndpointsTests
     }
 
     [Fact]
+    [Trait("Test", "RefreshTokenAsync:ValidUser")]
     public async Task RefreshTokenAsync_ValidUser_ShouldReturnStatusCodeOk()
     {
         //Arrange
@@ -118,6 +119,7 @@ public sealed class OauthEndpointsTests
     }
 
     [Fact]
+    [Trait("Test", "RefreshTokenAsync:WithoutAccessToken")]
     public async Task RefreshTokenAsync_WithoutAccessToken_ShouldReturnStatusCodeUnauthorized()
     {
         //Arrange & Act
@@ -128,6 +130,7 @@ public sealed class OauthEndpointsTests
     }
 
     [Theory, AutoUserData]
+    [Trait("Test", "RefreshTokenAsync:InvalidAccessToken")]
     public async Task RefreshTokenAsync_InvalidAccessToken_ShouldReturnStatusCodeUnauthorized(string invalidAccessToken)
     {
         //Arrange
@@ -145,7 +148,7 @@ public sealed class OauthEndpointsTests
     {
         var request = new CredentialsRequest
         {
-            EmailAddress = "user@manager.com",
+            EmailAddress = "user@customer.com",
             Password = "123456Abc*"
         };
 

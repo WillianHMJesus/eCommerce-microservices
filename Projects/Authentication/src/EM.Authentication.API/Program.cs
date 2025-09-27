@@ -1,5 +1,5 @@
 using Carter;
-using EM.Authentication.API.DependencyInjection;
+using EM.Authentication.API.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 

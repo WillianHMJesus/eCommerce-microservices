@@ -1,10 +1,14 @@
 ﻿using EM.Authentication.Application.Commands.AddUser;
 using EM.Authentication.Domain;
 using EM.Authentication.Domain.Entities;
+using WH.SimpleMapper;
 
 namespace EM.Authentication.Application.Mappers;
 
-public sealed class UserMapper : IUserMapper
+public sealed class UserMapper :
+    ITypeMapper<User, UserResponse>,
+    ITypeMapper<(AddUserCommand Command, string PasswordHash), User>,
+    ITypeMapper<(Guid UserId, string TokenHash, short MinutesExpire), UserToken>
 {
     public UserResponse Map(User user)
     {
@@ -15,13 +19,18 @@ public sealed class UserMapper : IUserMapper
         };
     }
 
-    public User Map(AddUserCommand command, string passwordHash)
+    public User Map((AddUserCommand Command, string PasswordHash) source)
     {
-        return new User(command.UserName, command.EmailAddress, passwordHash);
+        return new User(source.Command.UserName, source.Command.EmailAddress, source.PasswordHash);
     }
 
-    public UserToken Map(Guid userId, string tokenHash, short minutesExpire)
+    public UserToken Map((Guid UserId, string TokenHash, short MinutesExpire) source)
     {
-        return new UserToken(userId, tokenHash, DateTime.Now, DateTime.Now.AddMinutes(minutesExpire));
+        return new UserToken(
+            source.UserId,
+            source.TokenHash,
+            DateTime.Now,
+            DateTime.Now.AddMinutes(source.MinutesExpire)
+        );
     }
 }

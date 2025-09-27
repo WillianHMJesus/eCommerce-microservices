@@ -1,20 +1,20 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using EM.Authentication.Application.Providers;
+using EM.Authentication.Domain;
+using EM.Authentication.Domain.Notifications;
+using EM.Authentication.Infraestructure;
+using EM.Authentication.Infraestructure.Notifications;
+using EM.Authentication.Infraestructure.Providers;
+using EM.Authentication.Infraestructure.Repositories;
+using EM.Authentication.Infraestructure.SettingsOptions;
 using FluentValidation;
 using Microsoft.AspNetCore.Identity;
-using WH.SharedKernel;
-using EM.Authentication.Domain;
-using EM.Authentication.Infraestructure.Repositories;
-using EM.Authentication.Infraestructure;
-using WH.SharedKernel.Mediator;
+using Microsoft.EntityFrameworkCore;
 using WH.Extensions.Microsoft.DependencyInjection;
-using EM.Authentication.Application.Mappers;
-using EM.Authentication.Infraestructure.Providers;
-using EM.Authentication.Application.Providers;
-using EM.Authentication.Domain.Notifications;
-using EM.Authentication.Infraestructure.Notifications;
-using EM.Authentication.Infraestructure.SettingsOptions;
+using WH.SharedKernel;
+using WH.SharedKernel.Mediator;
+using WH.SimpleMapper.Extensions.Microsoft.DependencyInjection;
 
-namespace EM.Authentication.API.DependencyInjection;
+namespace EM.Authentication.API.Extensions;
 
 public static class ServiceCollectionExtensions
 {
@@ -33,8 +33,8 @@ public static class ServiceCollectionExtensions
         });
 
         services.AddValidatorsFromAssembly(applicationAssembly);
+        services.AddSimpleMapper(applicationAssembly);
 
-        services.AddScoped<IUserMapper, UserMapper>();
         services.AddScoped<IPasswordProvider, PasswordProvider>();
         services.AddScoped<ITokenProvider, TokenProvider>();
         services.AddScoped(typeof(IPasswordHasher<>), typeof(PasswordHasher<>));

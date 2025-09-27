@@ -34,7 +34,7 @@ public sealed class UserMapperTests
         string passwordHash)
     {
         //Arrange & Act
-        var user = sut.Map(command, passwordHash);
+        var user = sut.Map((command, passwordHash));
 
         //Assert
         user.Should().BeOfType<User>();
@@ -51,7 +51,7 @@ public sealed class UserMapperTests
         string tokenHash)
     {
         //Arrange & Act
-        var user = sut.Map(userId, tokenHash, UserToken.SecurityTokenExpirationTimeInMinutes);
+        var user = sut.Map((userId, tokenHash, UserToken.SecurityTokenExpirationTimeInMinutes));
 
         //Assert
         user.Should().BeOfType<UserToken>();
