@@ -9,11 +9,11 @@ namespace EM.Authentication.Infraestructure.Notifications;
 
 public sealed class UserEmailNotification : IUserEmailNotification
 {
-    private readonly ISmtpEmailSender _emailSender;
+    private readonly IEmailSender _emailSender;
     private readonly EmailNotificationOptions _emailNotificationOptions;
 
     public UserEmailNotification(
-        ISmtpEmailSender emailSender,
+        IEmailSender emailSender,
         IOptions<EmailNotificationOptions> options)
     {
         _emailSender = emailSender;

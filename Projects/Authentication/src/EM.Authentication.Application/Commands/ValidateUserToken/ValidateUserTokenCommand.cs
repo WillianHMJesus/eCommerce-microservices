@@ -1,4 +1,4 @@
-﻿using WH.SharedKernel.Mediator;
+﻿using WH.SharedKernel.Abstractions;
 
 namespace EM.Authentication.Application.Commands.ValidateUserToken;
 

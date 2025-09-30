@@ -4,7 +4,7 @@ using WH.SharedKernel.Notifications;
 
 namespace EM.Authentication.IntegrationTests.MockServices;
 
-internal class SmtpEmailSenderMock : ISmtpEmailSender
+internal class SmtpEmailSenderMock : IEmailSender
 {
     public void Send(MailMessage message, string host, int port, NetworkCredential? credential = null)
     {

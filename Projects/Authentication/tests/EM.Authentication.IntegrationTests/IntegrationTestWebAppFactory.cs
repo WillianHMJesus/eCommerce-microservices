@@ -68,7 +68,7 @@ public sealed class IntegrationTestWebAppFactory
         string connectionString = _msSqlDbContainer.GetConnectionString().Replace("Database=master", "Database=Authentication");
         services.AddDbContext<AuthenticationContext>(options => options.UseSqlServer(connectionString));
 
-        var smtpEmailDescriptorType = typeof(ISmtpEmailSender);
+        var smtpEmailDescriptorType = typeof(IEmailSender);
         var smtpEmailDescriptor = services.SingleOrDefault(s => s.ServiceType == smtpEmailDescriptorType);
 
         if (smtpEmailDescriptor is not null)
@@ -76,7 +76,7 @@ public sealed class IntegrationTestWebAppFactory
             services.Remove(smtpEmailDescriptor);
         }
 
-        services.AddScoped<ISmtpEmailSender, SmtpEmailSenderMock>();
+        services.AddScoped<IEmailSender, SmtpEmailSenderMock>();
     }
 
     private async Task WaitUntilDatabaseIsResponsive(string connectionString)

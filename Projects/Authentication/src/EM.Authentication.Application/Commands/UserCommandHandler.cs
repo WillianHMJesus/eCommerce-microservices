@@ -10,7 +10,7 @@ using EM.Authentication.Domain;
 using EM.Authentication.Domain.Entities;
 using EM.Authentication.Domain.Notifications;
 using WH.SharedKernel;
-using WH.SharedKernel.Mediator;
+using WH.SharedKernel.Abstractions;
 using WH.SharedKernel.ResourceManagers;
 using WH.SimpleMapper;
 
