@@ -1,31 +1,38 @@
-﻿using EM.Catalog.Application.Categories.Validations;
-using EM.Common.Core.ResourceManagers;
+﻿using EM.Catalog.Domain;
+using EM.Catalog.Domain.Entities;
 using FluentValidation;
 
 namespace EM.Catalog.Application.Categories.Commands.AddCategory;
 
 public sealed class AddCategoryCommandValidator : AbstractValidator<AddCategoryCommand>
 {
-    private readonly ICategoryValidations _validations;
+    private readonly IProductRepository _repository;
 
-    public AddCategoryCommandValidator(ICategoryValidations validations)
+    public AddCategoryCommandValidator(IProductRepository repository)
     {
-        _validations = validations;
+        _repository = repository;
 
         RuleFor(x => x.Code)
             .GreaterThan(default(short))
-            .WithMessage(Key.CategoryCodeLessThanEqualToZero);
+            .WithMessage(Category.CodeLessThanEqualToZero);
 
         RuleFor(x => x.Name)
             .Must(x => !string.IsNullOrEmpty(x))
-            .WithMessage(Key.CategoryNameNullOrEmpty);
+            .WithMessage(Category.NameNullOrEmpty);
 
         RuleFor(x => x.Description)
            .Must(x => !string.IsNullOrEmpty(x))
-           .WithMessage(Key.CategoryDescriptionNullOrEmpty);
+           .WithMessage(Category.DescriptionNullOrEmpty);
 
         RuleFor(x => x)
-            .MustAsync(async (_, value, cancellationToken) => await _validations.ValidateDuplicityAsync(value, cancellationToken))
-            .WithMessage(Key.CategoryRegisterDuplicity);
+            .MustAsync(async (_, value, cancellationToken) => await ValidateCategoryHasAlreadyRegisteredAsync(value.Code, value.Name, cancellationToken))
+            .WithMessage(Category.CategoryHasAlreadyBeenRegistered);
+    }
+
+    private async Task<bool> ValidateCategoryHasAlreadyRegisteredAsync(short code, string name, CancellationToken cancellationToken)
+    {
+        var categories = await _repository.GetCategoriesByCodeOrName(code, name, cancellationToken);
+
+        return !categories.Any();
     }
 }

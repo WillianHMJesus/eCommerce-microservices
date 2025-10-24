@@ -1,17 +1,15 @@
 ﻿using AutoFixture;
 using AutoFixture.Xunit2;
-using EM.Catalog.Application.Categories.Models;
-using EM.Catalog.Application.Products.Commands.AddProduct;
-using EM.Catalog.Application.Products.Commands.UpdateProduct;
-using EM.Catalog.Application.Products.Models;
+using EM.Catalog.API.Models;
+using EM.Catalog.Application.Products;
 using EM.Catalog.IntegrationTests.Fixtures;
 using EM.Catalog.IntegrationTests.Helpers;
 using EM.Catalog.IntegrationTests.Models;
-using EM.Common.Core.ResourceManagers;
 using FluentAssertions;
 using System.Net;
 using System.Text;
 using System.Text.Json;
+using WH.SharedKernel.ResourceManagers;
 using Xunit.Priority;
 
 namespace EM.Catalog.IntegrationTests.API.Controllers;

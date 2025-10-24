@@ -1,7 +1,11 @@
-﻿using EM.Catalog.Application.Interfaces.Events;
+﻿using WH.SharedKernel;
 
 namespace EM.Catalog.Application.Categories.Events.CategoryUpdated;
 
-public sealed record CategoryUpdatedEvent(Guid Id, short Code, string Name, string Description) 
-    : IEvent
-{ }
+public sealed class CategoryUpdatedEvent : DomainEvent
+{
+    public Guid Id { get; set; }
+    public short Code { get; set; }
+    public string Name { get; set; } = "";
+    public string Description { get; set; } = "";
+}

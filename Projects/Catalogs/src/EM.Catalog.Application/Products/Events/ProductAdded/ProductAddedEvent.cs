@@ -1,8 +1,17 @@
-﻿using EM.Catalog.Application.Interfaces.Events;
-using EM.Catalog.Domain.Entities;
+﻿using EM.Catalog.Application.Categories;
+using WH.SharedKernel;
 
 namespace EM.Catalog.Application.Products.Events.ProductAdded;
 
-public sealed record ProductAddedEvent(Guid Id, string Name, string Description, decimal Value, short Quantity, string Image, bool Available, Category Category)
-    : IEvent
-{ }
+public sealed class ProductAddedEvent
+    : DomainEvent
+{
+    public Guid Id { get; set; }
+    public string Name { get; set; } = "";
+    public string Description { get; set; } = "";
+    public decimal Value { get; set; }
+    public short Quantity { get; set; }
+    public string Image { get; set; } = "";
+    public bool Available { get; set; }
+    public CategoryDTO Category { get; set; } = default!;
+}

@@ -3,35 +3,25 @@ using EM.Catalog.Application.Categories.Commands.UpdateCategory;
 using EM.Catalog.Application.Categories.Queries.GetAllCategories;
 using EM.Catalog.Application.Categories.Queries.GetCategoryById;
 using EM.Catalog.Application.Categories.Commands.DeleteCategory;
-using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using EM.Catalog.Application.Categories.Models;
-using AutoMapper;
-using EM.Common.Core.ResourceManagers;
+using WH.SharedKernel.Mediator;
+using EM.Catalog.API.Models;
 
 namespace EM.Catalog.API.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-public sealed class CategoriesController : ControllerBase
+public sealed class CategoriesController(IMediator mediator) : ControllerBase
 {
-    private readonly IMediator _mediator;
-    private readonly IMapper _mapper;
-
-    public CategoriesController(
-        IMediator mediator,
-        IMapper mapper)
-    {
-        _mediator = mediator;
-        _mapper = mapper;
-    }
-
-    #region Commands
     [HttpPost]
-    public async Task<IActionResult> AddAsync(CategoryRequest addCategoryRequest, CancellationToken cancellationToken)
+    public async Task<IActionResult> AddAsync(CategoryRequest request, CancellationToken cancellationToken)
     {
-        AddCategoryCommand addCategoryCommand = _mapper.Map<AddCategoryCommand>(addCategoryRequest);
-        Result result = await _mediator.Send(addCategoryCommand, cancellationToken);
+        var command = new AddCategoryCommand(
+            request.Code,
+            request.Name,
+            request.Description);
+
+        var result = await mediator.Send(command, cancellationToken);
 
         return !result.Success ?
             BadRequest(result.Errors) :
@@ -41,8 +31,9 @@ public sealed class CategoriesController : ControllerBase
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteAsync(Guid id, CancellationToken cancellationToken)
     {
-        DeleteCategoryCommand deleteCategoryCommand = new(id);
-        Result result = await _mediator.Send(deleteCategoryCommand, cancellationToken);
+        DeleteCategoryCommand command = new(id);
+
+        var result = await mediator.Send(command, cancellationToken);
 
         return !result.Success ?
             BadRequest(result.Errors) :
@@ -50,23 +41,26 @@ public sealed class CategoriesController : ControllerBase
     }
 
     [HttpPut("{id}")]
-    public async Task<IActionResult> UpdateAsync(Guid id, CategoryRequest categoryRequest, CancellationToken cancellationToken)
+    public async Task<IActionResult> UpdateAsync(Guid id, CategoryRequest request, CancellationToken cancellationToken)
     {
-        UpdateCategoryCommand updateCategoryCommand = _mapper.Map<UpdateCategoryCommand>((id, categoryRequest));
-        Result result = await _mediator.Send(updateCategoryCommand, cancellationToken);
+        var command = new UpdateCategoryCommand(
+            id,
+            request.Code,
+            request.Name,
+            request.Description);
+
+        var result = await mediator.Send(command, cancellationToken);
 
         return !result.Success ?
             BadRequest(result.Errors) :
             NoContent();
     }
-    #endregion
 
-    #region Queries
+
     [HttpGet]
     public async Task<IActionResult> GetAllAsync(short page, short pageSize, CancellationToken cancellationToken)
     {
-        IEnumerable<CategoryDTO?> categories = 
-            await _mediator.Send(new GetAllCategoriesQuery(page, pageSize), cancellationToken);
+        var categories = await mediator.Send(new GetAllCategoriesQuery(page, pageSize), cancellationToken);
 
         return Ok(categories);
     }
@@ -74,10 +68,8 @@ public sealed class CategoriesController : ControllerBase
     [HttpGet("{id}")]
     public async Task<IActionResult> GetByIdAsync(Guid id, CancellationToken cancellationToken)
     {
-        CategoryDTO? category = 
-            await _mediator.Send(new GetCategoryByIdQuery(id), cancellationToken);
+        var category = await mediator.Send(new GetCategoryByIdQuery(id), cancellationToken);
 
         return Ok(category);
     }
-    #endregion
 }

@@ -1,7 +1,5 @@
-﻿using EM.Catalog.Application.Interfaces;
+﻿using WH.SharedKernel.Abstractions;
 
 namespace EM.Catalog.Application.Categories.Commands.AddCategory;
 
-public sealed record AddCategoryCommand(short Code, string Name, string Description) 
-    : ICommand
-{ }
+public sealed record AddCategoryCommand(short Code, string Name, string Description) : ICommand;

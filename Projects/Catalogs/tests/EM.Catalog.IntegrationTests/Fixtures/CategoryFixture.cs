@@ -1,5 +1,5 @@
 ﻿using AutoFixture;
-using EM.Catalog.Application.Categories.Models;
+using EM.Catalog.API.Models;
 
 namespace EM.Catalog.IntegrationTests.Fixtures;
 

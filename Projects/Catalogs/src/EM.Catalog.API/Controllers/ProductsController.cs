@@ -4,38 +4,32 @@ using EM.Catalog.Application.Products.Queries.GetAllProducts;
 using EM.Catalog.Application.Products.Queries.GetProductById;
 using EM.Catalog.Application.Products.Queries.GetProductsByCategoryId;
 using EM.Catalog.Application.Products.Commands.DeleteProduct;
-using EM.Catalog.Application.Products.Commands.MakeAvailableProduct;
-using EM.Catalog.Application.Products.Commands.MakeUnavailableProduct;
-using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using EM.Catalog.Application.Products.Models;
-using AutoMapper;
-using EM.Common.Core.ResourceManagers;
 using EM.Catalog.Application.Products.Queries.SearchProducts;
+using EM.Catalog.Application.Products;
+using EM.Catalog.API.Models;
+using WH.SharedKernel.Mediator;
+using EM.Catalog.Application.Products.Commands.ReactivateProduct;
+using EM.Catalog.Application.Products.Commands.InactivateProduct;
 
 namespace EM.Catalog.API.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-public sealed class ProductsController : ControllerBase
+public sealed class ProductsController(IMediator mediator) : ControllerBase
 {
-    private readonly IMediator _mediator;
-    private readonly IMapper _mapper;
-
-    public ProductsController(
-        IMediator mediator,
-        IMapper mapper)
-    {
-        _mediator = mediator;
-        _mapper = mapper;
-    }
-
-    #region Commands
     [HttpPost]
-    public async Task<IActionResult> AddAsync(ProductRequest productRequest, CancellationToken cancellationToken)
+    public async Task<IActionResult> AddAsync(ProductRequest request, CancellationToken cancellationToken)
     {
-        AddProductCommand addProductCommand = _mapper.Map<AddProductCommand>(productRequest);
-        Result result = await _mediator.Send(addProductCommand, cancellationToken);
+        var command = new AddProductCommand(
+            request.Name,
+            request.Description,
+            request.Value,
+            request.Quantity,
+            request.Image,
+            request.CategoryId);
+
+        var result = await mediator.Send(command, cancellationToken);
 
         return !result.Success ? 
             BadRequest(result.Errors) : 
@@ -45,8 +39,9 @@ public sealed class ProductsController : ControllerBase
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteAsync(Guid id, CancellationToken cancellationToken)
     {
-        DeleteProductCommand deleteProductCommand = new(id);
-        Result result = await _mediator.Send(deleteProductCommand, cancellationToken);
+        var command = new DeleteProductCommand(id);
+
+        var result = await mediator.Send(command, cancellationToken);
 
         return !result.Success ?
             BadRequest(result.Errors) :
@@ -54,45 +49,53 @@ public sealed class ProductsController : ControllerBase
     }
 
     [HttpPut("{id}")]
-    public async Task<IActionResult> UpdateAsync(Guid id, ProductRequest productRequest, CancellationToken cancellationToken)
+    public async Task<IActionResult> UpdateAsync(Guid id, ProductRequest request, CancellationToken cancellationToken)
     {
-        UpdateProductCommand updateProductCommand = _mapper.Map<UpdateProductCommand>((id, productRequest));
-        Result result = await _mediator.Send(updateProductCommand, cancellationToken);
+        var command = new UpdateProductCommand(
+            id,
+            request.Name,
+            request.Description,
+            request.Value,
+            request.Quantity,
+            request.Image,
+            request.CategoryId);
+
+        var result = await mediator.Send(command, cancellationToken);
 
         return !result.Success ?
             BadRequest(result.Errors) :
             NoContent();
     }
 
-    [HttpPatch("make-available/{id}")]
+    [HttpPatch("reactivate/{id}")]
     public async Task<IActionResult> MakeAvailableAsync(Guid id, CancellationToken cancellationToken)
     {
-        MakeAvailableProductCommand makeAvailableProductCommand = new(id);
-        Result result = await _mediator.Send(makeAvailableProductCommand, cancellationToken);
+        var command = new ReactivateProductCommand(id);
+
+        var result = await mediator.Send(command, cancellationToken);
 
         return !result.Success ?
             BadRequest(result.Errors) :
             NoContent();
     }
 
-    [HttpPatch("make-unavailable/{id}")]
+    [HttpPatch("inactivate/{id}")]
     public async Task<IActionResult> MakeUnavailableAsync(Guid id, CancellationToken cancellationToken)
     {
-        MakeUnavailableProductCommand makeunavailableProductCommand = new(id);
-        Result result = await _mediator.Send(makeunavailableProductCommand, cancellationToken);
+        var command = new InactivateProductCommand(id);
+
+        var result = await mediator.Send(command, cancellationToken);
 
         return !result.Success ?
             BadRequest(result.Errors) :
             NoContent();
     }
-    #endregion
 
-    #region Queries
+
     [HttpGet]
     public async Task<IActionResult> GetAllAsync(short page, short pageSize, CancellationToken cancellationToken)
     {
-        IEnumerable<ProductDTO?> products = 
-            await _mediator.Send(new GetAllProductsQuery(page, pageSize), cancellationToken);
+        var products = await mediator.Send(new GetAllProductsQuery(page, pageSize), cancellationToken);
 
         return Ok(products);
     }
@@ -100,8 +103,7 @@ public sealed class ProductsController : ControllerBase
     [HttpGet("{id}")]
     public async Task<IActionResult> GetByIdAsync(Guid id, CancellationToken cancellationToken)
     {
-        ProductDTO? product = 
-            await _mediator.Send(new GetProductByIdQuery(id), cancellationToken);
+        var product = await mediator.Send(new GetProductByIdQuery(id), cancellationToken);
 
         return Ok(product);
     }
@@ -109,8 +111,7 @@ public sealed class ProductsController : ControllerBase
     [HttpGet("Category/{categoryId}")]
     public async Task<IActionResult> GetByCategoryIdAsync(Guid categoryId, short page, short pageSize, CancellationToken cancellationToken)
     {
-        IEnumerable<ProductDTO?> products = 
-            await _mediator.Send(new GetProductsByCategoryIdQuery(categoryId, page, pageSize), cancellationToken);
+        var products = await mediator.Send(new GetProductsByCategoryIdQuery(categoryId, page, pageSize), cancellationToken);
 
         return Ok(products);
     }
@@ -118,10 +119,8 @@ public sealed class ProductsController : ControllerBase
     [HttpGet("Search/{text}")]
     public async Task<IActionResult> SearchAsync(string text, short page, short pageSize, CancellationToken cancellationToken)
     {
-        IEnumerable<ProductDTO?> products = 
-            await _mediator.Send(new SearchProductsQuery(text, page, pageSize), cancellationToken);
+        var products = await mediator.Send(new SearchProductsQuery(text, page, pageSize), cancellationToken);
 
         return Ok(products);
     }
-    #endregion
 }

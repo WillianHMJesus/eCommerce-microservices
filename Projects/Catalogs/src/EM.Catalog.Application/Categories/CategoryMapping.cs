@@ -1,39 +1,47 @@
-﻿using AutoMapper;
-using EM.Catalog.Application.Categories.Commands.AddCategory;
+﻿using EM.Catalog.Application.Categories.Commands.AddCategory;
 using EM.Catalog.Application.Categories.Commands.UpdateCategory;
 using EM.Catalog.Application.Categories.Events.CategoryAdded;
 using EM.Catalog.Application.Categories.Events.CategoryUpdated;
-using EM.Catalog.Application.Categories.Models;
 using EM.Catalog.Domain.Entities;
+using WH.SimpleMapper;
 
 namespace EM.Catalog.Application.Categories;
 
-public sealed class CategoryMapping : Profile
+public sealed class CategoryMapping :
+    ITypeMapper<AddCategoryCommand, Category>,
+    ITypeMapper<UpdateCategoryCommand, Category>,
+    ITypeMapper<CategoryDTO, CategoryAddedEvent>,
+    ITypeMapper<CategoryDTO, CategoryUpdatedEvent>
 {
-    public CategoryMapping()
+    public Category Map(AddCategoryCommand command)
     {
-        CreateMap<CategoryRequest, AddCategoryCommand>();
-        CreateMap<Category, CategoryAddedEvent>().ReverseMap();
-        CreateMap<Category, CategoryUpdatedEvent>().ReverseMap();
-        CreateMap<Category, CategoryDTO>();
+        return Category.Create(command.Code, command.Name, command.Description);
+    }
 
-        CreateMap<(Guid, CategoryRequest), UpdateCategoryCommand>()
-            .ForCtorParam("Id", x => x.MapFrom(src => src.Item1))
-            .ForCtorParam("Code", x => x.MapFrom(src => src.Item2.Code))
-            .ForCtorParam("Name", x => x.MapFrom(src => src.Item2.Name))
-            .ForCtorParam("Description", x => x.MapFrom(src => src.Item2.Description));
+    public Category Map(UpdateCategoryCommand command)
+    {
+        return Category.Load(command.Id, command.Code, command.Name, command.Description);
+    }
 
-        CreateMap<AddCategoryCommand, Category>()
-            .ForCtorParam("code", x => x.MapFrom(src => src.Code))
-            .ForCtorParam("name", x => x.MapFrom(src => src.Name))
-            .ForCtorParam("description", x => x.MapFrom(src => src.Description))
-            .ForMember(x => x.Id, opt => opt.Ignore())
-            .ForMember(x => x.Active, opt => opt.Ignore());
+    CategoryAddedEvent ITypeMapper<CategoryDTO, CategoryAddedEvent>.Map(CategoryDTO category)
+    {
+        return new CategoryAddedEvent
+        {
+            Id = category.Id, 
+            Code = category.Code, 
+            Name = category.Name,
+            Description = category.Description
+        };
+    }
 
-        CreateMap<UpdateCategoryCommand, Category>()
-            .ForCtorParam("code", x => x.MapFrom(src => src.Code))
-            .ForCtorParam("name", x => x.MapFrom(src => src.Name))
-            .ForCtorParam("description", x => x.MapFrom(src => src.Description))
-            .ForMember(x => x.Active, opt => opt.Ignore()); ;
+    CategoryUpdatedEvent ITypeMapper<CategoryDTO, CategoryUpdatedEvent>.Map(CategoryDTO category)
+    {
+        return new CategoryUpdatedEvent
+        {
+            Id = category.Id,
+            Code = category.Code,
+            Name = category.Name,
+            Description = category.Description
+        };
     }
 }

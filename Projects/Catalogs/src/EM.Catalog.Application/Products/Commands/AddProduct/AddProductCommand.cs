@@ -1,4 +1,4 @@
-﻿using EM.Catalog.Application.Interfaces;
+﻿using WH.SharedKernel.Abstractions;
 
 namespace EM.Catalog.Application.Products.Commands.AddProduct;
 

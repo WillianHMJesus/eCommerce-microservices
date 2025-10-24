@@ -1,6 +1,5 @@
 ﻿using AutoFixture;
-using EM.Catalog.Application.Categories.Models;
-using EM.Catalog.Application.Products.Models;
+using EM.Catalog.API.Models;
 using Microsoft.AspNetCore.Mvc.Testing;
 
 namespace EM.Catalog.IntegrationTests.Fixtures;

@@ -1,4 +1,4 @@
-﻿using EM.Catalog.Domain.Entities;
+﻿using EM.Catalog.Domain;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -15,17 +15,17 @@ public sealed class ProductEntityTypeConfiguration : IEntityTypeConfiguration<Pr
         builder.Property(x => x.Name)
             .IsRequired()
             .HasColumnType("varchar")
-            .HasMaxLength(50);
+            .HasMaxLength(Product.NameMaxLenght);
 
         builder.Property(x => x.Description)
             .IsRequired()
             .HasColumnType("varchar")
-            .HasMaxLength(100);
+            .HasMaxLength(Product.DescriptionMaxLenght);
 
         builder.Property(x => x.Image)
             .IsRequired()
             .HasColumnType("varchar")
-            .HasMaxLength(50);
+            .HasMaxLength(Product.ImageMaxLenght);
 
         builder.HasOne(x => x.Category)
             .WithMany()

@@ -1,5 +1,4 @@
-﻿using EM.Catalog.Application.Interfaces;
-using EM.Catalog.Application.Products.Models;
+﻿using WH.SharedKernel.Abstractions;
 
 namespace EM.Catalog.Application.Products.Queries.GetProductById;
 

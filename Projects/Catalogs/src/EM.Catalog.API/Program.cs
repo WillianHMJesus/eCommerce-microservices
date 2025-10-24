@@ -1,13 +1,13 @@
-using EM.Catalog.API;
-using EM.Common.Extensions.DependencyInjection;
+using EM.Catalog.API.Extensions;
+using EM.Catalog.API.Middlewares;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddEMCommon(builder.Configuration);
 builder.Services.AddDependencyInjection(builder.Configuration);
+builder.Services.AddExceptionHandler<DomainExceptionHandler>();
 
 var app = builder.Build();
 

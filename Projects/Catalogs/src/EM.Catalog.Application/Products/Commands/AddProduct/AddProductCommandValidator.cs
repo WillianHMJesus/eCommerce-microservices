@@ -1,52 +1,61 @@
-﻿using EM.Catalog.Application.Categories.Validations;
-using EM.Catalog.Application.Products.Validations;
-using EM.Common.Core.ResourceManagers;
+﻿using EM.Catalog.Domain;
+using EM.Catalog.Domain.Entities;
 using FluentValidation;
 
 namespace EM.Catalog.Application.Products.Commands.AddProduct;
 
 public sealed class AddProductCommandValidator : AbstractValidator<AddProductCommand>
 {
-    private readonly IProductValidations _validations;
-    private readonly ICategoryValidations _categoryValidations;
+    private readonly IProductRepository _repository;
 
-    public AddProductCommandValidator(
-        IProductValidations validations,
-        ICategoryValidations categoryValidations)
+    public AddProductCommandValidator(IProductRepository repository)
 	{
-        _validations = validations;
-        _categoryValidations = categoryValidations;
+        _repository = repository;
 
 		RuleFor(x => x.Name)
             .Must(x => !string.IsNullOrEmpty(x))
-            .WithMessage(Key.ProductNameNullOrEmpty);
+            .WithMessage(Product.NameNullOrEmpty);
 
         RuleFor(x => x.Description)
             .Must(x => !string.IsNullOrEmpty(x))
-            .WithMessage(Key.ProductDescriptionNullOrEmpty);
+            .WithMessage(Product.DescriptionNullOrEmpty);
 
         RuleFor(x => x.Value)
             .GreaterThan(default(decimal))
-            .WithMessage(Key.ProductValueLessThanEqualToZero);
+            .WithMessage(Product.ValueLessThanEqualToZero);
 
         RuleFor(x => x.Quantity)
             .GreaterThan(default(short))
-            .WithMessage(Key.ProductQuantityLessThanEqualToZero);
+            .WithMessage(Product.QuantityAddedLessThanOrEqualToZero);
 
         RuleFor(x => x.Image)
             .Must(x => !string.IsNullOrEmpty(x))
-            .WithMessage(Key.ProductImageNullOrEmpty);
+            .WithMessage(Product.ImageNullOrEmpty);
 
         RuleFor(x => x.CategoryId)
             .NotEqual(Guid.Empty)
-            .WithMessage(Key.ProductInvalidCategoryId);
+            .WithMessage(Product.InvalidCategoryId);
 
         RuleFor(x => x.Name)
-            .MustAsync(async (_, value, cancellationToken) => await _validations.ValidateDuplicityAsync(value, cancellationToken))
-            .WithMessage(Key.ProductRegisterDuplicity);
+            .MustAsync(async (_, value, cancellationToken) => await ValidateHasAlreadyBeenRegisteredAsync(value, cancellationToken))
+            .WithMessage(Product.ProductHasAlreadyBeenRegistered);
 
         RuleFor(x => x.CategoryId)
-            .MustAsync(async (_, value, cancellationToken) => await _categoryValidations.ValidateCategoryIdAsync(value, cancellationToken))
-            .WithMessage(Key.ProductCategoryNotFound);
+            .MustAsync(async (_, value, cancellationToken) => await ValidateCategoryRegistrationAsync(value, cancellationToken))
+            .WithMessage(Category.CategoryNotFound);
+    }
+
+    private async Task<bool> ValidateHasAlreadyBeenRegisteredAsync(string name, CancellationToken cancellationToken)
+    {
+        var products = await _repository.GetByNameAsync(name, cancellationToken);
+
+        return !products.Any();
+    }
+
+    private async Task<bool> ValidateCategoryRegistrationAsync(Guid categoryId, CancellationToken cancellationToken)
+    {
+        var category = await _repository.GetCategoryByIdAsync(categoryId, cancellationToken);
+
+        return category is not null;
     }
 }

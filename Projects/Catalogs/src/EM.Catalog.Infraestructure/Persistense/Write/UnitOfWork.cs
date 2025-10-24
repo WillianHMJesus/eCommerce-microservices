@@ -1,4 +1,4 @@
-﻿using EM.Catalog.Domain.Interfaces;
+﻿using WH.SharedKernel;
 
 namespace EM.Catalog.Infraestructure.Persistense.Write;
 
@@ -7,7 +7,9 @@ public sealed class UnitOfWork : IUnitOfWork
     private readonly CatalogContext _writeContext;
 
     public UnitOfWork(CatalogContext writeContext)
-        => _writeContext = writeContext;
+    {
+        _writeContext = writeContext;
+    }
 
     public async Task<bool> CommitAsync(CancellationToken cancellationToken)
     {

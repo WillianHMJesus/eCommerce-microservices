@@ -15,11 +15,11 @@ public sealed class CategoryEntityTypeConfiguration : IEntityTypeConfiguration<C
         builder.Property(x => x.Name)
             .IsRequired()
             .HasColumnType("varchar")
-            .HasMaxLength(50);
+            .HasMaxLength(Category.NameMaxLenght);
 
         builder.Property(x => x.Description)
             .IsRequired()
             .HasColumnType("varchar")
-            .HasMaxLength(100);
+            .HasMaxLength(Category.DescriptionMaxLenght);
     }
 }

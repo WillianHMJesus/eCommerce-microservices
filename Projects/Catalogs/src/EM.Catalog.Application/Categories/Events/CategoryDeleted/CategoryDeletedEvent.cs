@@ -1,7 +1,8 @@
-﻿using EM.Catalog.Application.Interfaces.Events;
+﻿using WH.SharedKernel;
 
 namespace EM.Catalog.Application.Categories.Events.CategoryDeleted;
 
-public sealed record CategoryDeletedEvent(Guid Id)
-    : IEvent
-{ }
+public sealed class CategoryDeletedEvent : DomainEvent
+{
+    public Guid Id { get; set; }
+}
