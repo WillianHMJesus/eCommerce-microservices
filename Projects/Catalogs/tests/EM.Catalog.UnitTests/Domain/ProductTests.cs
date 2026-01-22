@@ -1,5 +1,6 @@
 ﻿using Bogus;
 using EM.Catalog.Domain;
+using EM.Catalog.Domain.Entities;
 using EM.Catalog.UnitTests.CustomAutoData;
 using FluentAssertions;
 using WH.SharedKernel;
@@ -184,6 +185,30 @@ public sealed class ProductTests
         domainException.Should().NotBeNull();
         domainException.Should().BeOfType<DomainException>();
         domainException.Message.Should().Be(Product.InvalidCategoryId);
+    }
+
+    [Theory, AutoProductData]
+    [Trait("Test", "SetCategory:ValidCategory")]
+    public void SetCategory_ValidCategory_ShouldSetCategory(Product product, Category category)
+    {
+        //Arrange & Act
+        product.SetCategory(category);
+
+        //Assert
+        product.Category.Should().Be(category);
+    }
+
+    [Theory, AutoProductData]
+    [Trait("Test", "SetCategory:NullCategory")]
+    public void SetCategory_NullCategory_ShouldReturnDomainException(Product product)
+    {
+        //Arrange & Act
+        Exception domainException = Record.Exception(() => product.SetCategory(null));
+
+        //Assert
+        domainException.Should().NotBeNull();
+        domainException.Should().BeOfType<DomainException>();
+        domainException.Message.Should().Be(Product.InvalidCategory);
     }
 
     [Theory, AutoProductData]

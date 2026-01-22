@@ -1,16 +1,17 @@
-﻿using EM.Catalog.Application.Products.Commands.AddProduct;
+﻿using EM.Catalog.API.Models;
+using EM.Catalog.Application.Products;
+using EM.Catalog.Application.Products.Commands.AddProduct;
+using EM.Catalog.Application.Products.Commands.DeleteProduct;
+using EM.Catalog.Application.Products.Commands.InactivateProduct;
+using EM.Catalog.Application.Products.Commands.ReactivateProduct;
 using EM.Catalog.Application.Products.Commands.UpdateProduct;
 using EM.Catalog.Application.Products.Queries.GetAllProducts;
 using EM.Catalog.Application.Products.Queries.GetProductById;
 using EM.Catalog.Application.Products.Queries.GetProductsByCategoryId;
-using EM.Catalog.Application.Products.Commands.DeleteProduct;
-using Microsoft.AspNetCore.Mvc;
 using EM.Catalog.Application.Products.Queries.SearchProducts;
-using EM.Catalog.Application.Products;
-using EM.Catalog.API.Models;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using WH.SharedKernel.Mediator;
-using EM.Catalog.Application.Products.Commands.ReactivateProduct;
-using EM.Catalog.Application.Products.Commands.InactivateProduct;
 
 namespace EM.Catalog.API.Controllers;
 
@@ -19,6 +20,7 @@ namespace EM.Catalog.API.Controllers;
 public sealed class ProductsController(IMediator mediator) : ControllerBase
 {
     [HttpPost]
+    [Authorize(Roles = "AddProduct")]
     public async Task<IActionResult> AddAsync(ProductRequest request, CancellationToken cancellationToken)
     {
         var command = new AddProductCommand(
@@ -37,6 +39,7 @@ public sealed class ProductsController(IMediator mediator) : ControllerBase
     }
 
     [HttpDelete("{id}")]
+    [Authorize(Roles = "DeleteCategory")]
     public async Task<IActionResult> DeleteAsync(Guid id, CancellationToken cancellationToken)
     {
         var command = new DeleteProductCommand(id);
@@ -49,6 +52,7 @@ public sealed class ProductsController(IMediator mediator) : ControllerBase
     }
 
     [HttpPut("{id}")]
+    [Authorize(Roles = "UpdateProduct")]
     public async Task<IActionResult> UpdateAsync(Guid id, ProductRequest request, CancellationToken cancellationToken)
     {
         var command = new UpdateProductCommand(
@@ -68,7 +72,8 @@ public sealed class ProductsController(IMediator mediator) : ControllerBase
     }
 
     [HttpPatch("reactivate/{id}")]
-    public async Task<IActionResult> MakeAvailableAsync(Guid id, CancellationToken cancellationToken)
+    [Authorize(Roles = "ReactivateProduct")]
+    public async Task<IActionResult> ReactivateAsync(Guid id, CancellationToken cancellationToken)
     {
         var command = new ReactivateProductCommand(id);
 
@@ -80,7 +85,8 @@ public sealed class ProductsController(IMediator mediator) : ControllerBase
     }
 
     [HttpPatch("inactivate/{id}")]
-    public async Task<IActionResult> MakeUnavailableAsync(Guid id, CancellationToken cancellationToken)
+    [Authorize(Roles = "InactivateProduct")]
+    public async Task<IActionResult> InactivateAsync(Guid id, CancellationToken cancellationToken)
     {
         var command = new InactivateProductCommand(id);
 

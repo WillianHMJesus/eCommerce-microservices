@@ -5,6 +5,7 @@ using Bogus;
 using EM.Catalog.Application.Products.Commands.AddProduct;
 using EM.Catalog.Application.Products.Commands.UpdateProduct;
 using EM.Catalog.Domain;
+using EM.Catalog.Domain.Entities;
 using Moq;
 using WH.SimpleMapper;
 
@@ -25,6 +26,9 @@ public class AutoProductDataAttribute : AutoDataAttribute
         fixture.Register(() => faker);
 
         var product = fixture.Create<Product>();
+        var category = fixture.Create<Category>();
+
+        product.SetCategory(category);
         fixture.Register(() => product);
 
         fixture.Freeze<Mock<IMapper>>().Setup(x =>

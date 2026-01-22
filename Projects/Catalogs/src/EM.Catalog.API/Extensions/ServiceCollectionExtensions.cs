@@ -37,7 +37,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IUnitOfWork, UnitOfWork>();
         services.AddScoped(provider =>
         {
-            return new ElasticsearchClient(new Uri(configuration.GetValue<string>("ElasticSearch.ConnectionString")!));
+            return new ElasticsearchClient(new Uri(configuration["ElasticSearch:ConnectionString"] ?? ""));
         });
 
         services.AddAuthenticationJwt(configuration["Jwt:SecretKey"] ?? "");

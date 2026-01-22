@@ -1,4 +1,5 @@
-﻿using EM.Catalog.Application.Products.Commands.AddProduct;
+﻿using EM.Catalog.Application.Categories;
+using EM.Catalog.Application.Products.Commands.AddProduct;
 using EM.Catalog.Application.Products.Commands.UpdateProduct;
 using EM.Catalog.Application.Products.Events.ProductAdded;
 using EM.Catalog.Application.Products.Events.ProductUpdated;
@@ -10,8 +11,10 @@ namespace EM.Catalog.Application.Products;
 public sealed class ProductMapping :
     ITypeMapper<AddProductCommand, Product>,
     ITypeMapper<UpdateProductCommand, Product>,
-    ITypeMapper<ProductDTO, ProductAddedEvent>,
-    ITypeMapper<ProductDTO, ProductUpdatedEvent>
+    ITypeMapper<Product, ProductAddedEvent>,
+    ITypeMapper<Product, ProductUpdatedEvent>,
+    ITypeMapper<ProductAddedEvent, ProductDTO>,
+    ITypeMapper<ProductUpdatedEvent, ProductDTO>
 {
     public Product Map(AddProductCommand command)
     {
@@ -23,7 +26,7 @@ public sealed class ProductMapping :
         return Product.Load(command.Id, command.Name, command.Description, command.Value, command.Image, command.CategoryId);
     }
 
-    ProductAddedEvent ITypeMapper<ProductDTO, ProductAddedEvent>.Map(ProductDTO product)
+    ProductAddedEvent ITypeMapper<Product, ProductAddedEvent>.Map(Product product)
     {
         return new ProductAddedEvent
         {
@@ -34,11 +37,15 @@ public sealed class ProductMapping :
             Image = product.Image,
             Quantity = product.Quantity,
             Available = product.Available,
-            Category = product.Category
+            Category = new CategoryDTO(
+                product.Category.Id,
+                product.Category!.Code,
+                product.Category.Name,
+                product.Category.Description)
         };
     }
 
-    ProductUpdatedEvent ITypeMapper<ProductDTO, ProductUpdatedEvent>.Map(ProductDTO product)
+    ProductUpdatedEvent ITypeMapper<Product, ProductUpdatedEvent>.Map(Product product)
     {
         return new ProductUpdatedEvent
         {
@@ -49,7 +56,27 @@ public sealed class ProductMapping :
             Image = product.Image,
             Quantity = product.Quantity,
             Available = product.Available,
-            Category = product.Category
+            Category = new CategoryDTO(
+                product.Category.Id,
+                product.Category!.Code,
+                product.Category.Name,
+                product.Category.Description)
+        };
+    }
+
+    public ProductDTO Map(ProductAddedEvent _event)
+    {
+        return new ProductDTO(_event.Id, _event.Name, _event.Description, _event.Value, _event.Quantity, _event.Image, _event.Available)
+        { 
+            Category = _event.Category
+        };
+    }
+
+    public ProductDTO Map(ProductUpdatedEvent _event)
+    {
+        return new ProductDTO(_event.Id, _event.Name, _event.Description, _event.Value, _event.Quantity, _event.Image, _event.Available)
+        {
+            Category = _event.Category
         };
     }
 }

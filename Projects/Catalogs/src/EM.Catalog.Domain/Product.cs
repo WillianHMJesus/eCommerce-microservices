@@ -14,6 +14,7 @@ public class Product : BaseEntity, IAggregateRoot
     public const string ErrorSavingProduct = "An error occurred while saving the product";
     public const string ImageNullOrEmpty = "The image cannot be null or empty";
     public const string InvalidCategoryId = "Tha categoryId is invalid";
+    public const string InvalidCategory = "Tha category is invalid";
     public const string DescriptionNullOrEmpty = "The description cannot be null or empty";
     public const string ValueLessThanEqualToZero = "The value cannot be less than or equal to zero";
     public const string QuantityDebitedLessThanOrEqualToZero = "The quantity debited cannot be less than or equal to zero";
@@ -45,7 +46,7 @@ public class Product : BaseEntity, IAggregateRoot
     public string Image { get; init; } = ""!;
     public bool Available { get; private set; }
     public Guid CategoryId { get; init; }
-    public Category? Category { get; private set; }
+    public Category Category { get; private set; } = default!;
 
     public static Product Create(string name, string description, decimal value, string image, Guid categoryId)
     {
@@ -67,6 +68,12 @@ public class Product : BaseEntity, IAggregateRoot
         AssertionConcern.ValidateNullOrEmpty(Image, ImageNullOrEmpty);
         AssertionConcern.ValidateMaxLength(Image, ImageMaxLenght, ImageMaxLenghtError);
         AssertionConcern.ValidateNullOrDefault(CategoryId, InvalidCategoryId);
+    }
+
+    public void SetCategory(Category category)
+    {
+        AssertionConcern.ValidateNullOrDefault(category, InvalidCategory);
+        Category = category;
     }
 
     public void Reactivate() => Available = true;

@@ -51,13 +51,13 @@ public sealed class ProductMappingTest
     }
 
     [Theory, AutoProductData]
-    [Trait("Test", "Map:ProductDTOToProductAddedEvent")]
-    public void Map_ProductDTOToProductAddedEvent_ShouldReturnValidProductAddedEvent(
+    [Trait("Test", "Map:ProductToProductAddedEvent")]
+    public void Map_ProductToProductAddedEvent_ShouldReturnValidProductAddedEvent(
         ProductMapping sut,
-        ProductDTO product)
+        Product product)
     {
         //Arrange
-        ITypeMapper<ProductDTO, ProductAddedEvent> mapper = sut;
+        ITypeMapper<Product, ProductAddedEvent> mapper = sut;
 
         //Arrange & Act
         var command = mapper.Map(product);
@@ -71,17 +71,20 @@ public sealed class ProductMappingTest
         command.Image.Should().Be(product.Image);
         command.Quantity.Should().Be(product.Quantity);
         command.Available.Should().Be(product.Available);
-        command.Category.Should().Be(product.Category);
+        command.Category.Id.Should().Be(product.Category.Id);
+        command.Category.Code.Should().Be(product.Category.Code);
+        command.Category.Name.Should().Be(product.Category.Name);
+        command.Category.Description.Should().Be(product.Category.Description);
     }
 
     [Theory, AutoProductData]
-    [Trait("Test", "Map:ProductDTOToProductUpdatedEvent")]
-    public void Map_ProductDTOToProductUpdatedEvent_ShouldReturnValidProductUpdatedEvent(
+    [Trait("Test", "Map:ProductToProductUpdatedEvent")]
+    public void Map_ProductToProductUpdatedEvent_ShouldReturnValidProductUpdatedEvent(
         ProductMapping sut,
-        ProductDTO product)
+        Product product)
     {
         //Arrange
-        ITypeMapper<ProductDTO, ProductUpdatedEvent> mapper = sut;
+        ITypeMapper<Product, ProductUpdatedEvent> mapper = sut;
 
         //Act
         var command = mapper.Map(product);
@@ -95,6 +98,57 @@ public sealed class ProductMappingTest
         command.Image.Should().Be(product.Image);
         command.Quantity.Should().Be(product.Quantity);
         command.Available.Should().Be(product.Available);
-        command.Category.Should().Be(product.Category);
+        command.Category.Id.Should().Be(product.Category.Id);
+        command.Category.Code.Should().Be(product.Category.Code);
+        command.Category.Name.Should().Be(product.Category.Name);
+        command.Category.Description.Should().Be(product.Category.Description);
+    }
+
+    [Theory, AutoProductData]
+    [Trait("Test", "Map:ProductAddedEventToProductDTO")]
+    public void Map_ProductAddedEventToProductDTO_ShouldReturnValidProductDTO(
+        ProductMapping sut,
+        ProductAddedEvent _event)
+    {
+        //Arrange & Act
+        var product = sut.Map(_event);
+
+        //Assert
+        product.Should().BeOfType<ProductDTO>();
+        product.Id.Should().Be(_event.Id);
+        product.Name.Should().Be(_event.Name);
+        product.Description.Should().Be(_event.Description);
+        product.Value.Should().Be(_event.Value);
+        product.Quantity.Should().Be(_event.Quantity);
+        product.Image.Should().Be(_event.Image);
+        product.Available.Should().Be(_event.Available);
+        product.Category.Id.Should().Be(_event.Category.Id);
+        product.Category.Code.Should().Be(_event.Category.Code);
+        product.Category.Name.Should().Be(_event.Category.Name);
+        product.Category.Description.Should().Be(_event.Category.Description);
+    }
+
+    [Theory, AutoProductData]
+    [Trait("Test", "Map:ProductUpdatedEventToProductDTO")]
+    public void Map_ProductUpdatedEventToProductDTO_ShouldReturnValidProductDTO(
+        ProductMapping sut,
+        ProductUpdatedEvent _event)
+    {
+        //Arrange & Act
+        var product = sut.Map(_event);
+
+        //Assert
+        product.Should().BeOfType<ProductDTO>();
+        product.Id.Should().Be(_event.Id);
+        product.Name.Should().Be(_event.Name);
+        product.Description.Should().Be(_event.Description);
+        product.Value.Should().Be(_event.Value);
+        product.Quantity.Should().Be(_event.Quantity);
+        product.Image.Should().Be(_event.Image);
+        product.Available.Should().Be(_event.Available);
+        product.Category.Id.Should().Be(_event.Category.Id);
+        product.Category.Code.Should().Be(_event.Category.Code);
+        product.Category.Name.Should().Be(_event.Category.Name);
+        product.Category.Description.Should().Be(_event.Category.Description);
     }
 }

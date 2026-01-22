@@ -2,31 +2,51 @@ services:
 
   mssql:
     container_name: mssql
-    build: ./docker-images/SqlServer
+    build: ./docker-images/sqlserver
     restart: always
     networks:
       - database
     ports:
       - 1433:1433
 
-  mongodb:
-    container_name: mongodb
-    build: ./docker-images/MongoDb
+  elasticsearch:
+    container_name: elasticsearch
+    build: ./docker-images/elasticsearch
     restart: always
     networks:
       - nosql
     ports:
-      - 27017:27017
+      - 9200:9200
 
-  rabbitmq:
-    container_name: rabbitmq
-    build: ./docker-images/RabbitMq
+  kibana:
+    container_name: kibana
+    build: ./docker-images/kibana
     restart: always
     networks:
-      - message-broker
+      - nosql
     ports:
-      - 5672:5672
-      - 15672:15672
+      - 5601:5601
+    depends_on:
+      - elasticsearch
+
+  # mongodb:
+  #   container_name: mongodb
+  #   build: ./docker-images/MongoDb
+  #   restart: always
+  #   networks:
+  #     - nosql
+  #   ports:
+  #     - 27017:27017
+
+  # rabbitmq:
+  #   container_name: rabbitmq
+  #   build: ./docker-images/RabbitMq
+  #   restart: always
+  #   networks:
+  #     - message-broker
+  #   ports:
+  #     - 5672:5672
+  #     - 15672:15672
 
   authentication-api:
     container_name: authentication-api
@@ -45,57 +65,57 @@ services:
     depends_on:
       - mssql
 
-  catalog-api:
-    container_name: catalog-api
-    image: ${DOCKER_REGISTRY-}catalog-api
-    restart: always
-    environment:
-      - ASPNETCORE_ENVIRONMENT=Production
-    networks:
-      - application
-      - database
-      - nosql
-    ports:
-      - "7274:7274"
-    build:
-      context: .
-      dockerfile: Projects/Catalogs/Dockerfile
-    depends_on:
-      - mssql
-      - mongodb
+  # catalog-api:
+  #   container_name: catalog-api
+  #   image: ${DOCKER_REGISTRY-}catalog-api
+  #   restart: always
+  #   environment:
+  #     - ASPNETCORE_ENVIRONMENT=Production
+  #   networks:
+  #     - application
+  #     - database
+  #     - nosql
+  #   ports:
+  #     - "7274:7274"
+  #   build:
+  #     context: .
+  #     dockerfile: Projects/Catalogs/Dockerfile
+  #   depends_on:
+  #     - mssql
+  #     - mongodb
 
-  cart-api:
-    container_name: cart-api
-    image: ${DOCKER_REGISTRY-}cart-api
-    restart: always
-    environment:
-      - ASPNETCORE_ENVIRONMENT=Production
-    networks:
-      - application
-      - nosql
-    ports:
-      - "7292:7292"
-    build:
-      context: .
-      dockerfile: Projects/Carts/Dockerfile
-    depends_on:
-      - mongodb
+  # cart-api:
+  #   container_name: cart-api
+  #   image: ${DOCKER_REGISTRY-}cart-api
+  #   restart: always
+  #   environment:
+  #     - ASPNETCORE_ENVIRONMENT=Production
+  #   networks:
+  #     - application
+  #     - nosql
+  #   ports:
+  #     - "7292:7292"
+  #   build:
+  #     context: .
+  #     dockerfile: Projects/Carts/Dockerfile
+  #   depends_on:
+  #     - mongodb
 
-  payment-worker:
-    container_name: payment-worker
-    image: ${DOCKER_REGISTRY-}payment-worker
-    restart: always
-    environment:
-      - ASPNETCORE_ENVIRONMENT=Production
-    networks:
-      - database
-      - message-broker
-    build:
-      context: .
-      dockerfile: Projects/Payments/Dockerfile
-    depends_on:
-      - mssql
-      - rabbitmq
+  # payment-worker:
+  #   container_name: payment-worker
+  #   image: ${DOCKER_REGISTRY-}payment-worker
+  #   restart: always
+  #   environment:
+  #     - ASPNETCORE_ENVIRONMENT=Production
+  #   networks:
+  #     - database
+  #     - message-broker
+  #   build:
+  #     context: .
+  #     dockerfile: Projects/Payments/Dockerfile
+  #   depends_on:
+  #     - mssql
+  #     - rabbitmq
 
 networks:
   database:

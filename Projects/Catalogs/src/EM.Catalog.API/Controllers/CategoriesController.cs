@@ -6,6 +6,7 @@ using EM.Catalog.Application.Categories.Commands.DeleteCategory;
 using Microsoft.AspNetCore.Mvc;
 using WH.SharedKernel.Mediator;
 using EM.Catalog.API.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace EM.Catalog.API.Controllers;
 
@@ -14,6 +15,7 @@ namespace EM.Catalog.API.Controllers;
 public sealed class CategoriesController(IMediator mediator) : ControllerBase
 {
     [HttpPost]
+    [Authorize(Roles = "AddCategory")]
     public async Task<IActionResult> AddAsync(CategoryRequest request, CancellationToken cancellationToken)
     {
         var command = new AddCategoryCommand(
@@ -29,6 +31,7 @@ public sealed class CategoriesController(IMediator mediator) : ControllerBase
     }
 
     [HttpDelete("{id}")]
+    [Authorize(Roles = "DeleteCategory")]
     public async Task<IActionResult> DeleteAsync(Guid id, CancellationToken cancellationToken)
     {
         DeleteCategoryCommand command = new(id);
@@ -41,6 +44,7 @@ public sealed class CategoriesController(IMediator mediator) : ControllerBase
     }
 
     [HttpPut("{id}")]
+    [Authorize(Roles = "UpdateProduct")]
     public async Task<IActionResult> UpdateAsync(Guid id, CategoryRequest request, CancellationToken cancellationToken)
     {
         var command = new UpdateCategoryCommand(

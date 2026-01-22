@@ -7,7 +7,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddDependencyInjection(builder.Configuration);
-builder.Services.AddExceptionHandler<DomainExceptionHandler>();
+//builder.Services.AddExceptionHandler<DomainExceptionHandler>();
 
 var app = builder.Build();
 

@@ -47,13 +47,13 @@ public sealed class CategoryMappingTest
     }
 
     [Theory, AutoCategoryData]
-    [Trait("Test", "Map:CategoryDTOToCategoryAddedEvent")]
-    public void Map_CategoryDTOToCategoryAddedEvent_ShouldReturnValidCategoryAddedEvent(
+    [Trait("Test", "Map:CategoryToCategoryAddedEvent")]
+    public void Map_CategoryToCategoryAddedEvent_ShouldReturnValidCategoryAddedEvent(
         CategoryMapping sut,
-        CategoryDTO category)
+        Category category)
     {
         //Arrange
-        ITypeMapper<CategoryDTO, CategoryAddedEvent> mapper = sut;
+        ITypeMapper<Category, CategoryAddedEvent> mapper = sut;
 
         //Arrange & Act
         var command = mapper.Map(category);
@@ -67,13 +67,13 @@ public sealed class CategoryMappingTest
     }
 
     [Theory, AutoCategoryData]
-    [Trait("Test", "Map:CategoryDTOToCategoryUpdatedEvent")]
-    public void Map_CategoryDTOToCategoryUpdatedEvent_ShouldReturnValidCategoryUpdatedEvent(
+    [Trait("Test", "Map:CategoryToCategoryUpdatedEvent")]
+    public void Map_CategoryToCategoryUpdatedEvent_ShouldReturnValidCategoryUpdatedEvent(
         CategoryMapping sut,
-        CategoryDTO category)
+        Category category)
     {
         //Arrange
-        ITypeMapper<CategoryDTO, CategoryUpdatedEvent> mapper = sut;
+        ITypeMapper<Category, CategoryUpdatedEvent> mapper = sut;
 
         //Act
         var command = mapper.Map(category);
@@ -84,5 +84,39 @@ public sealed class CategoryMappingTest
         command.Code.Should().Be(category.Code);
         command.Name.Should().Be(category.Name);
         command.Description.Should().Be(category.Description);
+    }
+
+    [Theory, AutoCategoryData]
+    [Trait("Test", "Map:CategoryAddedEventToCategoryDTO")]
+    public void Map_CategoryAddedEventToCategoryDTO_ShouldReturnValidCategoryDTO(
+        CategoryMapping sut,
+        CategoryAddedEvent _event)
+    {
+        //Arrange & Act
+        var category = sut.Map(_event);
+
+        //Assert
+        category.Should().BeOfType<CategoryDTO>();
+        category.Id.Should().Be(_event.Id);
+        category.Code.Should().Be(_event.Code);
+        category.Name.Should().Be(_event.Name);
+        category.Description.Should().Be(_event.Description);
+    }
+
+    [Theory, AutoCategoryData]
+    [Trait("Test", "Map:CategoryUpdatedEventToCategoryDTO")]
+    public void Map_CategoryUpdatedEventToCategoryDTO_ShouldReturnValidCategoryDTO(
+        CategoryMapping sut,
+        CategoryUpdatedEvent _event)
+    {
+        //Arrange & Act
+        var category = sut.Map(_event);
+
+        //Assert
+        category.Should().BeOfType<CategoryDTO>();
+        category.Id.Should().Be(_event.Id);
+        category.Code.Should().Be(_event.Code);
+        category.Name.Should().Be(_event.Name);
+        category.Description.Should().Be(_event.Description);
     }
 }
