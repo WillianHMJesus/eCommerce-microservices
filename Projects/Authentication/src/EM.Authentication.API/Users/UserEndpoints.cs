@@ -1,4 +1,5 @@
-﻿using Carter;
+﻿using Azure.Core;
+using Carter;
 using EM.Authentication.API.Users.RequestModels;
 using EM.Authentication.Application.Commands.AddUser;
 using EM.Authentication.Application.Commands.ChangeUserPassword;
@@ -6,6 +7,7 @@ using EM.Authentication.Application.Commands.ResetUserPassword;
 using EM.Authentication.Application.Commands.SendUserToken;
 using EM.Authentication.Application.Commands.ValidateUserToken;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 using WH.SharedKernel.Mediator;
 
 namespace EM.Authentication.API.Users;
@@ -79,8 +81,14 @@ public sealed class UserEndpoints : ICarterModule
 
     private static async Task<IResult> ChangeUserPasswordAsync(
         [FromBody] ChangeUserPasswordRequest request,
-        [FromServices] IMediator mediator)
+        [FromServices] IMediator mediator,
+        ClaimsPrincipal user)
     {
+        if (!ValidateProfileAndEmail(user, request.EmailAddress))
+        {
+            return Results.Forbid();
+        }
+
         var command = new ChangeUserPasswordCommand(
             request.EmailAddress,
             request.OldPassword,
@@ -136,5 +144,13 @@ public sealed class UserEndpoints : ICarterModule
         return result.Success
             ? Results.Ok(result.Data)
             : Results.BadRequest(result.Errors);
+    }
+
+    private static bool ValidateProfileAndEmail(ClaimsPrincipal user, string emailAddress)
+    {
+        var emailAddressLogged = user.FindFirst(ClaimTypes.Email)?.Value;
+
+        return user.HasClaim(ClaimTypes.Role, "ChangeUserPassword") ||
+            emailAddressLogged == emailAddress;
     }
 }
