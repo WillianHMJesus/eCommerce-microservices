@@ -78,6 +78,11 @@ insert into [Roles] ([Id], [Name]) values (@roleId, 'AddUser');
 insert into [Profile_Roles] ([ProfileId], [RoleId]) values (@managerProfileId, @roleId);
 set @roleId = newid();
 
+insert into [Roles] ([Id], [Name]) values (@roleId, 'ChangeUserPassword');
+
+insert into [Profile_Roles] ([ProfileId], [RoleId]) values (@managerProfileId, @roleId);
+set @roleId = newid();
+
 insert into [Roles] ([Id], [Name]) values (@roleId, 'AddCategory');
 
 insert into [Profile_Roles] ([ProfileId], [RoleId]) values (@managerProfileId, @roleId);
@@ -108,12 +113,12 @@ insert into [Roles] ([Id], [Name]) values (@roleId, 'UpdateProduct');
 insert into [Profile_Roles] ([ProfileId], [RoleId]) values (@managerProfileId, @roleId);
 set @roleId = newid();
 
-insert into [Roles] ([Id], [Name]) values (@roleId, 'MakeAvailableProduct');
+insert into [Roles] ([Id], [Name]) values (@roleId, 'ReactivateProduct');
 
 insert into [Profile_Roles] ([ProfileId], [RoleId]) values (@managerProfileId, @roleId);
 set @roleId = newid();
 
-insert into [Roles] ([Id], [Name]) values (@roleId, 'MakeUnavailableProduct');
+insert into [Roles] ([Id], [Name]) values (@roleId, 'InactivateProduct');
 
 insert into [Profile_Roles] ([ProfileId], [RoleId]) values (@managerProfileId, @roleId);
 go
@@ -149,7 +154,6 @@ create table [Categories](
 	[Code] smallint not null,
 	[Name] varchar(50) not null,
 	[Description] varchar(100) not null,
-	[Active] bit not null,
 
 	constraint [PK_Categories] primary key ([Id])
 );
@@ -163,7 +167,6 @@ create table [Products](
 	[Quantity] smallint not null,
 	[Image] varchar(50) not null,
 	[Available] bit not null,
-	[Active] bit not null,
 	[CategoryId] uniqueidentifier not null,
 
 	constraint [PK_Products] primary key ([Id]),
